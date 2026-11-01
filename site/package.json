@@ -1,0 +1,12 @@
+{
+  "name": "designed-by-kyle-site",
+  "private": true,
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "capture": "node reference/capture.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.49.0"
+  }
+}

@@ -2,7 +2,7 @@
   {
     "id": "1793528448647-up5p8",
     "url": "https://kyletran.framer.website/",
-    "outputName": "kyletran.framer.website",
+    "outputName": "kyletran",
     "status": "error",
     "error": "browserType.launch: Executable doesn't exist at /Users/kyletran/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell\n╔════════════════════════════════════════════════════════════╗\n║ Looks like Playwright was just installed or updated.       ║\n║ Please run the following command to download new browsers: ║\n║                                                            ║\n║     npx playwright install                                 ║\n║                                                            ║\n║ <3 Playwright Team                                         ║\n╚════════════════════════════════════════════════════════════╝",
     "events": [
@@ -35,7 +35,7 @@
   {
     "id": "1793528506700-a6fji",
     "url": "https://kyletran.framer.website/",
-    "outputName": "kyletran.framer.website",
+    "outputName": "kyletran",
     "status": "error",
     "error": "browserType.launch: Executable doesn't exist at /Users/kyletran/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell\n╔════════════════════════════════════════════════════════════╗\n║ Looks like Playwright was just installed or updated.       ║\n║ Please run the following command to download new browsers: ║\n║                                                            ║\n║     npx playwright install                                 ║\n║                                                            ║\n║ <3 Playwright Team                                         ║\n╚════════════════════════════════════════════════════════════╝",
     "events": [
@@ -68,7 +68,7 @@
   {
     "id": "1793528535023-ujv0m",
     "url": "https://kyletran.framer.website/",
-    "outputName": "kyletran.framer.website",
+    "outputName": "kyletran",
     "status": "error",
     "error": "browserType.launch: Executable doesn't exist at /Users/kyletran/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell\n╔════════════════════════════════════════════════════════════╗\n║ Looks like Playwright was just installed or updated.       ║\n║ Please run the following command to download new browsers: ║\n║                                                            ║\n║     npx playwright install                                 ║\n║                                                            ║\n║ <3 Playwright Team                                         ║\n╚════════════════════════════════════════════════════════════╝",
     "events": [
@@ -101,7 +101,7 @@
   {
     "id": "1793528933779-e0jm0",
     "url": "https://kyletran.framer.website/",
-    "outputName": "kyletran.framer.website",
+    "outputName": "kyletran",
     "status": "error",
     "error": "browserType.launch: Executable doesn't exist at /Users/kyletran/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell\n╔════════════════════════════════════════════════════════════╗\n║ Looks like Playwright was just installed or updated.       ║\n║ Please run the following command to download new browsers: ║\n║                                                            ║\n║     npx playwright install                                 ║\n║                                                            ║\n║ <3 Playwright Team                                         ║\n╚════════════════════════════════════════════════════════════╝",
     "events": [
@@ -134,9 +134,9 @@
   {
     "id": "1793529033774-letoh",
     "url": "https://kyletran.framer.website/",
-    "outputName": "kyletran.framer.website",
+    "outputName": "kyletran",
     "status": "done",
-    "outputDir": "/Users/kyletran/Documents/Portfolio/kyle-tran-design/output/kyletran.framer.website",
+    "outputDir": "/Users/kyletran/Documents/Portfolio/kyle-tran-design/output/kyletran",
     "previewUrl": "http://localhost:7000",
     "events": [
       {

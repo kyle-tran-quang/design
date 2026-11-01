@@ -1,6 +1,6 @@
-# Agent Instructions & Architecture Guide: Designed by Kyle (`kyletran.framer.website`)
+# Agent Instructions & Architecture Guide: Designed by Kyle (`kyletran`)
 
-> **Source of Truth:** `/Users/kyle/Documents/GitHub/design/output/kyletran.framer.website`
+> **Source of Truth:** `/Users/kyle/Documents/GitHub/design/output/kyletran`
 
 ---
 
@@ -20,12 +20,12 @@ This repository contains a high-fidelity, production-ready static export of the 
 
 | Page / Route | Local File Path | Canonical Route | Scroll Model | Description |
 |---|---|---|---|---|
-| **Homepage** | [`output/kyletran.framer.website/index.html`](output/kyletran.framer.website/index.html) | `/` | **Horizontal** (desktop) / **Vertical** (mobile) | Interactive horizontal showcase (Hero, Projects, Works, Playground, About Me, Footer) |
-| **Breadslice** | [`output/kyletran.framer.website/work/breadslice.html`](output/kyletran.framer.website/work/breadslice.html) | `/work/breadslice` | **Vertical** (standard) | Case study: Breadslice product design |
-| **Unblok** | [`output/kyletran.framer.website/work/unblok.html`](output/kyletran.framer.website/work/unblok.html) | `/work/unblok` | **Vertical** (standard) | Case study: Unblok UX & strategy |
-| **Car Doctor** | [`output/kyletran.framer.website/work/cardoctor.html`](output/kyletran.framer.website/work/cardoctor.html) | `/work/cardoctor` | **Vertical** (standard) | Case study: Car Doctor mobile experience |
-| **Car Doctor DS** | [`output/kyletran.framer.website/work/cardoctor-ds.html`](output/kyletran.framer.website/work/cardoctor-ds.html) | `/work/cardoctor-ds` | **Vertical** (standard) | Case study: Car Doctor Design System |
-| **MAS Pricing** | [`output/kyletran.framer.website/work/mas-pricing.html`](output/kyletran.framer.website/work/mas-pricing.html) | `/work/mas-pricing` | **Vertical** (standard) | Case study: MAS Pricing & billing flow |
+| **Homepage** | [`output/kyletran/index.html`](output/kyletran/index.html) | `/` | **Horizontal** (desktop) / **Vertical** (mobile) | Interactive horizontal showcase (Hero, Projects, Works, Playground, About Me, Footer) |
+| **Breadslice** | [`output/kyletran/work/breadslice.html`](output/kyletran/work/breadslice.html) | `/work/breadslice` | **Vertical** (standard) | Case study: Breadslice product design |
+| **Unblok** | [`output/kyletran/work/unblok.html`](output/kyletran/work/unblok.html) | `/work/unblok` | **Vertical** (standard) | Case study: Unblok UX & strategy |
+| **Car Doctor** | [`output/kyletran/work/cardoctor.html`](output/kyletran/work/cardoctor.html) | `/work/cardoctor` | **Vertical** (standard) | Case study: Car Doctor mobile experience |
+| **Car Doctor DS** | [`output/kyletran/work/cardoctor-ds.html`](output/kyletran/work/cardoctor-ds.html) | `/work/cardoctor-ds` | **Vertical** (standard) | Case study: Car Doctor Design System |
+| **MAS Pricing** | [`output/kyletran/work/mas-pricing.html`](output/kyletran/work/mas-pricing.html) | `/work/mas-pricing` | **Vertical** (standard) | Case study: MAS Pricing & billing flow |
 
 ---
 
@@ -176,10 +176,10 @@ All case study subpages (`/work/*`) use standard vertical scrolling across all s
 
 ## 7. Assets Mapping & Structure
 
-All runtime assets are fully local and bundled in [`output/kyletran.framer.website/assets/`](output/kyletran.framer.website/assets/):
+All runtime assets are fully local and bundled in [`output/kyletran/assets/`](output/kyletran/assets/):
 
 ```
-output/kyletran.framer.website/
+output/kyletran/
 ├── index.html
 ├── package.json
 ├── asset-map.json
@@ -191,14 +191,16 @@ output/kyletran.framer.website/
 │   └── mas-pricing.html
 └── assets/
     ├── css/           # CSS styles & SSR chunks
-    ├── js/            # Human-readable JavaScript modules (react-runtime, framer-core, page components, routes)
+    ├── components/    # All React components (page-*.js page components, comp-*.js shared components)
+    ├── js/            # Runtime & infrastructure modules (react-runtime, framer-core, routes, chunks)
     ├── fonts/         # WOFF2 web fonts (Mikado, Bungee Shade, IBM Plex Mono, etc.)
     ├── images/        # Optimized PNG, WebP, AVIF, GIF, SVG assets
     └── data/          # Static JSON indices and metadata
 ```
 
-- **Local asset map reference:** [`output/kyletran.framer.website/asset-map.json`](output/kyletran.framer.website/asset-map.json) maps every original remote Framer CDN URL to its corresponding local file.
-- **JavaScript Module Convention:** Scripts in `assets/js/` use semantic, human-readable naming (`react-runtime.js`, `framer-core.js`, `page-*.js`, `route-*.js`, `comp-*.js`, `chunk-*.js`).
+- **Local asset map reference:** [`output/kyletran/asset-map.json`](output/kyletran/asset-map.json) maps every original remote Framer CDN URL to its corresponding local file.
+- **JavaScript Module Convention:** Scripts in `assets/js/` use semantic, human-readable naming (`react-runtime.js`, `framer-core.js`, `route-*.js`, `chunk-*.js`).
+- **React Components Convention:** All React components live in `assets/components/` (`page-*.js` for page components, `comp-*.js` for shared components). They import runtime modules from `../js/`.
 
 ---
 
@@ -240,7 +242,7 @@ output/kyletran.framer.website/
          - name: Upload Artifact
            uses: actions/upload-pages-artifact@v3
            with:
-             path: 'output/kyletran.framer.website'
+             path: 'output/kyletran'
 
          - name: Deploy to GitHub Pages
            id: deployment
@@ -249,20 +251,20 @@ output/kyletran.framer.website/
 
 2. **Option 2: Using `gh-pages` branch**
    ```bash
-   npx gh-pages -d output/kyletran.framer.website
+   npx gh-pages -d output/kyletran
    ```
 
 ### Option B: Deploy to Vercel
 
 Run from workspace root:
 ```bash
-npx vercel output/kyletran.framer.website --prod
+npx vercel output/kyletran --prod
 ```
 
 Or configure `vercel.json`:
 ```json
 {
-  "outputDirectory": "output/kyletran.framer.website",
+  "outputDirectory": "output/kyletran",
   "cleanUrls": true
 }
 ```
@@ -270,7 +272,7 @@ Or configure `vercel.json`:
 ### Option C: Deploy to Netlify / Cloudflare Pages
 
 - **Build command:** `(none)` (static site)
-- **Publish directory:** `output/kyletran.framer.website`
+- **Publish directory:** `output/kyletran`
 
 ---
 
@@ -303,11 +305,11 @@ All graph data lives in [`graphify-out/`](graphify-out/):
 1. **Incremental Update (Fast / Recommended):**
    ```bash
    # Re-extract and re-cluster only changed/new files
-   /graphify output/kyletran.framer.website --update
+   /graphify output/kyletran --update
    ```
 2. **Full Rebuild (after large refactors or structural reorganization):**
    ```bash
-   /graphify output/kyletran.framer.website
+   /graphify output/kyletran
    ```
 
 ### 10.3. Querying & Exploring the Architecture
@@ -321,5 +323,5 @@ Before making sweeping architectural changes or when investigating unfamiliar de
 
 - Install via the `agents` platform (`graphify bob install` is not a valid command in graphify 0.9.100): `graphify install --platform agents`
 - For any question about the codebase, architecture, file relationships, or project content, **query the graph first** (`graphify query "<question>"`) before falling back to `grep` or reading files.
-- After any change to files, routes, or tokens, run `graphify update output/kyletran.framer.website` before finishing the task.
+- After any change to files, routes, or tokens, run `graphify update output/kyletran` before finishing the task.
 
