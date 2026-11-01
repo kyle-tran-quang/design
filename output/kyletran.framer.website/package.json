@@ -1,0 +1,10 @@
+{
+  "name": "kyletran.framer.website",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static HTML clone of https://kyletran.framer.website/",
+  "scripts": {
+    "preview": "npx serve .",
+    "start": "npx serve ."
+  }
+}

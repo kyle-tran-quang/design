@@ -1,0 +1,464 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import WorkCard from '../components/WorkCard.astro';
+import { workItems } from '../data/work';
+---
+
+<BaseLayout
+  title="Designed by Kyle"
+  description="Helping teams big and small win through solid & playful UX strategies — since 2020. Currently at IBM Ireland."
+>
+  <!--
+    Desktop (≥1280px): full-viewport horizontal scroll
+    The outer .page-scroll is 100vh tall and scrolls horizontally.
+    Inside is a flex row: hero panel → work cards → about panel → contact.
+    Mobile/tablet: normal vertical scroll, cards stack.
+  -->
+
+  <!-- ── DESKTOP HORIZONTAL SCROLL TRACK ─────────────────────────────── -->
+  <div class="page-scroll" id="trigger">
+    <div class="page-track">
+
+      <!-- ── HERO PANEL ─────────────────────────────────────────────── -->
+      <section class="panel panel--hero" id="hero">
+        <div class="hero__left">
+          <!-- Tagline text, right-aligned -->
+          <p class="hero__tagline">
+            <span class="hero__tagline-dark">Helping teams big and small win through solid &amp; playful UX strategies</span><br />
+            <span class="hero__tagline-muted"> — since 2020</span>
+          </p>
+
+          <!-- "KYLE TRAN" in big Bungee Shade orange -->
+          <div class="hero__name-wrap">
+            <h1 class="hero__name">KYLE TRAN</h1>
+          </div>
+
+          <!-- "Now at IBM Ireland" -->
+          <p class="hero__location">
+            <span class="hero__location-muted">Now at </span><strong>IBM Ireland</strong>
+          </p>
+        </div>
+
+        <!-- Chibi GIF avatar, links to about section -->
+        <a href="#aboutme" class="hero__avatar-link">
+          <div class="hero__avatar">
+            <img
+              src="/images/gfvppEks3sM930akQ8Vaei57A-07c042ef.gif"
+              alt="Kyle Tran chibi avatar"
+              width="280"
+              height="280"
+              class="hero__avatar-img"
+            />
+          </div>
+        </a>
+      </section>
+
+      <!-- ── PROJECT FILES HEADER PANEL ────────────────────────────── -->
+      <section class="panel panel--projects-header">
+        <div class="projects-header__inner">
+          <h2 class="projects-header__title">PROJECT FILES</h2>
+          <p class="projects-header__sub">
+            My featured folio stories - I'll share a lot about my approach and design thinking process.
+          </p>
+        </div>
+      </section>
+
+      <!-- ── WORK CARDS ─────────────────────────────────────────────── -->
+      {workItems.map((item) => (
+        <div class="panel panel--card">
+          <WorkCard item={item} />
+        </div>
+      ))}
+
+      <!-- ── ABOUT PANEL ─────────────────────────────────────────────── -->
+      <section class="panel panel--about" id="aboutme">
+        <div class="about__header">
+          <p class="about__eyebrow">(KYLE'S HONEST SELF)</p>
+          <h2 class="about__heading">Me as a person</h2>
+        </div>
+        <div class="about__rows">
+          <div class="about__row">
+            <img src="/images/KB9PSvchNw6iTvWIj9J88gdGN4-4336a6ba.png" alt="Kyle focused on work" class="about__img" loading="lazy" />
+            <p class="about__text">I <strong>cut the fluff</strong> and focus on what truly matters to users, getting insights early and often. But I never get satisfied so I always iterate.</p>
+          </div>
+          <div class="about__row">
+            <img src="/images/olfUL1EsjNGhEMfIsGMqnZDhzM-d994e728.png" alt="Kyle connecting with people" class="about__img" loading="lazy" />
+            <p class="about__text">I love <strong>connecting and resonating</strong> with others to know exactly how they feel about something, and giving them what wows in return.</p>
+          </div>
+          <div class="about__row">
+            <img src="/images/3yR7eKkjBJ6BprIjV9Uzf6FASI-e4feb333.png" alt="Kyle thinking through psychology" class="about__img" loading="lazy" />
+            <p class="about__text">Understanding how people think and feel through psychology helps me craft experiences <strong>"that won't annoy you"</strong>.</p>
+          </div>
+          <div class="about__row">
+            <img src="/images/5oXlNXKU28d8CgpQEy4r6SB0mmw-0ee22bd6.png" alt="Kyle bringing playfulness" class="about__img" loading="lazy" />
+            <p class="about__text">And of course, I love <strong>putting playfulness</strong> into design to make experiences more engaging, memorable, and delightful :)</p>
+          </div>
+        </div>
+      </section>
+
+    </div><!-- /.page-track -->
+  </div><!-- /.page-scroll -->
+
+</BaseLayout>
+
+<style>
+  /* ─────────────────────────────────────────────────────────────────────
+     PAGE SCROLL CONTAINER — Desktop horizontal, mobile vertical
+  ───────────────────────────────────────────────────────────────────── */
+
+  /* Mobile & tablet: normal flow, account for fixed nav height */
+  .page-scroll {
+    width: 100%;
+    padding-top: 52px; /* height of fixed nav */
+  }
+
+  .page-track {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+  }
+
+  /* Desktop (≥1280px): flip to horizontal scroll */
+  @media (min-width: 1280px) {
+    .page-scroll {
+      /* Fill full viewport minus the fixed nav */
+      height: calc(100vh - 52px);
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: none;
+      padding-top: 0;
+      /* Push below fixed nav */
+      margin-top: 52px;
+    }
+
+    .page-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    .page-track {
+      flex-direction: row;
+      align-items: stretch;
+      height: 100%;
+      width: max-content;
+    }
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     PANELS — base
+  ───────────────────────────────────────────────────────────────────── */
+  .panel {
+    flex-shrink: 0;
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     HERO PANEL
+  ───────────────────────────────────────────────────────────────────── */
+  .panel--hero {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 48px 40px 48px;
+    background-color: #fff;
+    border-right: 1px solid var(--token-f0faea26-77a6-4de5-a6d3-6422b76a4490, #ccc);
+  }
+
+  @media (min-width: 1280px) {
+    .panel--hero {
+      width: 640px;
+      height: 100%;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: flex-start;
+      padding: 48px 40px 48px;
+    }
+  }
+
+  .hero__left {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex: 1;
+  }
+
+  /* Tagline */
+  .hero__tagline {
+    font-family: 'Mikado Regular', 'Mikado Regular Placeholder', sans-serif;
+    font-size: clamp(14px, 1.2vw, 18px);
+    line-height: 1.4;
+    margin: 0;
+    text-align: right;
+  }
+
+  @media (min-width: 1280px) {
+    .hero__tagline {
+      font-size: 18px;
+    }
+  }
+
+  .hero__tagline-dark {
+    color: var(--token-cb9055b0-5488-44c3-a53a-6c1257dcaa92, #3d3d3d);
+  }
+
+  .hero__tagline-muted {
+    color: var(--token-8722ab07-140b-44f8-a44d-a5bee73c377d, #7a7a7a);
+  }
+
+  /* Big Bungee Shade name */
+  .hero__name-wrap {
+    line-height: 0.8;
+    overflow: visible;
+  }
+
+  .hero__name {
+    font-family: 'Bungee Shade', sans-serif;
+    font-size: clamp(64px, 9vw, 140px);
+    font-weight: 400;
+    letter-spacing: -0.03em;
+    line-height: 0.8;
+    color: var(--token-1b713f29-8467-4eb4-aed8-bd97dff85ae1, #fa680c);
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  @media (min-width: 1280px) {
+    .hero__name {
+      font-size: 140px;
+    }
+  }
+
+  /* Location line */
+  .hero__location {
+    font-family: 'Mikado Regular', 'Mikado Regular Placeholder', sans-serif;
+    font-size: 16px;
+    color: var(--token-cb9055b0-5488-44c3-a53a-6c1257dcaa92, #3d3d3d);
+    margin: 0;
+  }
+
+  .hero__location-muted {
+    color: var(--token-8722ab07-140b-44f8-a44d-a5bee73c377d, #7a7a7a);
+  }
+
+  .hero__location strong {
+    font-family: 'Mikado Bold', 'Mikado Bold Placeholder', sans-serif;
+  }
+
+  /* GIF avatar */
+  .hero__avatar-link {
+    flex-shrink: 0;
+    display: block;
+    text-decoration: none;
+  }
+
+  .hero__avatar {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: var(--token-1543d3b0-869e-4a49-8dc8-c22fa978a565, #e6e6e6);
+  }
+
+  @media (min-width: 1280px) {
+    .hero__avatar {
+      width: 280px;
+      height: 280px;
+    }
+  }
+
+  .hero__avatar-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     PROJECT FILES HEADER PANEL
+  ───────────────────────────────────────────────────────────────────── */
+  .panel--projects-header {
+    display: flex;
+    align-items: flex-end;
+    padding: 40px 32px 48px;
+    background-color: #fff;
+    border-bottom: 1px solid var(--token-f0faea26-77a6-4de5-a6d3-6422b76a4490, #ccc);
+    border-right: 1px solid var(--token-f0faea26-77a6-4de5-a6d3-6422b76a4490, #ccc);
+  }
+
+  @media (min-width: 1280px) {
+    .panel--projects-header {
+      width: 240px;
+      height: 100%;
+      border-bottom: none;
+      border-left: 1px solid var(--token-f0faea26-77a6-4de5-a6d3-6422b76a4490, #ccc);
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+  }
+
+  .projects-header__inner {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .projects-header__title {
+    font-family: 'Mikado Bold', 'Mikado Bold Placeholder', sans-serif;
+    font-size: clamp(28px, 3vw, 48px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    color: var(--token-2f20a10a-18f4-455e-af0c-215a63d9250a, #121212);
+    margin: 0;
+  }
+
+  .projects-header__sub {
+    font-family: 'Mikado Regular', 'Mikado Regular Placeholder', sans-serif;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--token-8722ab07-140b-44f8-a44d-a5bee73c377d, #7a7a7a);
+    margin: 0;
+    max-width: 200px;
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     WORK CARD PANELS
+  ───────────────────────────────────────────────────────────────────── */
+  .panel--card {
+    border-right: 1px solid var(--token-f0faea26-77a6-4de5-a6d3-6422b76a4490, #ccc);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Make the WorkCard <a> fill the panel height on desktop */
+  .panel--card :global(.work-card) {
+    flex: 1;
+  }
+
+  /* Mobile: cards stack full-width */
+  @media (max-width: 809px) {
+    .panel--card {
+      border-right: none;
+      border-bottom: 1px solid var(--token-f0faea26-77a6-4de5-a6d3-6422b76a4490, #ccc);
+    }
+  }
+
+  /* Tablet: 2 columns */
+  @media (min-width: 810px) and (max-width: 1279px) {
+    .page-track {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .panel--hero {
+      grid-column: 1 / -1;
+    }
+
+    .panel--projects-header {
+      grid-column: 1 / -1;
+    }
+
+    .panel--about {
+      grid-column: 1 / -1;
+    }
+  }
+
+  /* Desktop: fixed-width tall cards */
+  @media (min-width: 1280px) {
+    .panel--card {
+      width: 380px;
+      height: 100%;
+      flex-direction: column;
+    }
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     ABOUT PANEL
+  ───────────────────────────────────────────────────────────────────── */
+  .panel--about {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    padding: 48px 40px;
+    background-color: var(--token-48ce423d-fa13-4b7c-adb9-da498cf65491, #f2f2f2);
+    border-left: 1px solid var(--token-f0faea26-77a6-4de5-a6d3-6422b76a4490, #ccc);
+  }
+
+  @media (min-width: 1280px) {
+    .panel--about {
+      width: 700px;
+      height: 100%;
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+
+    .panel--about::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .about__header {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .about__eyebrow {
+    font-family: 'Mikado Regular', 'Mikado Regular Placeholder', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--token-8722ab07-140b-44f8-a44d-a5bee73c377d, #7a7a7a);
+    margin: 0;
+  }
+
+  .about__heading {
+    font-family: 'Mikado Bold', 'Mikado Bold Placeholder', sans-serif;
+    font-size: clamp(32px, 4vw, 56px);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: var(--token-2f20a10a-18f4-455e-af0c-215a63d9250a, #121212);
+    margin: 0;
+  }
+
+  .about__rows {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  .about__row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 28px;
+  }
+
+  .about__img {
+    width: 120px;
+    height: 120px;
+    border-radius: 12px;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  @media (min-width: 1280px) {
+    .about__img {
+      width: 160px;
+      height: 160px;
+    }
+  }
+
+  .about__text {
+    font-family: 'Mikado Regular', 'Mikado Regular Placeholder', sans-serif;
+    font-size: clamp(15px, 1.4vw, 20px);
+    line-height: 1.5;
+    color: var(--token-2f20a10a-18f4-455e-af0c-215a63d9250a, #121212);
+    margin: 0;
+  }
+
+  .about__text strong {
+    font-family: 'Mikado Bold', 'Mikado Bold Placeholder', sans-serif;
+  }
+</style>

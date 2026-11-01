@@ -1,0 +1,339 @@
+---
+// src/pages/work/[slug].astro — dynamic case study detail page
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { workItems, type WorkItem } from '../../data/work';
+
+export function getStaticPaths() {
+  return workItems.map((item) => ({
+    params: { slug: item.slug },
+    props: { item },
+  }));
+}
+
+interface Props {
+  item: WorkItem;
+}
+
+const { item } = Astro.props;
+---
+
+<BaseLayout
+  title={`${item.title} — Designed by Kyle`}
+  description={item.description}
+  ogImage={item.coverImage}
+>
+  <main class="case-study">
+    <!-- Header Section -->
+    <header class="case-study__header">
+      <div class="case-study__container">
+        <a href="/#work" class="case-study__back-link">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M10 12L6 8L10 4"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            ></path>
+          </svg>
+          Back to all projects
+        </a>
+
+        <div class="case-study__intro" data-reveal>
+          <div class="case-study__badge">
+            <span class="case-study__index">({item.index})</span>
+            <span class="case-study__year">{item.year}</span>
+          </div>
+
+          <h1 class="case-study__title">{item.title}</h1>
+          <p class="case-study__subtitle">{item.description}</p>
+        </div>
+
+        <!-- Metadata Strip -->
+        <div class="case-study__meta-strip" data-reveal data-delay="1">
+          <div class="case-study__meta-item">
+            <span class="case-study__meta-label">ROLE</span>
+            <span class="case-study__meta-val">{item.role}</span>
+          </div>
+
+          {item.client && (
+            <div class="case-study__meta-item">
+              <span class="case-study__meta-label">CLIENT / ORG</span>
+              <span class="case-study__meta-val">{item.client}</span>
+            </div>
+          )}
+
+          {item.duration && (
+            <div class="case-study__meta-item">
+              <span class="case-study__meta-label">DURATION</span>
+              <span class="case-study__meta-val">{item.duration}</span>
+            </div>
+          )}
+
+          <div class="case-study__meta-item">
+            <span class="case-study__meta-label">READ TIME</span>
+            <span class="case-study__meta-val">{item.readTime}</span>
+          </div>
+
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero Image Section -->
+    <section class="case-study__hero-media" data-reveal data-delay="2">
+      <div class="case-study__container">
+        <div class="case-study__image-wrapper">
+          <img
+            src={item.heroImage || item.coverImage}
+            alt={item.coverImageAlt}
+            width="1200"
+            height="800"
+            loading="eager"
+            class="case-study__image"
+          />
+        </div>
+      </div>
+    </section>
+
+    <!-- Body Content Section -->
+    <article class="case-study__content">
+      <div class="case-study__container case-study__container--content">
+        {item.sections && item.sections.length > 0 ? (
+          <div class="case-study__sections">
+            {item.sections.map((sec, idx) => (
+              <section class="case-study__section" data-reveal>
+                <div class="case-study__section-header">
+                  <span class="case-study__section-number">0{idx + 1}</span>
+                  <h2 class="case-study__section-title">{sec.heading}</h2>
+                </div>
+                <p class="case-study__section-body">{sec.body}</p>
+              </section>
+            ))}
+          </div>
+        ) : (
+          <div class="case-study__empty">
+            <p>Full case study walkthrough coming soon.</p>
+          </div>
+        )}
+      </div>
+    </article>
+  </main>
+</BaseLayout>
+
+<style>
+  .case-study {
+    min-height: 100vh;
+    padding-bottom: 96px;
+    background-color: var(--token-1e405527-cf8f-40ad-b369-753edb4fdcdc, #f7f7f7);
+  }
+
+  .case-study__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  .case-study__container--content {
+    max-width: 840px;
+  }
+
+  /* Back Link */
+  .case-study__back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: "Instrument Sans", sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--token-8722ab07-140b-44f8-a44d-a5bee73c377d, #7a7a7a);
+    text-decoration: none;
+    margin-bottom: 32px;
+    transition: color 0.15s ease;
+  }
+
+  .case-study__back-link:hover {
+    color: var(--token-2f20a10a-18f4-455e-af0c-215a63d9250a, #121212);
+  }
+
+  /* Header & Intro */
+  .case-study__header {
+    padding-top: 48px;
+    padding-bottom: 40px;
+  }
+
+  .case-study__badge {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .case-study__index {
+    font-family: "Fragment Mono", monospace;
+    font-size: 13px;
+    color: var(--token-8722ab07-140b-44f8-a44d-a5bee73c377d, #7a7a7a);
+  }
+
+  .case-study__year {
+    font-family: "Instrument Sans", sans-serif;
+    font-size: 14px;
+    color: var(--token-8722ab07-140b-44f8-a44d-a5bee73c377d, #7a7a7a);
+  }
+
+  .case-study__title {
+    font-family: "Mikado Bold", "Mikado Regular", sans-serif;
+    font-size: clamp(32px, 5vw, 56px);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    color: var(--token-2f20a10a-18f4-455e-af0c-215a63d9250a, #121212);
+    margin: 0 0 16px 0;
+  }
+
+  .case-study__subtitle {
+    font-family: "Instrument Sans", sans-serif;
+    font-size: clamp(18px, 2.5vw, 24px);
+    line-height: 1.4;
+    color: var(--token-cb9055b0-5488-44c3-a53a-6c1257dcaa92, #3d3d3d);
+    max-width: 780px;
+    margin: 0 0 40px 0;
+  }
+
+  /* Metadata Strip */
+  .case-study__meta-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px 48px;
+    padding: 24px 0;
+    border-top: 1px solid var(--token-f0faea26-77a6-4de5-a6d3-6422b76a4490, #ccc);
+    border-bottom: 1px solid var(--token-f0faea26-77a6-4de5-a6d3-6422b76a4490, #ccc);
+  }
+
+  .case-study__meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .case-study__meta-label {
+    font-family: "Fragment Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    color: var(--token-8722ab07-140b-44f8-a44d-a5bee73c377d, #7a7a7a);
+  }
+
+  .case-study__meta-val {
+    font-family: "Instrument Sans", sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--token-2f20a10a-18f4-455e-af0c-215a63d9250a, #121212);
+  }
+
+  .case-study__tags-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 2px;
+  }
+
+  .case-study__tag {
+    font-family: "Instrument Sans", sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    background-color: var(--token-48ce423d-fa13-4b7c-adb9-da498cf65491, #f2f2f2);
+    border: 1px solid var(--token-f0faea26-77a6-4de5-a6d3-6422b76a4490, #ccc);
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: var(--token-cb9055b0-5488-44c3-a53a-6c1257dcaa92, #3d3d3d);
+  }
+
+  /* Hero Media */
+  .case-study__hero-media {
+    margin: 32px 0 64px 0;
+  }
+
+  .case-study__image-wrapper {
+    width: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--token-f0faea26-77a6-4de5-a6d3-6422b76a4490, #ccc);
+    background-color: var(--token-1543d3b0-869e-4a49-8dc8-c22fa978a565, #e6e6e6);
+  }
+
+  .case-study__image {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 700px;
+    object-fit: cover;
+    object-position: center top;
+  }
+
+  /* Content & Sections */
+  .case-study__sections {
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+  }
+
+  .case-study__section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-bottom: 40px;
+    border-bottom: 1px solid var(--token-1543d3b0-869e-4a49-8dc8-c22fa978a565, #e6e6e6);
+  }
+
+  .case-study__section:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .case-study__section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  .case-study__section-number {
+    font-family: "Fragment Mono", monospace;
+    font-size: 14px;
+    color: var(--token-8722ab07-140b-44f8-a44d-a5bee73c377d, #7a7a7a);
+  }
+
+  .case-study__section-title {
+    font-family: "Mikado Bold", "Mikado Regular", sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--token-2f20a10a-18f4-455e-af0c-215a63d9250a, #121212);
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+
+  .case-study__section-body {
+    font-family: "Instrument Sans", sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--token-cb9055b0-5488-44c3-a53a-6c1257dcaa92, #3d3d3d);
+    margin: 0;
+  }
+
+  @media (max-width: 768px) {
+    .case-study__header {
+      padding-top: 32px;
+    }
+    .case-study__meta-strip {
+      flex-direction: column;
+      gap: 16px;
+    }
+    .case-study__hero-media {
+      margin: 24px 0 40px 0;
+    }
+  }
+</style>

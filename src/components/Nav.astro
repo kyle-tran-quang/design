@@ -1,0 +1,79 @@
+---
+// Nav.astro — site-wide sticky navigation
+---
+
+<header class="nav">
+  <div class="nav__inner">
+    <a href="/" class="nav__logo">Designed by Kyle</a>
+    <nav class="nav__links" aria-label="Primary navigation">
+      <a href="/#work" class="nav__link">Work</a>
+      <a href="mailto:kyletrandesign@gmail.com" class="nav__link">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 200;
+    background-color: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--token-f0faea26-77a6-4de5-a6d3-6422b76a4490, #ccc);
+  }
+
+  .nav__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: unset;
+    margin: 0;
+    padding: 0 32px;
+    height: 52px;
+  }
+
+  .nav__logo {
+    font-family: "Instrument Sans", sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--token-2f20a10a-18f4-455e-af0c-215a63d9250a, #121212);
+    text-decoration: none;
+    letter-spacing: -0.01em;
+  }
+
+  .nav__logo:hover {
+    color: var(--token-cb9055b0-5488-44c3-a53a-6c1257dcaa92, #3d3d3d);
+  }
+
+  .nav__links {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+  }
+
+  .nav__link {
+    font-family: "Instrument Sans", sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--token-8722ab07-140b-44f8-a44d-a5bee73c377d, #7a7a7a);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .nav__link:hover {
+    color: var(--token-2f20a10a-18f4-455e-af0c-215a63d9250a, #121212);
+  }
+
+  @media (max-width: 809px) {
+    .nav__inner {
+      padding: 0 20px;
+    }
+
+    .nav__links {
+      gap: 20px;
+    }
+  }
+</style>

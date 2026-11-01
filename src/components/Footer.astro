@@ -1,0 +1,146 @@
+---
+// Footer.astro — site-wide footer (matches Framer "Contact" section)
+---
+
+<footer class="footer">
+  <div class="footer__inner">
+    <div class="footer__top">
+      <a href="mailto:kyletrandesign@gmail.com" class="footer__cta">
+        Let's get in touch!
+      </a>
+    </div>
+
+    <div class="footer__links">
+      <a href="mailto:kyletrandesign@gmail.com" class="footer__link">
+        kyletrandesign@gmail.com
+      </a>
+      <a
+        href="https://www.behance.net/tranquang4"
+        class="footer__link"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Behance
+      </a>
+      <a
+        href="https://www.linkedin.com/in/minh-quang-t-3634b9220/"
+        class="footer__link"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        LinkedIn
+      </a>
+    </div>
+
+    <div class="footer__bottom">
+      <span class="footer__copy">(c) &apos;26, by Kyle.</span>
+      <a href="/#hero" class="footer__back">
+        or…back to <strong>beginning.</strong>
+      </a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    background-color: var(--token-cb9055b0-5488-44c3-a53a-6c1257dcaa92, #3d3d3d);
+    color: #fff;
+  }
+
+  .footer__inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 80px 40px 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  .footer__top {
+    display: flex;
+    align-items: flex-start;
+  }
+
+  .footer__cta {
+    font-family: "Instrument Sans", sans-serif;
+    font-size: clamp(28px, 5vw, 56px);
+    font-weight: 700;
+    color: #fff;
+    text-decoration: none;
+    line-height: 1.1;
+    transition: opacity 0.15s ease;
+  }
+
+  .footer__cta:hover {
+    opacity: 0.8;
+  }
+
+  .footer__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 0;
+  }
+
+  .footer__link {
+    font-family: "Instrument Sans", sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+    color: #fff;
+    text-decoration: none;
+    transition: opacity 0.15s ease;
+  }
+
+  .footer__link:hover {
+    opacity: 0.7;
+  }
+
+  .footer__link + .footer__link::before {
+    content: " · ";
+    margin: 0 8px;
+    opacity: 0.5;
+  }
+
+  .footer__bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    flex-wrap: wrap;
+  }
+
+  .footer__copy {
+    font-family: "Instrument Sans", sans-serif;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .footer__back {
+    font-family: "Instrument Sans", sans-serif;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.5);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .footer__back:hover {
+    color: #fff;
+  }
+
+  .footer__back strong {
+    font-weight: 600;
+    color: #fff;
+  }
+
+  @media (max-width: 809px) {
+    .footer__inner {
+      padding: 60px 20px 40px;
+      gap: 32px;
+    }
+
+    .footer__cta {
+      font-size: clamp(24px, 8vw, 40px);
+    }
+  }
+</style>
