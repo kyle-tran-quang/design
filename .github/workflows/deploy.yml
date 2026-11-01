@@ -25,12 +25,31 @@ jobs:
         run: test -f output/kyletran.framer.website/index.html
 
       - name: Setup Pages
+        id: pages
         uses: actions/configure-pages@v5
+
+      - name: Prepare site with base path
+        env:
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}
+        run: |
+          rm -rf _site
+          cp -R output/kyletran.framer.website _site
+          # Root-absolute asset URLs (/assets/...) 404 when the site is served
+          # from a sub-path such as /<repo>/. Prefix them with the base path.
+          if [ -n "$BASE_PATH" ]; then
+            find _site -type f \( -name '*.html' -o -name '*.css' -o -name '*.js' -o -name '*.json' \) -print0 \
+              | xargs -0 perl -pi -e 's{(?<![\w./-])/assets/}{$ENV{BASE_PATH}/assets/}g'
+          fi
+          # Fail the build if any font referenced by CSS/HTML/JS is missing.
+          grep -rhoE "[A-Za-z0-9_./-]*/assets/fonts/[A-Za-z0-9_.-]+\.woff2" _site \
+            --include='*.html' --include='*.css' --include='*.js' \
+            | sed -E "s#.*/assets/fonts/#_site/assets/fonts/#" | sort -u \
+            | while read -r f; do test -f "$f" || { echo "Missing font: $f"; exit 1; }; done
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: output/kyletran.framer.website
+          path: _site
 
   deploy:
     needs: build

@@ -79,13 +79,9 @@ The design system is parameterized through CSS variables defined on `body`:
 
 | Font Family | Weights / Styles | Primary Application |
 |---|---|---|
-| **Instrument Sans** | 400, 500, 600, 700, Italic | UI copy, navigation, buttons, subheadings |
 | **Mikado** | Regular (400), Bold (700), Medium (500), Light (300), Italic | Primary brand display headings, project titles |
-| **EB Garamond** | 400 Italic | Editorial emphasis, quotes, artistic captions |
 | **Bungee Shade** | Regular (400) | Retro display text, graphic accents |
-| **Fragment Mono** | Regular (400) | Technical metadata, tags, dates |
 | **IBM Plex Mono** | 300 Italic | Numbering (`01/`), code annotations |
-| **Pixelify Sans** | 400, 700 | Playful retro headings and badges |
 | **Inter** | 400, 700, Italic | General fallback, SSR structural fallback |
 
 ---
@@ -195,13 +191,14 @@ output/kyletran.framer.website/
 │   └── mas-pricing.html
 └── assets/
     ├── css/           # CSS styles & SSR chunks
-    ├── js/            # JavaScript modules (React runtime, Motion, page components)
+    ├── js/            # Human-readable JavaScript modules (react-runtime, framer-core, page components, routes)
     ├── fonts/         # WOFF2 web fonts (Mikado, Bungee Shade, IBM Plex Mono, etc.)
     ├── images/        # Optimized PNG, WebP, AVIF, GIF, SVG assets
     └── data/          # Static JSON indices and metadata
 ```
 
 - **Local asset map reference:** [`output/kyletran.framer.website/asset-map.json`](output/kyletran.framer.website/asset-map.json) maps every original remote Framer CDN URL to its corresponding local file.
+- **JavaScript Module Convention:** Scripts in `assets/js/` use semantic, human-readable naming (`react-runtime.js`, `framer-core.js`, `page-*.js`, `route-*.js`, `comp-*.js`, `chunk-*.js`).
 
 ---
 
@@ -284,3 +281,45 @@ Or configure `vercel.json`:
 - [x] **Wheel Interactivity:** Test vertical wheel up/down scrolling to verify fluid horizontal track translation.
 - [x] **Responsive Check:** Test `< 1200px` (tablet & mobile) to verify smooth fallback to native vertical layout.
 - [x] **Local Assets:** Verify that browser network tab shows zero requests to external `framer.com` or `framerusercontent.com` domains.
+- [x] **Graph Sync:** Ensure `graphify-out/` knowledge graph is updated whenever files, routes, or tokens change.
+
+---
+
+## 10. Knowledge Graph & Continuous Sync (`graphify`)
+
+The project architecture, component dependencies, design tokens, and case study relationships are indexed in a persistent knowledge graph maintained by `graphify`.
+
+### 10.1. Graph Artifacts
+
+All graph data lives in [`graphify-out/`](graphify-out/):
+- **`graphify-out/graph.html`:** Interactive visual knowledge graph (open in any browser).
+- **`graphify-out/GRAPH_REPORT.md`:** Health audit, god nodes, surprise connections, cohesion metrics, and community structure.
+- **`graphify-out/graph.json`:** GraphRAG-ready JSON dataset representing all nodes, edges, and hyperedges.
+
+### 10.2. Continuous Sync Rule (Mandatory for Agents)
+
+**Whenever codebase changes occur** (adding or editing HTML templates, modifying CSS/tokens, altering JS runtime scripts, adding images, or updating case studies), **agents must update the knowledge graph**:
+
+1. **Incremental Update (Fast / Recommended):**
+   ```bash
+   # Re-extract and re-cluster only changed/new files
+   /graphify output/kyletran.framer.website --update
+   ```
+2. **Full Rebuild (after large refactors or structural reorganization):**
+   ```bash
+   /graphify output/kyletran.framer.website
+   ```
+
+### 10.3. Querying & Exploring the Architecture
+
+Before making sweeping architectural changes or when investigating unfamiliar dependencies:
+- Query the graph: `/graphify query "<question>"`
+- Trace connection paths between modules: `/graphify path "<SourceNode>" "<TargetNode>"`
+- Explain specific abstractions: `/graphify explain "<NodeID>"`
+
+### 10.4. Always Use Graphify (Mandatory for Agents)
+
+- Install via the `agents` platform (`graphify bob install` is not a valid command in graphify 0.9.100): `graphify install --platform agents`
+- For any question about the codebase, architecture, file relationships, or project content, **query the graph first** (`graphify query "<question>"`) before falling back to `grep` or reading files.
+- After any change to files, routes, or tokens, run `graphify update output/kyletran.framer.website` before finishing the task.
+
