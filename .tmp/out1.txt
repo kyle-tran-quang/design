@@ -1,0 +1,245 @@
+# Agent Instructions & Architecture Guide: Designed by Kyle (`kyletran`)
+
+> **Source of Truth:** `/Users/kyle/Documents/GitHub/design/output/kyletran`
+
+---
+
+## 1. Project Overview & Objective
+
+This repository contains a high-fidelity, production-ready static export of the portfolio website **Designed by Kyle** (originally on `kyletran.framer.website`).
+
+**Core Goal:** Maintain a standalone, 100% self-hosted, GitHub-deployable static web project with:
+- Zero external CDN dependencies for runtime assets.
+- Complete removal of Framer branding badges.
+- True horizontal scroll on desktop for the homepage.
+- Standard vertical reading scroll for all case study (Work) pages.
+
+---
+
+## 2. Sitemap & Route Map
+
+| Page / Route | Local File Path | Canonical Route | Scroll Model | Description |
+|---|---|---|---|---|
+| **Homepage** | [`index.html`](output/kyletran/index.html) | `/` | **Horizontal** (desktop) / **Vertical** (mobile) | Interactive horizontal showcase (Hero, Projects, Works, Playground, About Me, Footer) |
+| **Breadslice** | [`work/breadslice.html`](output/kyletran/work/breadslice.html) | `/work/breadslice` | **Vertical** (standard) | Case study: Breadslice product design |
+| **Unblok** | [`work/unblok.html`](output/kyletran/work/unblok.html) | `/work/unblok` | **Vertical** (standard) | Case study: Unblok UX & strategy |
+| **Car Doctor** | [`work/cardoctor.html`](output/kyletran/work/cardoctor.html) | `/work/cardoctor` | **Vertical** (standard) | Case study: Car Doctor mobile experience |
+| **Car Doctor DS** | [`work/cardoctor-ds.html`](output/kyletran/work/cardoctor-ds.html) | `/work/cardoctor-ds` | **Vertical** (standard) | Case study: Car Doctor Design System |
+| **MAS Pricing** | [`work/mas-pricing.html`](output/kyletran/work/mas-pricing.html) | `/work/mas-pricing` | **Vertical** (standard) | Case study: MAS Pricing & billing flow |
+
+---
+
+## 3. Responsive Breakpoints
+
+| Breakpoint Name | Media Query | Framer Variant Hash | Homepage Layout | Work Pages Layout |
+|---|---|---|---|---|
+| **Desktop** | `(min-width: 1200px)` | `72rtr7` | Full-height horizontal track (`100vh`) with wheel translation | 1-column centered vertical document |
+| **Tablet** | `(min-width: 810px) and (max-width: 1199.98px)` | `hhwhds` | Vertical column flow | Responsive vertical document |
+| **Mobile** | `(max-width: 809.98px)` | `1ag44uj` | Compact single-column vertical flow | Compact single-column vertical flow |
+
+---
+
+## 4. Design Tokens & Styling System
+
+### 4.1. Color Tokens (`CSS Custom Properties`)
+
+The design system is parameterized through CSS variables defined on `body`:
+
+```css
+:root, body {
+  /* Brand Accents */
+  --token-1b713f29-8467-4eb4-aed8-bd97dff85ae1: #fa680c; /* Primary Orange Accent */
+  --token-af72c21c-c33c-46b2-bca0-4e2ec8427cec: #ffc846; /* Warm Yellow / Mid-tone */
+  --token-9004448f-e1e1-48c9-879c-4c60476c8b44: #e38042; /* Soft Orange */
+  --token-54b71c5e-caea-41f2-af1f-784784f8c485: #e37f8a; /* Pink Accent */
+  --token-286ca060-016c-4727-bb4e-86a10f5b9053: #e37f8a; /* Coral / Pink Highlight */
+  --token-c8508209-1fe8-4b30-98af-f5a56f3be6e5: #3aab96; /* Mint Teal Accent */
+  --token-dfd61118-f2ae-4531-b471-77173305e745: #3a4a9f; /* Deep Indigo / Blue */
+  --token-4f9d75e0-de8c-4f23-be62-169d28935002: #697aff; /* Periwinkle / Light Blue */
+
+  /* Neutral Surface & Background Grays */
+  --token-1e405527-cf8f-40ad-b369-753edb4fdcdc: #f7f7f7; /* Background Ultra Light Gray */
+  --token-48ce423d-fa13-4b7c-adb9-da498cf65491: #f2f2f2; /* Card Neutral Surface */
+  --token-1543d3b0-869e-4a49-8dc8-c22fa978a565: #e6e6e6; /* Soft Divider Gray */
+  --token-f0faea26-77a6-4de5-a6d3-6422b76a4490: #cccccc; /* Border / Stroke Neutral */
+  --token-e2007bde-a5f8-4699-80dc-b6a4224f9adc: #b3b3b3; /* Secondary Text / Line Gray */
+  --token-8722ab07-140b-44f8-a44d-a5bee73c377d: #7a7a7a; /* Muted Caption Gray */
+  --token-cb9055b0-5488-44c3-a53a-6c1257dcaa92: #3d3d3d; /* Dark Surface Neutral */
+  --token-2f20a10a-18f4-455e-af0c-215a63d9250a: #121212; /* Rich Dark Background */
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    --token-1b713f29-8467-4eb4-aed8-bd97dff85ae1: #fa8237; /* Adjusted Dark Accent */
+  }
+}
+```
+
+### 4.2. Typography System
+
+| Font Family | Weights / Styles | Primary Application |
+|---|---|---|
+| **Mikado** | Regular (400), Bold (700), Medium (500), Light (300), Italic | Primary brand display headings, project titles |
+| **Bungee Shade** | Regular (400) | Retro display text, graphic accents |
+| **IBM Plex Mono** | 300 Italic | Numbering (`01/`), code annotations |
+| **Inter** | 400, 700, Italic | General fallback, SSR structural fallback |
+
+---
+
+## 5. Component Inventory
+
+### 5.1. Homepage Components (`index.html`)
+
+1. **`Hero` (`.framer-1rmji8s`)**
+   - **Tagline Container (`.framer-1c7tm23` / `.framer-6lj0le`):** Large typography intro text: *"Helping teams big and small win through solid & playful UX strategies"*.
+   - **Spinning Disc Rig (`.two-discs-rim-spin`):** Dual SVG disc graphic with continuous CSS keyframe rim spin animation (`8s linear infinite`).
+   - **Physics Wavy Line Canvas (`$n`):** Interactive spring-physics SVG string that reacts to cursor hover and drag.
+   - **Avatar / Illustration Frame (`.framer-48fe9b`):** Floating character visual element.
+
+2. **`PROJECTS` (`.framer-1eeo9ib`)**
+   - Section heading tile (`.framer-1z0dutv`) with `01/ Cases` numbering, title, and book graphic.
+   - Project cards track linking directly to deep-dive case studies.
+
+3. **`Works` (`.framer-189nece`)**
+   - Showcase cards for individual case studies:
+     - **Breadslice:** Card with picture frame, cover graphic, title, read time (`5 min read`).
+     - **Unblok:** Product design workflow showcase with tags and link to `/work/unblok`.
+     - **Car Doctor & Car Doctor DS:** Mobile app UI and Design System systemics.
+     - **MAS Pricing:** Enterprise pricing architecture case study.
+   - Hover states with interactive scale and elevation effects.
+
+4. **`Playground` (`.framer-1s33beq`)**
+   - Section header card (`.framer-so9fdf`).
+   - 2-row multi-column grid (`.framer-rl709l`) displaying experimental animations, UI snippets, and interactive explorations.
+
+5. **`About me` (`.framer-13ntcbj`)**
+   - Editorial profile section with custom typography (`.framer-11smyc6`), background photo/illustration (`.framer-8y3vvo`), and background narrative.
+
+6. **`Contact & Footer` (`.framer-enliq4` / `.framer-32vixs`)**
+   - Dark theme anchor container (`#3d3d3d` surface).
+   - "About Me" attribute cards (Horoscope badge: Leo, Personality: INFJ-T, Typefaces: Mikado).
+   - Direct mail link (`designedbyburo@gmail.com`).
+   - Social links: LinkedIn, Behance, Instagram.
+
+### 5.2. Work / Case Study Components (`work/*.html`)
+
+1. **Navigation Bar / Header:**
+   - Sticky top bar with return home arrow icon (`/`) and dynamic project breadcrumb.
+2. **Project Hero Header:**
+   - Large hero title, summary statement, metadata grid (Role, Scope, Timeline, Tools).
+3. **Structured Case Study Body:**
+   - Multi-column image & text layouts, before/after comparisons, interactive design system token grids, responsive prototype showcases.
+4. **Pagination & Next Project Footer:**
+   - Bottom teaser card linking forward to subsequent case studies.
+
+---
+
+## 6. Scroll Behavior Architecture
+
+### 6.1. Homepage: True Horizontal Scroll (`>= 1200px`)
+
+Unlike the default Framer export which simulated scrolling using a `5721px` vertical container with JavaScript 2D translate transforms, the implementation uses **native true horizontal scrolling**:
+
+- **DOM Structure:**
+  ```html
+  <div id="main">
+    <div data-framer-root class="framer-uwW3q framer-72rtr7">
+      <div id="trigger" class="framer-obrpb3">
+        <div class="framer-1k4toyc" data-hide-scrollbars="true">
+          <div class="ssr-variant">
+            <main class="framer-vei7ga" data-framer-name="Cards">
+---
+{
+  "https://framerusercontent.com/images/gfvppEks3sM930akQ8Vaei57A.gif?width=500&height=500": "/assets/images/home-hero-chibi-buro.gif",
+  "https://framerusercontent.com/images/d5fmngFIisjAOGuWhK92mxrSsRs.jpg?scale-down-to=512&width=1920&height=1920": "/assets/images/shared-card-unblok-512w.avif",
+  "https://framerusercontent.com/images/YIJk6tddnSL6CvqmnWqsCegyc.png?scale-down-to=512&width=1897&height=1895": "/assets/images/home-readmore-card-cardoctor-ds.avif",
+  "https://framerusercontent.com/images/caP2VLW43rqNG2CPqKyrwRboC4Q.png?width=1200&height=1200": "/assets/images/shared-card-cardoctor.avif",
+  "https://framerusercontent.com/images/0Rpuyu4LQe4eeaUvwQTvJKExM.png?width=1726&height=1440": "/assets/images/home-works-card-mas-pricing.avif",
+  "https://events.framer.com/script?v=2": "/assets/js/framer-events.js",
+  "https://framerusercontent.com/sites/3hyyWzF6fM1W6OCaSh0Q9K/rolldown-runtime.Bi-D_2cA.mjs": "/assets/js/rolldown-runtime.js",
+  "https://framerusercontent.com/images/3yR7eKkjBJ6BprIjV9Uzf6FASI.png?scale-down-to=512&width=800&height=800": "/assets/images/shared-footer-about-me-card.png",
+  "https://framerusercontent.com/sites/3hyyWzF6fM1W6OCaSh0Q9K/toplevel-deps.Dv8-emv-.mjs": "/assets/js/toplevel-deps.js",
+  "https://framerusercontent.com/sites/3hyyWzF6fM1W6OCaSh0Q9K/react.Dxe_2v0O.mjs": "/assets/js/react-runtime.js",
+  "https://framerusercontent.com/sites/3hyyWzF6fM1W6OCaSh0Q9K/shared-lib.CSby96g3.mjs": "/assets/js/shared-lib.js",
+  "https://framerusercontent.
+kyletran/assets
+kyletran/assets/css
+kyletran/assets/css/css2-3c0277d9.css
+kyletran/assets/css/css2
+kyletran/assets/css/css2-3d10be55.css
+kyletran/assets/css/css2-499c1781.css
+kyletran/assets/css/css2-5019d683.css
+kyletran/assets/images
+kyletran/assets/images/mas-pricing-hero-isometric-mockup.webp
+kyletran/assets/images/unblok-hero.webp
+kyletran/assets/images/mas-pricing-challenge-solution-3-diagram.svg
+kyletran/assets/images/cardoctor-ds-header-icon-original.png
+kyletran/assets/images/shared-card-cardoctor-original.png
+kyletran/assets/images/shared-footer-about-me-card.png
+kyletran/assets/images/mas-pricing-challenge-solution-1.avif
+kyletran/assets/images/cardoctor-ds-header-icon.webp
+kyletran/assets/images/home-playground-06.gif
+kyletran/assets/images/home-hero-chibi-buro-original.gif
+kyletran/assets/images/cardoctor-research.webp
+kyletran/assets/images/cardoctor-ds-research.webp
+kyletran/assets/images/home-playground-04-original.jpg
+kyletran/assets/images/cardoctor-ds-hero.webp
+kyletran/assets/images/home-playground-01-original.gif
+kyletran/assets/images/home-playground-06-original.gif
+kyletran/assets/images/cardoctor-ds-challenge-solution-original.png
+kyletran/assets/images/shared-card-unblok-1024w.avif
+kyletran/assets/images/breadslice-body-2.webp
+kyletran/assets/images/home-hero-chibi-buro.gif
+kyletran/assets/images/home-works-card-mas-pricing-original.png
+kyletran/assets/images/cardoctor-header-icon.webp
+kyletran/assets/images/breadslice-body-1.webp
+kyletran/assets/images/cardoctor-header-icon-original.png
+kyletran/assets/images/shared-cards-carousel-anim-original.gif
+kyletran/assets/images/shared-card-unblok-512w.avif
+kyletran/assets/images/shared-card-unblok-original.jpg
+kyletran/assets/images/breadslice-body-1-original.png
+kyletran/assets/images/unblok-body-2-original.png
+kyletran/assets/images/home-playground-04.avif
+kyletran/assets/images/cardoctor-ds-hero-original.png
+kyletran/assets/images/home-playground-02-original.gif
+kyletran/assets/images/shared-card-breadslice-original.png
+kyletran/assets/images/unblok-body-2.webp
+kyletran/assets/images/home-playground-03-original.gif
+kyletran/assets/images/unblok-body-1.avif
+kyletran/assets/images/home-playground-01.gif
+kyletran/assets/images/breadslice-body-3.webp
+kyletran/assets/images/unblok-body-1-original.png
+kyletran/assets/images/shared-card-cardoctor.avif
+kyletran/assets/images/home-about-me-portrait-original.gif
+kyletran/assets/images/shared-footer-about-me-card-original.png
+kyletran/assets/images/home-playground-07.avif
+kyletran/assets/images/mas-pricing-challenge-solution-3-diagram-original.svg
+kyletran/assets/images/home-playground-02.webp
+kyletran/assets/images/cardoctor-challenge-solution-original.png
+kyletran/assets/images/breadslice-hero.webp
+kyletran/assets/images/mas-pricing-challenge-solution-2.webp
+kyletran/assets/images/shared-card-breadslice.avif
+kyletran/assets/images/home-works-card-mas-pricing.avif
+kyletran/assets/images/home-projects-books-graphic-original.png
+kyletran/assets/images/cardoctor-ds-research-original.png
+kyletran/assets/images/cardoctor-research-original.png
+kyletran/assets/images/breadslice-body-3-original.png
+kyletran/assets/images/shared-cards-carousel-anim.webp
+kyletran/assets/images/home-playground-05-original.gif
+kyletran/assets/images/shared-card-breadslice.webp
+kyletran/assets/images/mas-pricing-hero-isometric-mockup-original.jpg
+kyletran/assets/images/unblok-hero-original.gif
+kyletran/assets/images/mas-pricing-challenge-solution-2-original.png
+kyletran/assets/images/mas-pricing-challenge-solution-1-original.png
+kyletran/assets/images/cardoctor-ds-challenge-solution.png
+kyletran/assets/images/home-readmore-card-cardoctor-ds-original.png
+kyletran/assets/images/home-about-me-portrait.webp
+kyletran/assets/images/breadslice-body-2-original.png
+kyletran/assets/images/home-projects-books-graphic.webp
+kyletran/assets/images/home-playground-03.gif
+kyletran/assets/images/home-readmore-card-cardoctor-ds.avif
+kyletran/assets/images/breadslice-hero-original.png
+kyletran/assets/images/home-playground-05.gif
+kyletran/assets/images/home-playground-07-original.jpg
+kyletran/assets/images/cardoctor-challenge-solution.webp
+
