@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Vite keeps an inherited NODE_ENV, and the sandbox exports NODE_ENV=development, which would bundle React's
+# development build. Force production for the published site.
+NODE_ENV=production pnpm run build
+[[ -d "dist" ]] || {
+  echo "Expected build output at dist" >&2
+  exit 1
+}
+figma make deploy --build-dir "dist"

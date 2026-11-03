@@ -1,0 +1,485 @@
+/*
+ * The CarDS hero as a live grid (CarDSHeroArt.tsx), filling CaseStudyHero's art band. Everything is scoped under
+ * .cdsh. Designs: 1400 x 600 from 1280px (the band's height), 860 x 412 from 640px, 358 x 260 on phones; each is drawn
+ * as tall as the band allows, narrower bands scaling it to their width. The look: a #e0e0e0 ground as on the
+ * CarDoctor hero, white tiles, CarDS blue #3e65fe, Be Vietnam Pro (self-hosted in index.css).
+ */
+
+.cdsh {
+  --cdsh-blue: #3e65fe;
+  --cdsh-blue-press: #2f55ea;
+  --cdsh-blue-soft: #e8edff;
+  --cdsh-ink: #0d0d0d;
+  --cdsh-text: #3a3a3a;
+  --cdsh-muted: #6b6b6b;
+  --cdsh-faint: #9a9a9a;
+  --cdsh-line: #e6e6e6;
+  --cdsh-well: #f4f4f5;
+
+  /* The hero band is rounded and clips; this fills it */
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #e0e0e0;
+  /* A lasting layer, so the scaled type never hops to whole pixels */
+  will-change: transform;
+}
+
+/* As tall as the band and as wide as the design's shape, never wider than the band: there the stage scales to the
+   band's width and sits in the middle of its height */
+.cdsh-frame {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  /* An explicit height, so a width capped by max-width never shrinks it back to the shape */
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 100%;
+  aspect-ratio: 358 / 260;
+  transform: translateX(-50%);
+}
+
+@media (min-width: 640px) {
+  .cdsh-frame {
+    aspect-ratio: 860 / 412;
+  }
+}
+
+/* Desktop from 1280px, where the band (1232px and up) holds the two rows at 0.88x or more; under that the brand tile
+   over the form, which the band draws larger */
+@media (min-width: 1280px) {
+  .cdsh-frame {
+    aspect-ratio: 1400 / 600;
+  }
+}
+
+.cdsh .ss-stage {
+  overflow: hidden;
+  background: none;
+  color: var(--cdsh-ink);
+  font-family: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: normal;
+}
+
+.cdsh .cdsh-tile {
+  position: absolute;
+  overflow: hidden;
+  border: 1px solid rgb(0 0 0 / 0.04);
+  border-radius: 18px;
+  background: #fff;
+}
+
+.cdsh .cdsh-tile svg {
+  display: block;
+  flex: none;
+}
+
+/* ------------------------------------------------------------------ brand */
+
+/* The original art's middle tile, its lavender edge just outside this crop; the ring redraws it */
+.cdsh .cdsh-brand {
+  border: 0;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 165% auto;
+  box-shadow: inset 0 0 0 2px rgb(165 170 255 / 0.85);
+}
+
+/* ------------------------------------------------------------------ tooltip */
+
+.cdsh .cdsh-tooltip {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 8px;
+  padding-left: 24px;
+}
+
+/* Wider than the room left in the tile, so it runs off the right edge; the words wrap well inside it */
+.cdsh .cdsh-tooltip__card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 240px;
+  padding: 10px 52px 10px 12px;
+  border: 1px solid var(--cdsh-line);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 6px 16px rgb(0 0 0 / 0.08);
+}
+
+.cdsh .cdsh-tooltip__title {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+}
+
+.cdsh .cdsh-tooltip__text {
+  color: var(--cdsh-muted);
+  font-size: 11px;
+  line-height: 15px;
+}
+
+.cdsh .cdsh-tooltip__icon {
+  margin-left: 12px;
+  color: var(--cdsh-faint);
+}
+
+/* ------------------------------------------------------------------ field */
+
+.cdsh .cdsh-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.cdsh .cdsh-tile--form {
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+}
+
+.cdsh .cdsh-tile--form .cdsh-field {
+  flex: 1;
+}
+
+.cdsh .cdsh-field__label {
+  display: flex;
+  gap: 2px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+}
+
+.cdsh .cdsh-field__required {
+  color: #ef4444;
+}
+
+.cdsh .cdsh-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid #d4d4d8;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 16px;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.cdsh .cdsh-input[data-focus] {
+  border-color: var(--cdsh-blue);
+  box-shadow: 0 0 0 3px rgb(62 101 254 / 0.18);
+}
+
+.cdsh .cdsh-input__value {
+  white-space: nowrap;
+}
+
+.cdsh .cdsh-input__placeholder {
+  position: absolute;
+  top: 50%;
+  left: 15px;
+  color: #a1a1aa;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(-50%);
+  transition: opacity 0.12s ease;
+}
+
+.cdsh .cdsh-input__placeholder[data-on] {
+  opacity: 1;
+}
+
+/* ------------------------------------------------------------------ buttons */
+
+.cdsh .cdsh-tile--buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* Idle, pending and booked in one cell; the widest sets the button's width */
+.cdsh .cdsh-primary {
+  display: grid;
+  flex: none;
+  place-items: center;
+  height: 48px;
+  padding: 0 22px;
+  border-radius: 10px;
+  background: var(--cdsh-blue);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  will-change: transform;
+  transition:
+    background-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.cdsh .cdsh-primary[data-pressed] {
+  background: var(--cdsh-blue-press);
+  transform: scale(0.98);
+}
+
+.cdsh .cdsh-layer {
+  display: inline-flex;
+  grid-area: 1 / 1;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.cdsh .cdsh-layer[data-on] {
+  opacity: 1;
+}
+
+.cdsh .cdsh-spinner {
+  color: #fff;
+}
+
+/* The kit's check, drawn as a white disc with a blue tick on the blue button */
+.cdsh .cdsh-booked-check .ss-check__ring {
+  stroke: rgb(255 255 255 / 0.6);
+}
+
+.cdsh .cdsh-booked-check .ss-check__fill {
+  fill: #fff;
+}
+
+.cdsh .cdsh-booked-check .ss-check__tick {
+  stroke: var(--cdsh-blue);
+}
+
+.cdsh .cdsh-icon-button {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background: var(--cdsh-blue);
+  color: #fff;
+}
+
+/* ------------------------------------------------------------------ contact */
+
+.cdsh .cdsh-contact {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 24px;
+}
+
+.cdsh .cdsh-contact__date {
+  align-self: flex-start;
+  margin-top: 4px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: #fde7f3;
+  color: #c0267a;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.cdsh .cdsh-contact__card {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  border: 1.5px solid var(--cdsh-blue);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--cdsh-text);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+/* Taller than the room under its top gutter, so it runs well off the tile's foot */
+.cdsh .cdsh-contact .cdsh-contact__card {
+  min-height: 300px;
+}
+
+.cdsh .cdsh-contact__name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 2px;
+  color: var(--cdsh-ink);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.cdsh .cdsh-contact__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.cdsh .cdsh-contact__row svg {
+  color: var(--cdsh-muted);
+}
+
+/* ------------------------------------------------------------------ tabs and menu */
+
+.cdsh .cdsh-tabs {
+  position: absolute;
+  inset: 0;
+}
+
+.cdsh .cdsh-segmented {
+  position: absolute;
+  top: 120px;
+  left: 22px;
+  font-size: 13px;
+}
+
+/* A side menu beside the tabs, a gutter in from the tile's top and right edges and running off its foot, as the
+   original art crops it; Details chosen */
+.cdsh .cdsh-menu {
+  position: absolute;
+  top: 22px;
+  right: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 128px;
+  margin: 0;
+  padding: 6px;
+  border: 1px solid var(--cdsh-line);
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 6px 16px rgb(0 0 0 / 0.06);
+  list-style: none;
+}
+
+.cdsh .cdsh-menu__item {
+  padding: 7px 10px;
+  border-radius: 6px;
+  color: var(--cdsh-muted);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.cdsh .cdsh-menu__item[data-on] {
+  background: var(--cdsh-well);
+  color: var(--cdsh-ink);
+  font-weight: 500;
+}
+
+/* ------------------------------------------------------------------ checkbox */
+
+.cdsh .cdsh-remember {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+.cdsh .cdsh-remember__card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--cdsh-line);
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 6px 16px rgb(0 0 0 / 0.06);
+}
+
+.cdsh .cdsh-remember__option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.cdsh .cdsh-checkbox {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  border: 1.5px solid #c4c4c8;
+  border-radius: 5px;
+  background: #fff;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.cdsh .cdsh-checkbox[data-on] {
+  border-color: var(--cdsh-blue);
+  background: var(--cdsh-blue);
+}
+
+/* The kit's check as the bare tick, white on the blue box (the box is the checkbox's own) */
+.cdsh .cdsh-checkbox__tick .ss-check__ring {
+  stroke: transparent;
+}
+
+.cdsh .cdsh-checkbox__tick .ss-check__fill {
+  fill: transparent;
+}
+
+.cdsh .cdsh-remember__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  white-space: nowrap;
+}
+
+.cdsh .cdsh-remember__title {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.cdsh .cdsh-remember__text {
+  color: var(--cdsh-muted);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+/* ------------------------------------------------------------------ compact */
+
+/* Compact: the field and its button on one line, the button level with the input */
+.cdsh .cdsh-tile--row {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  /* The 67px field centred in the 182px tile */
+  padding: 0 24px 57px;
+}
+
+.cdsh .cdsh-tile--row .cdsh-field {
+  flex: 1;
+}
+
+/* Phone: the field and a slightly smaller button on one line, level with the input */
+.cdsh .cdsh-tile--phone {
+  gap: 12px;
+  padding: 20px;
+}
+
+.cdsh .cdsh-tile--phone .cdsh-primary {
+  height: 44px;
+  padding: 0 16px;
+  font-size: 16px;
+}

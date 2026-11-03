@@ -1,0 +1,787 @@
+/*
+ * The CarDS order board mockup (CarDSBoardArt.tsx). Everything is scoped under .cdsb. Values are the Figma frame's
+ * divided by its 1.0514 scale (16.822px -> 16), so the board draws at the product's own sizes. Be Vietnam Pro, as the
+ * frame sets it (Plus Jakarta Sans on the tab's "3 new" badge); colours are the frame's CarDS tokens.
+ */
+
+.cdsb {
+  --cdsb-brand: #4f46e5;
+  --cdsb-brand-text: #3d38f5;
+  --cdsb-ink: #1e293b;
+  --cdsb-gray-900: #181d27;
+  --cdsb-gray-700: #414651;
+  --cdsb-gray-600: #535862;
+  --cdsb-muted: #475569;
+  --cdsb-faint: #94a3b8;
+  --cdsb-line: #e2e8f0;
+  --cdsb-gray-50: #fafafa;
+
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1.75768;
+  overflow: hidden;
+  border-radius: 12px;
+  /* The frame's ground */
+  background: #dfdfdf;
+  will-change: transform;
+}
+
+/* Tablets show the last three columns, taller than the band's shape; phones their own design */
+@media (max-width: 999px) {
+  .cdsb {
+    aspect-ratio: 760 / 790;
+  }
+}
+
+@media (max-width: 639px) {
+  .cdsb {
+    aspect-ratio: 358 / 660;
+  }
+}
+
+.cdsb .ss-stage {
+  overflow: hidden;
+  background: none;
+  color: var(--cdsb-ink);
+  font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+  letter-spacing: normal;
+  line-height: normal;
+}
+
+.cdsb img {
+  display: block;
+  max-width: none;
+  flex: none;
+}
+
+/* The faces, by the frame's names */
+.cdsb :is(.cdsb-logo span, .cdsb-nav__item, .cdsb-nav__sub, .cdsb-account__name, .cdsb-button, .cdsb-col__title, .cdsb-card__model, .cdsb-chip, .cdsb-team__dates, .cdsb-assign__link) {
+  font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+  font-weight: 600;
+}
+
+.cdsb :is(.cdsb-badge, .cdsb-tab, .cdsb-find) {
+  font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+  font-weight: 500;
+}
+
+.cdsb :is(.cdsb-title, .cdsb-filter, .cdsb-card__name, .cdsb-price) {
+  font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+  font-weight: 700;
+}
+
+.cdsb .cdsb-card__car span:last-child,
+.cdsb .cdsb-subtitle,
+.cdsb .cdsb-account__copy,
+.cdsb .cdsb-search {
+  font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+  font-weight: 400;
+}
+
+/* ------------------------------------------------------------------ the panel */
+
+/* Desktop: the frame's panel at 90% of the band's width, inset from the top; it fades out at its foot over the
+   lower cards (filler) rather than slicing their words at the band's edge */
+.cdsb .cdsb-panel {
+  position: absolute;
+  top: 40px;
+  left: 80px;
+  display: flex;
+  width: 1440px;
+  height: 946px;
+  overflow: hidden;
+  border-radius: 20px;
+  background: #fff;
+  -webkit-mask-image: linear-gradient(to bottom, #000 var(--cdsb-fade-from), transparent var(--cdsb-fade-to));
+  mask-image: linear-gradient(to bottom, #000 var(--cdsb-fade-from), transparent var(--cdsb-fade-to));
+  /* In the panel's own pixels: from under Laura Palmer's card (the story's) to the band's edge */
+  --cdsb-fade-from: 700px;
+  --cdsb-fade-to: 870px;
+}
+
+.cdsb .cdsb-panel__rule {
+  width: 1px;
+  height: 100%;
+}
+
+/* ------------------------------------------------------------------ sidebar */
+
+.cdsb .cdsb-side {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 312px;
+}
+
+.cdsb .cdsb-side__top {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding-top: 32px;
+}
+
+.cdsb .cdsb-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 20px 0 24px;
+  color: var(--cdsb-brand);
+  font-size: 21px;
+  line-height: 24px;
+  letter-spacing: -0.21px;
+}
+
+.cdsb .cdsb-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  margin: 0 24px;
+  padding: 0 14px;
+  border: 1px solid #d5d7da;
+  border-radius: 8px;
+  box-shadow: 0 1px 1px rgb(10 13 18 / 0.05);
+  color: #717680;
+  font-size: 16.8px;
+  line-height: 25.2px;
+}
+
+.cdsb .cdsb-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 16px;
+}
+
+.cdsb .cdsb-nav__item,
+.cdsb .cdsb-nav__sub {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 6px;
+  color: var(--cdsb-gray-700);
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: -0.16px;
+  white-space: nowrap;
+}
+
+.cdsb .cdsb-nav__sub {
+  padding-left: 48px;
+}
+
+.cdsb .cdsb-nav__item[data-open],
+.cdsb .cdsb-nav__sub[data-on] {
+  background: var(--cdsb-gray-50);
+}
+
+.cdsb .cdsb-nav__sub[data-on] {
+  color: #4338ca;
+}
+
+.cdsb .cdsb-nav__sub + .cdsb-nav__item {
+  margin-top: 4px;
+}
+
+.cdsb .cdsb-nav__label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cdsb .cdsb-badge {
+  padding: 2px 10px;
+  border-radius: 16px;
+  background: var(--cdsb-brand);
+  color: #fff;
+  font-size: 14.7px;
+  line-height: 21px;
+}
+
+.cdsb .cdsb-badge--quiet {
+  background: #f5f5f5;
+  color: var(--cdsb-gray-700);
+}
+
+.cdsb .cdsb-side__foot {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 16px 32px;
+}
+
+.cdsb .cdsb-side__rule {
+  width: 100%;
+  height: 1px;
+  margin: 20px 0;
+}
+
+.cdsb .cdsb-account {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 8px;
+}
+
+.cdsb .cdsb-account__photo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.cdsb .cdsb-account__copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  color: var(--cdsb-gray-600);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.cdsb .cdsb-account__name {
+  color: var(--cdsb-gray-900);
+}
+
+/* ------------------------------------------------------------------ header and tabs */
+
+.cdsb .cdsb-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  padding-top: 32px;
+}
+
+.cdsb .cdsb-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 0 32px;
+}
+
+.cdsb .cdsb-header__copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.cdsb .cdsb-title {
+  color: var(--cdsb-ink);
+  font-size: 24px;
+  line-height: 38px;
+  letter-spacing: -0.31px;
+}
+
+.cdsb .cdsb-subtitle {
+  color: var(--cdsb-gray-600);
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.cdsb .cdsb-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.cdsb .cdsb-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid #d5d7da;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(10 13 18 / 0.05);
+  color: var(--cdsb-gray-700);
+  font-size: 14.7px;
+  line-height: 21px;
+  white-space: nowrap;
+}
+
+.cdsb .cdsb-button--primary {
+  border-color: var(--cdsb-brand);
+  background: var(--cdsb-brand);
+  color: #fff;
+}
+
+.cdsb .cdsb-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+  padding: 0 32px;
+}
+
+.cdsb .cdsb-tabs {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}
+
+.cdsb .cdsb-tab {
+  flex: none;
+}
+
+.cdsb .cdsb-tab {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 12px 16px;
+  border-bottom: 2px solid #cbd5e1;
+  color: var(--cdsb-muted);
+  font-size: 16.8px;
+  line-height: 23px;
+  letter-spacing: -0.12px;
+  white-space: nowrap;
+}
+
+.cdsb .cdsb-tab[data-on] {
+  border-bottom-color: var(--cdsb-brand);
+  color: var(--cdsb-ink);
+}
+
+.cdsb .cdsb-tab__badge {
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: var(--cdsb-brand);
+  font-family: 'Plus Jakarta Sans:SemiBold', 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+  letter-spacing: -0.06px;
+}
+
+.cdsb .cdsb-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--cdsb-muted);
+  font-size: 14.7px;
+  line-height: 21px;
+  letter-spacing: -0.09px;
+}
+
+.cdsb .cdsb-find {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 220px;
+  height: 30px;
+  padding: 0 8px;
+  border-radius: 11.4px;
+  background: #f1f5f9;
+  color: var(--cdsb-faint);
+  font-size: 13.3px;
+}
+
+/* ------------------------------------------------------------------ the board */
+
+.cdsb .cdsb-board {
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: start;
+  gap: 16px;
+  padding: 32px;
+  background: #f8fafc;
+}
+
+.cdsb .cdsb-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.cdsb .cdsb-col__head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.cdsb .cdsb-col__title {
+  flex: 1;
+  color: var(--cdsb-ink);
+  font-size: 16px;
+  line-height: 28px;
+  letter-spacing: -0.16px;
+  white-space: nowrap;
+}
+
+.cdsb .cdsb-col__extra {
+  color: var(--cdsb-brand-text);
+}
+
+.cdsb .cdsb-col__tools {
+  display: flex;
+  gap: 12px;
+}
+
+.cdsb .cdsb-col__cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cdsb .cdsb-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--cdsb-line);
+  border-radius: 15.2px;
+  background: #fff;
+}
+
+.cdsb .cdsb-card__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.cdsb .cdsb-card__check {
+  margin-top: 2px;
+}
+
+.cdsb .cdsb-card__who {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.cdsb .cdsb-card__name {
+  color: var(--cdsb-ink);
+  font-size: 16px;
+  line-height: 22px;
+  letter-spacing: -0.11px;
+  white-space: nowrap;
+}
+
+.cdsb .cdsb-card__car {
+  display: flex;
+  flex-direction: column;
+  color: var(--cdsb-muted);
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: -0.08px;
+  white-space: nowrap;
+}
+
+.cdsb .cdsb-chips {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+/* One line of chips: each card's lines are set so they fit its column, never wrapping on their own */
+.cdsb .cdsb-chips__row {
+  display: flex;
+  gap: 8px;
+}
+
+.cdsb .cdsb-chip {
+  padding: 4px 8px;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 12.6px;
+  line-height: 16.8px;
+  letter-spacing: -0.06px;
+  white-space: nowrap;
+}
+
+.cdsb .cdsb-chip[data-tone='gray'] {
+  background: var(--cdsb-faint);
+}
+
+.cdsb .cdsb-chip[data-tone='indigo'] {
+  background: var(--cdsb-brand);
+}
+
+.cdsb .cdsb-chip[data-tone='orange'] {
+  background: #f1831d;
+}
+
+.cdsb .cdsb-chip[data-tone='green'] {
+  background: #14a668;
+}
+
+.cdsb .cdsb-chip--services {
+  background: #ecfccb;
+  color: #4d7c0f;
+}
+
+.cdsb .cdsb-team {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+}
+
+.cdsb .cdsb-team__faces {
+  display: flex;
+}
+
+.cdsb .cdsb-team__faces img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.cdsb .cdsb-team__faces img + img {
+  margin-left: -17px;
+}
+
+.cdsb .cdsb-team__dates {
+  color: var(--cdsb-muted);
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: -0.08px;
+  white-space: pre;
+}
+
+.cdsb .cdsb-ready {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cdsb .cdsb-price {
+  padding: 4px 6px 4px 8px;
+  border-radius: 16px;
+  background: #e0e7ff;
+  color: var(--cdsb-brand);
+  font-size: 14.7px;
+  line-height: 19px;
+}
+
+/* The assign link and the mechanic it brings, in one row 32px tall, crossfading */
+.cdsb .cdsb-assign {
+  display: grid;
+  align-items: center;
+  height: 32px;
+}
+
+.cdsb .cdsb-assign > * {
+  grid-area: 1 / 1;
+  transition: opacity 0.25s ease;
+}
+
+.cdsb .cdsb-assign__link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--cdsb-brand-text);
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: -0.08px;
+}
+
+.cdsb .cdsb-assign__team,
+.cdsb .cdsb-assign[data-assigned] .cdsb-assign__link {
+  opacity: 0;
+}
+
+.cdsb .cdsb-assign[data-assigned] .cdsb-assign__team {
+  opacity: 1;
+}
+
+/* ------------------------------------------------------------------ moving a card */
+
+/* A place in a column that opens and closes at its content's own height; closed it takes no space, its gap too */
+.cdsb .cdsb-place {
+  display: grid;
+  grid-template-rows: 0fr;
+  margin-bottom: -12px;
+  transition:
+    grid-template-rows 0.45s cubic-bezier(0.45, 0, 0.2, 1),
+    margin-bottom 0.45s cubic-bezier(0.45, 0, 0.2, 1);
+}
+
+.cdsb .cdsb-place[data-open] {
+  grid-template-rows: 1fr;
+  margin-bottom: 0;
+}
+
+.cdsb .cdsb-place__inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Where the card will land, dashed while it's carried; drawn at its final height and only faded */
+.cdsb .cdsb-slot {
+  border: 1.5px dashed #cbd5e1;
+  border-radius: 15.2px;
+  opacity: 0;
+  transition: opacity 0.15s ease-out;
+}
+
+.cdsb .cdsb-slot[data-on] {
+  opacity: 1;
+  transition: opacity 0.16s ease-out 0.3s;
+}
+
+/* The card coming and going: it fades as its place closes, and in as its place opens */
+.cdsb .cdsb-fade {
+  animation: cdsb-in 0.35s ease 0.12s both;
+  transition: opacity 0.22s ease;
+}
+
+.cdsb .cdsb-fade[data-out] {
+  opacity: 0;
+}
+
+@keyframes cdsb-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* The carried card: lifted, a deeper shadow and a degree of tilt, all of it tilting; it settles flat in place */
+.cdsb .cdsb-carry {
+  position: absolute;
+  z-index: 5;
+  border-radius: 15.2px;
+  box-shadow:
+    0 18px 36px -8px rgb(30 41 59 / 0.22),
+    0 6px 12px -4px rgb(30 41 59 / 0.12);
+  transform: rotate(1.5deg) scale(1.03);
+  transform-origin: 72% 22%;
+  will-change: transform;
+  transition:
+    transform 0.22s cubic-bezier(0.25, 0.8, 0.25, 1),
+    box-shadow 0.22s ease;
+}
+
+.cdsb .cdsb-carry[data-settle] {
+  box-shadow: none;
+  transform: none;
+}
+
+/* Its footer crossfades to the ready look in the carry's last part, and the box eases to the ready height with it,
+   so it lands the size of the card it becomes */
+.cdsb .cdsb-morph {
+  display: grid;
+  grid-template-rows: 1fr 0fr;
+  transition: grid-template-rows 0.3s cubic-bezier(0.45, 0, 0.1, 1);
+}
+
+.cdsb .cdsb-morph[data-ready] {
+  grid-template-rows: 0fr 1fr;
+}
+
+.cdsb .cdsb-morph > * {
+  min-height: 0;
+  transition: opacity 0.18s ease;
+}
+
+/* In sequence, nothing clipped: the jobs fade out first, the box eases to the ready height, the ready line fades in */
+.cdsb .cdsb-morph[data-ready] {
+  transition-delay: 0.12s;
+}
+
+.cdsb .cdsb-morph[data-ready] .cdsb-morph__to {
+  transition: opacity 0.2s ease 0.3s;
+}
+
+.cdsb .cdsb-morph__from {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cdsb .cdsb-morph__to,
+.cdsb .cdsb-morph[data-ready] .cdsb-morph__from {
+  opacity: 0;
+}
+
+.cdsb .cdsb-morph[data-ready] .cdsb-morph__to {
+  opacity: 1;
+}
+
+/* ------------------------------------------------------------------ tablets */
+
+/* The last three columns, the panel cropped to its main column and running off the right */
+.cdsb .ss-stage[data-layout='compact'] .cdsb-panel {
+  top: 32px;
+  left: 32px;
+  width: 760px;
+  /* No fade: each column shows only the cards that sit whole in the frame */
+  --cdsb-fade-from: 2000px;
+  --cdsb-fade-to: 2001px;
+}
+
+/* Checked In and In Progress keep their first two places, Ready to Collect its landing place and two cards, so the
+   columns end clear of the band's foot and the moved card is the one that grows its column */
+.cdsb .ss-stage[data-layout='compact'] .cdsb-col:nth-child(-n + 3) .cdsb-col__cards > :nth-child(n + 3),
+.cdsb .ss-stage[data-layout='compact'] .cdsb-col:nth-child(4) .cdsb-col__cards > :nth-child(n + 4) {
+  display: none;
+}
+
+.cdsb .ss-stage[data-layout='compact'] :is(.cdsb-side, .cdsb-panel__rule, .cdsb-filter, .cdsb-find, .cdsb-col:first-child) {
+  display: none;
+}
+
+.cdsb .ss-stage[data-layout='compact'] .cdsb-board {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding-right: 64px;
+}
+
+.cdsb .ss-stage[data-layout='compact'] :is(.cdsb-header, .cdsb-toolbar) {
+  padding-right: 64px;
+}
+
+/* ------------------------------------------------------------------ phones */
+
+/* The Checked In column alone, under the page's title, a gutter from both sides */
+.cdsb .cdsb-phone .cdsb-panel {
+  top: 16px;
+  left: 16px;
+  width: 326px;
+  height: 700px;
+  --cdsb-fade-from: 604px;
+  --cdsb-fade-to: 644px;
+}
+
+.cdsb .cdsb-phone :is(.cdsb-side, .cdsb-panel__rule, .cdsb-actions, .cdsb-toolbar, .cdsb-col:not(:nth-child(2))) {
+  display: none;
+}
+
+.cdsb .cdsb-phone .cdsb-main {
+  padding-top: 20px;
+}
+
+/* James and Laura only: the column ends under the story's card, clear of the edge */
+.cdsb .cdsb-phone .cdsb-col__cards > :nth-child(n + 3) {
+  display: none;
+}
+
+.cdsb .cdsb-phone .cdsb-header {
+  padding: 0 12px 20px;
+}
+
+.cdsb .cdsb-phone .cdsb-title {
+  font-size: 20px;
+  line-height: 30px;
+}
+
+.cdsb .cdsb-phone .cdsb-subtitle {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.cdsb .cdsb-phone .cdsb-board {
+  grid-template-columns: minmax(0, 1fr);
+  padding: 12px;
+}

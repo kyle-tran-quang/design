@@ -1,0 +1,847 @@
+/*
+ * The CarDS order mockup (CarDSOrderArt.tsx). Everything is scoped under .cdso. Values are the Figma frame's divided by
+ * its 1.0497 scale (16.796px -> 16), so the dashboard draws at the product's own sizes. Be Vietnam Pro throughout, as
+ * the frame sets it; colours are the frame's CarDS tokens.
+ */
+
+.cdso {
+  --cdso-brand: #3d38f5;
+  --cdso-brand-60: #4f46e5;
+  --cdso-brand-70: #4338ca;
+  --cdso-ink: #1e293b;
+  --cdso-gray-900: #181d27;
+  --cdso-gray-700: #414651;
+  --cdso-gray-600: #535862;
+  --cdso-text: #334155;
+  --cdso-muted: #475569;
+  --cdso-line: #e9eaeb;
+  --cdso-line-cool: #e2e8f0;
+  --cdso-gray-50: #fafafa;
+
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1.75;
+  overflow: hidden;
+  border-radius: 20px;
+  /* The frame's ground */
+  background: #dfdfdf;
+  will-change: transform;
+}
+
+/* Tablets show the order cropped closer, taller than the band's 1.75; phones their own design */
+@media (max-width: 999px) {
+  .cdso {
+    aspect-ratio: 760 / 820;
+  }
+}
+
+@media (max-width: 639px) {
+  .cdso {
+    aspect-ratio: 358 / 441;
+  }
+}
+
+.cdso .ss-stage {
+  overflow: hidden;
+  background: none;
+  color: var(--cdso-ink);
+  font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+  letter-spacing: normal;
+  line-height: normal;
+}
+
+.cdso img {
+  display: block;
+  max-width: none;
+  flex: none;
+}
+
+/* The faces, by the frame's names */
+.cdso .cdso-panel {
+  font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+}
+
+.cdso .cdso-logo span,
+.cdso .cdso-nav__item,
+.cdso .cdso-nav__sub,
+.cdso .cdso-account__name,
+.cdso .cdso-button,
+.cdso .cdso-customer__name,
+.cdso .cdso-label,
+.cdso .cdso-work__title,
+.cdso .cdso-assignees__label,
+.cdso .cdso-add {
+  font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+  font-weight: 600;
+}
+
+.cdso .cdso-badge,
+.cdso .cdso-avatars__more,
+.cdso .cdso-input__text,
+.cdso .cdso-head,
+.cdso .cdso-service__title,
+.cdso .cdso-people__names {
+  font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+  font-weight: 500;
+}
+
+.cdso .cdso-title__id,
+.cdso .cdso-step__title,
+.cdso .cdso-step[data-state='current'] .cdso-step__note,
+.cdso .cdso-pill,
+.cdso .cdso-quote {
+  font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+  font-weight: 700;
+}
+
+/* ------------------------------------------------------------------ the panel */
+
+/* Desktop: the frame's panel at 85% of the band's width, inset from the top and running off its foot; the inset
+   leaves the services section a clear gap above the band's edge */
+.cdso .cdso-panel {
+  position: absolute;
+  top: 44px;
+  left: 120px;
+  display: flex;
+  width: 1360px;
+  height: 1095px;
+  overflow: hidden;
+  border-radius: 19px;
+  background: #fff;
+}
+
+.cdso .cdso-panel__rule {
+  width: 1px;
+  height: 100%;
+}
+
+/* ------------------------------------------------------------------ sidebar */
+
+.cdso .cdso-side {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 312px;
+}
+
+.cdso .cdso-side__top {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding-top: 32px;
+}
+
+.cdso .cdso-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 20px 0 24px;
+  color: var(--cdso-brand-60);
+  font-size: 21px;
+  line-height: 24px;
+  letter-spacing: -0.21px;
+}
+
+.cdso .cdso-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  margin: 0 24px;
+  padding: 0 14px;
+  border: 1px solid #d5d7da;
+  border-radius: 8px;
+  box-shadow: 0 1px 1px rgb(10 13 18 / 0.05);
+  color: #717680;
+  font-size: 16.8px;
+  line-height: 25.2px;
+}
+
+.cdso .cdso-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 16px;
+}
+
+.cdso .cdso-nav__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 6px;
+  color: var(--cdso-gray-700);
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: -0.16px;
+  white-space: nowrap;
+}
+
+.cdso .cdso-nav__item[data-open] {
+  background: var(--cdso-gray-50);
+}
+
+.cdso .cdso-nav__label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cdso .cdso-nav__sub {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px 8px 48px;
+  border-radius: 6px;
+  color: var(--cdso-gray-700);
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: -0.16px;
+}
+
+.cdso .cdso-nav__sub[data-on] {
+  background: var(--cdso-gray-50);
+  color: var(--cdso-brand-70);
+}
+
+.cdso .cdso-nav__sub + .cdso-nav__item {
+  margin-top: 4px;
+}
+
+.cdso .cdso-badge {
+  padding: 2px 10px;
+  border-radius: 16px;
+  background: var(--cdso-brand-60);
+  color: #fff;
+  font-size: 14.7px;
+  line-height: 21px;
+}
+
+.cdso .cdso-side__foot {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 16px 32px;
+}
+
+.cdso .cdso-side__rule {
+  width: 100%;
+  height: 1px;
+  margin: 20px 0;
+}
+
+.cdso .cdso-account {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 8px;
+}
+
+.cdso .cdso-account__photo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.cdso .cdso-account__copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  color: var(--cdso-gray-600);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.cdso .cdso-account__name {
+  color: var(--cdso-gray-900);
+}
+
+/* ------------------------------------------------------------------ main */
+
+.cdso .cdso-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  padding: 32px 0 48px;
+}
+
+.cdso .cdso-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 32px 24px;
+}
+
+.cdso .cdso-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--cdso-ink);
+  font-size: 24px;
+  line-height: 38px;
+  letter-spacing: -0.31px;
+  white-space: nowrap;
+}
+
+.cdso .cdso-title__id {
+  color: var(--cdso-brand);
+}
+
+.cdso .cdso-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid #d5d7da;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(10 13 18 / 0.05);
+  color: var(--cdso-gray-700);
+  font-size: 14px;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+.cdso .cdso-order {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.cdso .cdso-order__edit {
+  position: absolute;
+  top: 18px;
+  right: 36px;
+}
+
+.cdso .cdso-customer {
+  display: flex;
+  flex-direction: column;
+  color: var(--cdso-ink);
+  line-height: 28px;
+  letter-spacing: -0.2px;
+}
+
+.cdso .cdso-customer__name {
+  font-size: 20px;
+}
+
+.cdso .cdso-customer__car {
+  font-size: 17.15px;
+}
+
+.cdso .cdso-label {
+  color: var(--cdso-text);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+/* ------------------------------------------------------------------ order status */
+
+.cdso .cdso-stepper {
+  display: flex;
+}
+
+.cdso .cdso-step {
+  display: flex;
+  flex: 1 0 0;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.cdso .cdso-step__track {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cdso .cdso-step__line {
+  position: relative;
+  flex: 1;
+  height: 2px;
+  overflow: hidden;
+  background: var(--cdso-line-cool);
+}
+
+/* The progress: a bar filling the line from the left */
+.cdso .cdso-step__line i {
+  position: absolute;
+  inset: 0;
+  background: var(--cdso-brand);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.45s cubic-bezier(0.45, 0, 0.1, 1);
+}
+
+.cdso .cdso-step__line i[data-on] {
+  transform: none;
+}
+
+.cdso .cdso-step__node {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--cdso-line-cool);
+  border-radius: 50%;
+  background: #fff;
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.3s ease;
+}
+
+.cdso .cdso-step__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cdso-line-cool);
+  transition: background-color 0.25s ease;
+}
+
+.cdso .cdso-step[data-state='done'] .cdso-step__node {
+  border-color: var(--cdso-brand);
+  background: var(--cdso-brand);
+}
+
+.cdso .cdso-step[data-state='done'] .cdso-step__dot {
+  background: #fff;
+}
+
+.cdso .cdso-step[data-state='current'] .cdso-step__node {
+  border-color: var(--cdso-brand);
+  box-shadow: 0 0 0 4px rgb(79 70 229 / 0.25);
+}
+
+.cdso .cdso-step[data-state='current'] .cdso-step__dot {
+  background: var(--cdso-brand);
+}
+
+.cdso .cdso-step__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 12px;
+  font-size: 12.6px;
+  text-align: center;
+}
+
+.cdso .cdso-step__title {
+  color: var(--cdso-ink);
+  line-height: 16.8px;
+  letter-spacing: -0.06px;
+  transition: color 0.25s ease;
+}
+
+.cdso .cdso-step__note {
+  color: var(--cdso-muted);
+  line-height: 1.6;
+  transition: color 0.25s ease;
+}
+
+.cdso .cdso-step[data-state='current'] .cdso-step__title,
+.cdso .cdso-step[data-state='current'] .cdso-step__note {
+  color: var(--cdso-brand);
+}
+
+/* ------------------------------------------------------------------ work details */
+
+.cdso .cdso-work {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.cdso .cdso-work__title {
+  color: var(--cdso-ink);
+  font-size: 20px;
+  line-height: 28px;
+  letter-spacing: -0.2px;
+}
+
+.cdso .cdso-assignees {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cdso .cdso-assignees__label {
+  color: var(--cdso-ink);
+  font-size: 16px;
+  line-height: 28px;
+  letter-spacing: -0.16px;
+}
+
+.cdso .cdso-assignees__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cdso .cdso-input {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--cdso-line-cool);
+  border-radius: 8px;
+}
+
+.cdso .cdso-input__text {
+  flex: 1;
+  overflow: hidden;
+  color: var(--cdso-muted);
+  font-size: 16.8px;
+  line-height: 23px;
+  letter-spacing: -0.12px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.cdso .cdso-avatars {
+  display: flex;
+  align-items: center;
+}
+
+.cdso .cdso-avatars img,
+.cdso .cdso-avatars__more {
+  width: 24px;
+  height: 24px;
+  margin-right: -4px;
+  border: 1.5px solid #fff;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.cdso .cdso-avatars__more {
+  display: grid;
+  place-items: center;
+  margin-right: 0;
+  border-width: 2px;
+  background: #e2e2ff;
+  color: var(--cdso-brand);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+/* ------------------------------------------------------------------ the services table */
+
+.cdso .cdso-table {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--cdso-line);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow:
+    0 4px 8px -2px rgb(23 23 23 / 0.1),
+    0 2px 4px -2px rgb(23 23 23 / 0.06);
+}
+
+.cdso .cdso-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 270px 205px minmax(0, 1fr) 130px 78px 90px;
+  align-items: center;
+  height: 72px;
+  border-bottom: 1px solid var(--cdso-line);
+}
+
+.cdso .cdso-row:nth-child(2),
+.cdso .cdso-row:nth-child(4) {
+  background: var(--cdso-gray-50);
+}
+
+.cdso .cdso-row--head {
+  height: 44px;
+  background: #fff;
+}
+
+.cdso .cdso-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 0 12px;
+}
+
+.cdso .cdso-cell--service {
+  gap: 12px;
+  padding-left: 24px;
+}
+
+.cdso .cdso-cell--actions {
+  gap: 16px;
+  justify-content: center;
+}
+
+.cdso .cdso-head--last {
+  grid-column: span 2;
+}
+
+.cdso .cdso-head {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--cdso-gray-600);
+  font-size: 12.6px;
+  line-height: 19px;
+  white-space: nowrap;
+}
+
+.cdso .cdso-check {
+  position: relative;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--cdso-brand);
+  border-radius: 6px;
+  background: #f9f5ff;
+}
+
+.cdso .cdso-check img {
+  position: absolute;
+  inset: 15%;
+  width: 70%;
+  height: 70%;
+}
+
+.cdso .cdso-service {
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+.cdso .cdso-service__title {
+  color: var(--cdso-gray-900);
+}
+
+.cdso .cdso-service__sub {
+  color: var(--cdso-gray-600);
+}
+
+.cdso .cdso-people__names {
+  overflow: hidden;
+  color: var(--cdso-text);
+  font-size: 14px;
+  line-height: 20px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.cdso .cdso-row:not(.cdso-row--head) .cdso-cell--notes {
+  display: block;
+  overflow: hidden;
+  color: var(--cdso-gray-900);
+  font-size: 14.7px;
+  line-height: 20px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.cdso .cdso-pill,
+.cdso .cdso-quote {
+  display: inline-flex;
+  padding: 1px 8px;
+  border-radius: 16px;
+  font-size: 14.7px;
+  line-height: 21px;
+  white-space: nowrap;
+}
+
+.cdso .cdso-quote,
+.cdso .cdso-pill[data-status='todo'] {
+  background: #e0e7ff;
+  color: var(--cdso-brand);
+}
+
+.cdso .cdso-pill[data-status='progress'] {
+  background: #f8edce;
+  color: #b54708;
+}
+
+.cdso .cdso-pill[data-status='done'] {
+  background: #cff7d3;
+  color: #009951;
+}
+
+.cdso .cdso-pill--ready {
+  background: #e0e7ff;
+  color: var(--cdso-brand);
+}
+
+/* The status a row's menu changes: its looks share one slot and crossfade */
+.cdso .cdso-status__pill {
+  display: grid;
+  justify-items: start;
+  border-radius: 16px;
+  transition: box-shadow 0.2s ease;
+}
+
+.cdso .cdso-status__pill[data-open] {
+  box-shadow: 0 0 0 3px rgb(79 70 229 / 0.2);
+}
+
+.cdso .cdso-status__look {
+  grid-area: 1 / 1;
+  opacity: 0;
+  transition: opacity 0.22s ease;
+}
+
+.cdso .cdso-status__look[data-on] {
+  opacity: 1;
+}
+
+/* The status menu, placed from its pill (CarDSOrderArt's StatusMenu), kept mounted so it fades both ways */
+.cdso .cdso-menu {
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px;
+  border: 1px solid var(--cdso-line);
+  border-radius: 10px;
+  background: #fff;
+  box-shadow:
+    0 12px 16px -4px rgb(10 13 18 / 0.08),
+    0 4px 6px -2px rgb(10 13 18 / 0.03);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-4px);
+  /* A lasting layer, so its text never hops as the slide lands */
+  will-change: transform;
+  transition:
+    opacity 0.16s ease,
+    transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.cdso .cdso-menu[data-up] {
+  transform: translateY(4px);
+}
+
+.cdso .cdso-menu[data-open] {
+  opacity: 1;
+  transform: none;
+}
+
+.cdso .cdso-menu__item {
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  border-radius: 6px;
+}
+
+.cdso .cdso-menu__item[data-current] {
+  background: var(--cdso-gray-50);
+}
+
+.cdso .cdso-add {
+  display: flex;
+  align-items: center;
+  height: 72px;
+  padding: 0 24px;
+  background: #f0fdf4;
+  color: #16a34a;
+  font-size: 16px;
+}
+
+/* ------------------------------------------------------------------ tablets */
+
+/* The order, its stepper and its services, the panel cropped to its main column and running off the right */
+.cdso .ss-stage[data-layout='compact'] .cdso-panel {
+  top: 32px;
+  left: 32px;
+  width: 760px;
+}
+
+.cdso .ss-stage[data-layout='compact'] :is(.cdso-side, .cdso-panel__rule, .cdso-assignees, .cdso-cell--notes, .cdso-cell--people) {
+  display: none;
+}
+
+.cdso .ss-stage[data-layout='compact'] .cdso-row {
+  grid-template-columns: minmax(0, 1fr) 130px 78px 90px;
+}
+
+.cdso .ss-stage[data-layout='compact'] .cdso-main {
+  padding-right: 32px;
+}
+
+.cdso .ss-stage[data-layout='compact'] .cdso-order {
+  padding-right: 24px;
+}
+
+/* ------------------------------------------------------------------ phones */
+
+.cdso .cdso-panel--phone {
+  top: 16px;
+  left: 16px;
+  flex-direction: column;
+  width: 370px;
+  height: 470px;
+}
+
+/* The order number over its state */
+.cdso .cdso-phone__head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 14px 16px 0;
+}
+
+.cdso .cdso-phone__state {
+  display: grid;
+  justify-items: start;
+}
+
+/* The services' white section, as on desktop; the table spans it to the phone's crop */
+.cdso .cdso-phone__body {
+  width: 326px;
+  padding: 16px 0 16px 16px;
+  background: #fff;
+}
+
+.cdso .cdso-panel--phone .cdso-title {
+  font-size: 20px;
+  line-height: 32px;
+}
+
+.cdso .cdso-panel--phone .cdso-table {
+  width: 310px;
+}
+
+.cdso .cdso-panel--phone .cdso-row {
+  grid-template-columns: minmax(0, 1fr) 116px;
+}
+
+.cdso .cdso-panel--phone .cdso-row--head,
+.cdso .cdso-panel--phone .cdso-row :is(.cdso-cell--people, .cdso-cell--notes, .cdso-cell--quote, .cdso-cell--actions) {
+  display: none;
+}
+
+.cdso .cdso-panel--phone .cdso-cell--service {
+  padding-left: 16px;
+}
+
+.cdso .cdso-panel--phone .cdso-cell--status {
+  justify-content: flex-end;
+  padding: 0 12px 0 0;
+}

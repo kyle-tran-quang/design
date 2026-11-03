@@ -1,0 +1,607 @@
+/* Layer order: `cinematic` (the Maximo intro's Framer stylesheet, see MasCinematic.tsx) sits above the base
+   styles and below the utilities. Must come before the Tailwind import to set the order. */
+@layer theme, base, cinematic, components, utilities;
+@import 'tailwindcss';
+
+/* Self-hosted brand fonts (files live in public/assets/fonts). Mikado is the full HVD family, 300-900 with italics;
+   browsers only download the faces a page actually renders. */
+@font-face {
+  font-family: 'Mikado';
+  src: url('/assets/fonts/Mikado-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Mikado';
+  src: url('/assets/fonts/Mikado-Light-Italic.woff2') format('woff2');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Mikado';
+  src: url('/assets/fonts/Mikado-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Mikado';
+  src: url('/assets/fonts/Mikado-Regular-Italic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Mikado';
+  src: url('/assets/fonts/Mikado-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Mikado';
+  src: url('/assets/fonts/Mikado-Medium-Italic.woff2') format('woff2');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Mikado';
+  src: url('/assets/fonts/Mikado-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Mikado';
+  src: url('/assets/fonts/Mikado-Bold-Italic.woff2') format('woff2');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Mikado';
+  src: url('/assets/fonts/Mikado-Black.woff2') format('woff2');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Mikado';
+  src: url('/assets/fonts/Mikado-Black-Italic.woff2') format('woff2');
+  font-weight: 900;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Bungee Shade';
+  src: url('/assets/fonts/BungeeShade-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+/* IBM Plex: used by the IBM case study's product mockups. Plex Sans is a variable font. */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  src: url('/assets/fonts/IBMPlexSans-Latin.woff2') format('woff2');
+  font-weight: 100 700;
+  font-style: normal;
+  font-display: swap;
+}
+/* Plex Sans Condensed: the Maximo intro's Sales Configurator screen (MasCinematic.tsx). */
+@font-face {
+  font-family: 'IBM Plex Sans Condensed';
+  src: url('/assets/fonts/IBMPlexSansCondensed-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'IBM Plex Sans Condensed';
+  src: url('/assets/fonts/IBMPlexSansCondensed-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'IBM Plex Serif';
+  src: url('/assets/fonts/IBMPlexSerif-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'IBM Plex Serif';
+  src: url('/assets/fonts/IBMPlexSerif-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+/* Inter (SIL OFL, from @fontsource/inter 5.3.0): the CarDS case study's cinematic screen. */
+@font-face {
+  font-family: 'Inter';
+  src: url('/assets/fonts/Inter-Regular-Latin.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('/assets/fonts/Inter-Medium-Latin.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('/assets/fonts/Inter-SemiBold-Latin.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('/assets/fonts/IBMPlexMono-Light-Italic.woff2') format('woff2');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+/* Nunito (SIL OFL, variable 200-1000, from @fontsource-variable/nunito 5): the Breadslice app's own face, used by
+   the case study's hero art (breadslice-hero-art.css). */
+@font-face {
+  font-family: 'Nunito';
+  src: url('/assets/fonts/Nunito-Variable-Latin.woff2') format('woff2');
+  font-weight: 200 1000;
+  font-style: normal;
+  font-display: swap;
+}
+/* Be Vietnam Pro (SIL OFL): the CarDoctor case study's cinematic screen (cardoctor.css). SemiBold and Bold also
+   ship Google's latin-ext subset, which carries the dong sign (U+20AB) in the screen's prices. */
+@font-face {
+  font-family: 'Be Vietnam Pro';
+  src: url('/assets/fonts/BeVietnamPro-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Be Vietnam Pro';
+  src: url('/assets/fonts/BeVietnamPro-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Be Vietnam Pro';
+  src: url('/assets/fonts/BeVietnamPro-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Be Vietnam Pro';
+  src: url('/assets/fonts/BeVietnamPro-SemiBold-Ext.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Be Vietnam Pro';
+  src: url('/assets/fonts/BeVietnamPro-SemiBold-Latin.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Be Vietnam Pro';
+  src: url('/assets/fonts/BeVietnamPro-Bold-Ext.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Be Vietnam Pro';
+  src: url('/assets/fonts/BeVietnamPro-Bold-Latin.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* The CarDoctor hero art's faces (CarDoctorHeroArt.tsx), resolved from its Figma frame under the frame's own names:
+   full character sets, so "đ" and "₫" render in every weight (the self-hosted Light/Regular/Medium are latin only).
+   Everything else uses the self-hosted 'Be Vietnam Pro' above. */
+@font-face {
+  font-family: 'Be Vietnam Pro:Light';
+  src: url('https://static.figma.com/font/BeVietnamPro-Light_1') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Be Vietnam Pro:Regular';
+  src: url('https://static.figma.com/font/BeVietnamPro-Regular_1') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Be Vietnam Pro:Medium';
+  src: url('https://static.figma.com/font/BeVietnamPro-Medium_1') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Be Vietnam Pro:SemiBold';
+  src: url('https://static.figma.com/font/BeVietnamPro-SemiBold_1') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Be Vietnam Pro:Bold';
+  src: url('https://static.figma.com/font/BeVietnamPro-Bold_1') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+/* Plus Jakarta Sans: the CarDS board mockup's "3 new" badge (cards-board-art.css), resolved from its Figma frame. */
+@font-face {
+  font-family: 'Plus Jakarta Sans:SemiBold';
+  src: url('https://static.figma.com/font/PlusJakartaSans_wght__2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --font-sans: 'Mikado', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Bungee Shade', 'Mikado', sans-serif;
+  --font-plex: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-plex-serif: 'IBM Plex Serif', ui-serif, Georgia, serif;
+  --font-plex-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --color-accent: #fa680c;
+  --color-sun: #ffc846;
+  --color-periwinkle: #697aff;
+  --color-ink: #121212;
+  --color-body: #292929;
+  --color-graphite: #3d3d3d;
+  --color-dim: #666666;
+  --color-muted: #7a7a7a;
+  --color-silver: #b3b3b3;
+  --color-line: #cccccc;
+  --color-mist: #e6e6e6;
+  --color-cloud: #f2f2f2;
+  --color-snow: #f7f7f7;
+
+  --animate-draw: draw 1.6s cubic-bezier(0.65, 0, 0.35, 1) both;
+  --animate-rise: rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-reveal-x: reveal-x 1.8s cubic-bezier(0.65, 0, 0.35, 1) both;
+
+  @keyframes draw {
+    from {
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      translate: 0 12px;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+    }
+  }
+  @keyframes reveal-x {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* ScrollInk + InkText: a character mixes from the grey base to black as the scroll head (counted in characters)
+   passes its index, over a soft edge a few characters wide. */
+@utility ink-char {
+  color: color-mix(
+    in srgb,
+    var(--color-black, #000) calc(clamp(0, (var(--ink-head, 0) - var(--ink-i, 0)) / var(--ink-soft, 1), 1) * 100%),
+    var(--color-muted)
+  );
+}
+
+/* Site type scale (mobile first, desktop values from the original layout). Every Mikado heading and paragraph uses
+   one of these; a token sets size, line height and tracking, and elements add weight or colour on top. Largest first:
+   display > section-title > lede > stat > topic > quote > subtopic > eyebrow > body > caption > small > label. */
+@utility type-display {
+  font-size: 3rem;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  @media (width >= 64rem) {
+    font-size: 4rem;
+  }
+}
+@utility type-eyebrow {
+  font-size: 1.25rem;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: var(--color-silver);
+  @media (width >= 64rem) {
+    font-size: 1.5rem;
+  }
+}
+@utility type-section-title {
+  font-size: 2.5rem;
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  color: var(--color-muted);
+  @media (width >= 64rem) {
+    font-size: 3.75rem;
+  }
+}
+@utility type-lede {
+  font-size: 1.875rem;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  @media (width >= 64rem) {
+    font-size: 3rem;
+  }
+}
+@utility type-topic {
+  font-size: 1.625rem;
+  line-height: 1.2;
+  font-weight: 500;
+  letter-spacing: -0.2px;
+  color: #111111;
+  @media (width >= 64rem) {
+    font-size: 1.875rem;
+  }
+}
+@utility type-subtopic {
+  font-size: 1.375rem;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  @media (width >= 64rem) {
+    font-size: 1.5rem;
+  }
+}
+@utility type-body {
+  font-size: 1.125rem;
+  line-height: 1.6;
+  letter-spacing: -0.005em;
+  @media (width >= 64rem) {
+    font-size: 1.25rem;
+    line-height: 31px;
+  }
+}
+@utility type-caption {
+  font-size: 1rem;
+  line-height: 1.4;
+  letter-spacing: -0.005em;
+  @media (width >= 64rem) {
+    font-size: 1.125rem;
+  }
+}
+/* Fixed 16px UI text that doesn't grow on desktop: meta rows, links, menu labels, small cards. */
+@utility type-small {
+  font-size: 1rem;
+  line-height: 1.4;
+  letter-spacing: -0.005em;
+}
+@utility type-label {
+  font-size: 0.75rem;
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+@utility type-quote {
+  font-size: 1.375rem;
+  line-height: 1.3;
+  letter-spacing: -0.2px;
+  @media (width >= 64rem) {
+    font-size: 1.75rem;
+  }
+}
+@utility type-stat {
+  font-size: 2.5rem;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--color-periwinkle);
+  @media (width >= 64rem) {
+    font-size: 3rem;
+  }
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-white font-sans text-ink antialiased;
+    letter-spacing: -0.02em;
+  }
+
+  ::selection {
+    @apply bg-accent text-white;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-4 outline-accent;
+  }
+}
+
+/*
+ * Page transitions between the homepage and the case studies, and between case studies
+ * (started by src/lib/pageTransition.ts).
+ * Home -> case study: the homepage zooms out to a rounded frame and slides up; the case study follows it in
+ * from below. Zoom 0-280ms, slide out 280-750ms, slide in 420-1020ms.
+ * Case study -> home: the same timeline run backwards. The case study slides down and away (0-600ms), the
+ * homepage slides down into place (270-740ms) and zooms back in (740-1020ms).
+ * Case study -> case study: the home -> case study timeline turned sideways. Moving to a later study the page
+ * leaves to the left and the next one arrives from the right (work-next); to an earlier one, the mirror
+ * (work-prev). The logo is captured on its own and stays fixed while the pages slide underneath.
+ */
+@keyframes home-exit {
+  0% {
+    transform: translateY(0) scale(1);
+    clip-path: inset(0 round 0);
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  37% {
+    transform: translateY(0) scale(0.9);
+    clip-path: inset(0 round 32px);
+    animation-timing-function: cubic-bezier(0.55, 0, 0.45, 1);
+  }
+  100% {
+    transform: translateY(-100%) scale(0.9);
+    clip-path: inset(0 round 32px);
+  }
+}
+@keyframes work-enter {
+  from {
+    transform: translateY(100%);
+    clip-path: inset(0 round 32px);
+  }
+  to {
+    transform: translateY(0);
+    clip-path: inset(0 round 0);
+  }
+}
+@keyframes work-exit {
+  from {
+    transform: translateY(0);
+    clip-path: inset(0 round 0);
+  }
+  to {
+    transform: translateY(100%);
+    clip-path: inset(0 round 32px);
+  }
+}
+@keyframes home-enter {
+  0% {
+    transform: translateY(-100%) scale(0.9);
+    clip-path: inset(0 round 32px);
+    animation-timing-function: cubic-bezier(0.55, 0, 0.45, 1);
+  }
+  63% {
+    transform: translateY(0) scale(0.9);
+    clip-path: inset(0 round 32px);
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    clip-path: inset(0 round 0);
+  }
+}
+@keyframes work-exit-left {
+  0% {
+    transform: translateX(0) scale(1);
+    clip-path: inset(0 round 0);
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  37% {
+    transform: translateX(0) scale(0.9);
+    clip-path: inset(0 round 32px);
+    animation-timing-function: cubic-bezier(0.55, 0, 0.45, 1);
+  }
+  100% {
+    transform: translateX(-100%) scale(0.9);
+    clip-path: inset(0 round 32px);
+  }
+}
+@keyframes work-exit-right {
+  0% {
+    transform: translateX(0) scale(1);
+    clip-path: inset(0 round 0);
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  37% {
+    transform: translateX(0) scale(0.9);
+    clip-path: inset(0 round 32px);
+    animation-timing-function: cubic-bezier(0.55, 0, 0.45, 1);
+  }
+  100% {
+    transform: translateX(100%) scale(0.9);
+    clip-path: inset(0 round 32px);
+  }
+}
+@keyframes work-enter-from-right {
+  from {
+    transform: translateX(100%);
+    clip-path: inset(0 round 32px);
+  }
+  to {
+    transform: translateX(0);
+    clip-path: inset(0 round 0);
+  }
+}
+@keyframes work-enter-from-left {
+  from {
+    transform: translateX(-100%);
+    clip-path: inset(0 round 32px);
+  }
+  to {
+    transform: translateX(0);
+    clip-path: inset(0 round 0);
+  }
+}
+html[data-page-transition]::view-transition {
+  background: var(--color-ink);
+}
+html[data-page-transition]::view-transition-old(root),
+html[data-page-transition]::view-transition-new(root) {
+  mix-blend-mode: normal;
+}
+html[data-page-transition='home-to-work']::view-transition-old(root) {
+  animation: home-exit 750ms both;
+}
+html[data-page-transition='home-to-work']::view-transition-new(root) {
+  animation: work-enter 600ms cubic-bezier(0.22, 1, 0.36, 1) 420ms both;
+}
+html[data-page-transition='work-to-home']::view-transition-old(root) {
+  animation: work-exit 600ms cubic-bezier(0.64, 0, 0.78, 0) both;
+}
+html[data-page-transition='work-to-home']::view-transition-new(root) {
+  animation: home-enter 750ms 270ms both;
+}
+html[data-page-transition='work-next']::view-transition-old(root) {
+  animation: work-exit-left 750ms both;
+}
+html[data-page-transition='work-next']::view-transition-new(root) {
+  animation: work-enter-from-right 600ms cubic-bezier(0.22, 1, 0.36, 1) 420ms both;
+}
+html[data-page-transition='work-prev']::view-transition-old(root) {
+  animation: work-exit-right 750ms both;
+}
+html[data-page-transition='work-prev']::view-transition-new(root) {
+  animation: work-enter-from-left 600ms cubic-bezier(0.22, 1, 0.36, 1) 420ms both;
+}
+/* The case study logo (ProjectNav) sits out of the page snapshots, so it holds still above both pages. */
+html[data-page-transition='work-next'] [data-project-nav],
+html[data-page-transition='work-prev'] [data-project-nav] {
+  view-transition-name: project-nav;
+}

@@ -1,0 +1,500 @@
+# Stageshow
+
+Miniature product UI: a believable interface, framed in its space, as one still or a short animation in which one thing happens. The viewer recognizes the screen and sees the thing happen.
+
+## The one idea
+
+**It reads as a real product, simplified to what the viewer needs, framed with intent, and every motion has a cause.**
+
+Five ways it fails:
+
+- **Too much.** Real text in every row, numbers everywhere, everything packed. The more detail, the more it looks generated.
+- **Wireframe.** Two gray blobs and a button. Built too small, or stripped of what made it recognizable.
+- **Boxed.** A whole window shrunk into a card with even margins: a screenshot pasted in, not a product shot.
+- **Flat.** Every object the same weight in the same bordered card. The eye has nowhere to land.
+- **Bland.** A gray window with a cursor, whatever the brief said. The brief's look and energy (a blueprint, glass over color, a Dynamic Island, a mascot) are the point; take what it asks for and build it to the rules, as `examples/hero-demo` does with its typed popup and terminal satellite (a satellite is a smaller second object, a receipt, phone or detail card, straddling the hero's edge).
+
+The fix: a full, structured screen in quiet grays, real words only on what the story is about, placeholder lines for the rest, room to breathe, a crop that puts the eye where the story is. Simplify the words, not the context. An empty corner, a void under a list, rows spread to fill a pane, a window floating on a plate (a backdrop or tinted field behind it): unfinished, not calm.
+
+These are authored illustrations, not browser automation: `a.click()` draws the cursor pressing, `a.set()` changes the scene.
+
+## How hard to press
+
+Build it the way a product designer builds a launch page they will be judged on. The gold examples in `examples/` are the bar, not a reference: if yours is the emptier, flatter or smaller one beside the closest gold, that is the first fix. Then look at the frame the way the most exacting designer you know would, the one who screenshots the one wrong thing and sends it back with "what is this?": a dot off its avatar, a unit on its own line, a grabber under the island, copy touching a card. If you can picture that screenshot, you have found the next fix.
+
+## Workflow
+
+Most of the quality is decided before any code. Write the plan first: where it sits, the focal object, the action, the payoff, what can be left out.
+
+1. **Medium and place.** Still or animation (loop, once in view, or hover). The page, its ground, its width. Design at the size it will be seen, about 720 × 340 for a hero beside copy (`hero-demo`), 900 to 1100 wide for a full-width hero (`linear`), 400 × 300 for a card, shown at 1:1; never under about 320 wide for a demo, though a bento tile or a satellite card may be smaller. Every demo that can sit in a phone column ships a `compact` design at the column's width (358), a redesign not a squeeze (`references/framing.md`, Small formats and the page). A grid of tiles is one set: plan it with `references/bento.md`.
+2. **Look.** With the product's code or site at hand, map its tokens to the kit's (`references/looks.md`); if the developer asks for their own components, use them inside the stage instead of the kit's small parts. Otherwise a theme (light, dark, blueprint, glass), a palette (accent, mono) and a fidelity: `minimal` is all bars, `standard` is words where they carry meaning and bars elsewhere, `realistic` is real content everywhere. Default light, accent, standard; go realistic at hero scale, for a named real product, or a still whose subject is a list or page. Write filler once with `Text filler` and the fidelity decides. The product's own icons, its real chrome, the content that makes it recognizable. A brief with a style (kawaii, paper, a poster color) gets that style in full, still built to these rules.
+3. **The story.** Its shape (`references/motion.md`, Story): how it feels to use, a flow, or what the system does. Three to five beats and a payoff, 10 to 16 seconds. No cursor move you can't explain. Data never rewinds in view without a cause. Between a richer story and a calmer frame, choose the frame.
+4. **Start from an example.** Find the closest gold example (the Gold table below) and film it (`node scripts/film.mjs "<preview>/?capture=<gold>" --select '#example' --still --out gold.png`; `npm run dev` serves the preview). Copy its folder into your project as the starting point; don't rewrite it from a glance. The quickest loop: copy it to `examples/<yours>/` here, where the preview picks it up and `?capture=<yours>` films it, then move it into the host when it passes and fix its kit import path. Keep its structure: the stage size, the crop and bleed, row and type sizes, spacing, the script's beats, the kit parts. Now read `references/craft.md` in full: it is short, and it holds the still-frame rules the gold can't show you, the cases your gold doesn't happen to contain. Then replace its look and content with the brief's product: the tokens from step 2, the product's own icons, chrome and words. A copy that only changes the name is not done: it should read as the brief's product, not the gold's. If no gold tells your story, choose in two parts: the layout first (pick it from the table in `references/framing.md`; each layout names its example), and copy that example even though its story differs; then borrow the motion for your beats from the example whose story is closest, and build what neither has in the same style. Then frame it: crop to the panel the story happens in, judged in the final visible crop (`references/framing.md` has the rules and the layout table). The short form: one gutter, a full one or well past; only filler bleeds; what opens stays in; windows keep their shape; the page is the ground, so no plate under a hero on a white or dark page and no window whole with air on four sides; `unframed` only when the developer asks; no dead corners. Film one still at both widths beside the gold's; if yours is emptier, flatter or more boxed, fix the frame before any motion.
+5. **The screen.** Count the real strings, usually 3 to 7 (`references/craft.md`, Restraint): a budget for words, not elements. Build with the kit's tokens, `Bar`, `Text` and `Row`. Fit every control's text before it moves. Mark what the cursor touches with `data-target` and `data-cursor`; measure with `rect()`, never hard-code.
+6. **Choreograph.** The `Act` API. Keep what appears mounted and toggle it so exits animate (`Bubble` and `Fly` hand off explicitly). Animate the relationship, not just the object: a new row carries the rows below it, a surface that resizes never stretches its text. Beats overlap, groups stagger, the payoff holds, the loop ends where it began or resets with a visible cause.
+7. **Rehearse.** Set `poster` first: most people see only that frame (a thumbnail, reduced motion, a screenshot), so it is the beat that tells the story on its own, never one caught mid-change, with the result left on screen rather than tidied away (`references/motion.md`, Story). Then film the loop, not just a still: the contact sheet at the shown width and at 390, and step through every press, menu, morph and the loop seam (`references/rehearse.md`). A still can't show a pop. Read every frame, fix the largest visible fault first (framing, then hierarchy, then motion, then polish), re-film. Then hold it next to the closest gold and answer the whole-composition and style pairs in `references/teaching.md` as questions about your still (what does the eye land on first, and is it the result? is one window, tile or device clearly leading?); any no is the largest fault. `film.mjs --gate` ending `rehearsal passed` is necessary, not sufficient. Then run the last pass in `references/rehearse.md`: a fresh-eye review (`references/review.md`) and `REHEARSAL.md` beside the component (template in `references/verify.md`, Hand over): the gold you copied, what you changed, what you did not check.
+
+Faults that come back every round, each with its rule; check them before handing over:
+
+- **Content that swaps** instead of moving (`references/motion.md`, Changing text and values).
+- **Gray bars where the eye lands;** filler belongs at the edges (`references/craft.md`, Restraint).
+- **A plate behind the window, or a window floating** with air on four sides; the window or phone fills at least two thirds of the stage and runs off an edge (`references/framing.md`, rule 5 and Small formats and the page).
+- **Empty bands, cut controls and shadows** (`references/craft.md`, Restraint; `references/framing.md`, rule 4).
+- **Stock AI and made-up logos:** sparkles, purple, a letter in a colored square (`references/craft.md`, Icons and logos).
+- **Busy rows and uneven insets** (`references/craft.md`, Restraint and Spacing and alignment).
+- **Long holds and a reset with no cause** (`references/motion.md`, Loops).
+- **A selection that isn't under the I-beam** (`references/motion.md`, Drags and selection).
+- **A status bar or home indicator drawn by hand;** the Phone draws both (`references/craft.md`, Chrome and devices).
+- **A centered amount centered with its sign** (`references/craft.md`, Spacing and alignment).
+
+## Examples
+
+Film the closest one before you start (step 4). The gold examples are the quality bar; product studies are for borrowing an interaction, never another product's identity; specimen sheets are catalogs, not compositions. Run everything with `npm install` and `npm run dev`. `teaching/` holds bad/good pairs (`references/teaching.md`) for diagnosing a problem; the bad halves are never starting points.
+
+### Gold
+
+| Need | Example | What to learn |
+|---|---|---|
+| Still or feature card | `static-card` | Quiet hierarchy, a hard crop, one satellite, real words only on the selected customer, its neighbors and the total |
+| Dark still | `dark-bento` | One signal said once; album art keeps it a music app |
+| Animated hero, a gesture | `hero-demo` | Five beats, named targets, an annotation, a terminal coming forward |
+| Choreography, no cursor | `payout-flow` | Slow overlapping arrivals, reading time, a payoff that holds |
+| Content changing in place | `choreography` | Retained tracks, soft masks, dependent timing |
+| AI answer | `ai-chat` | The question sent, Thinking, the answer streaming in with its height, sources last; no sparkles, no purple |
+| AI with cards | `ai-cards` | A multiple-choice card answered and kept as the record, a card of options opening in the thread, booked from its own button |
+| Form validation | `form-error` | An error on the field that caused it, cleared by fixing it, then the button confirms on itself |
+| Drag to reorder | `reorder` | A row lifted by its grip, the others making room, dropped into place |
+| Chart scrub | `chart-scrub` | A hairline and dot that follow the pointer, the headline value rolling to the day under it |
+| Edit in a table | `table-edit` | A cell edited in place, then the total it feeds rolls a beat later |
+| Loading to content | `loading` | A skeleton at the content's own geometry, rows resolving top to bottom, real chrome throughout |
+| Dark hero | `dark-hero` | Depth from surface steps on black, one lit color, a status that changes on its own pill |
+| Live collaborators | `presence` | Each person one color everywhere, names riding their cursors, work shown in the doc's own marks |
+| System story | `subscriptions` | A chip flies into a row, MRR rolls, a second scene is the reset |
+| Close-up | `close-up` | One control at 1.4x with its window's chrome, the row whole, a large cursor to match |
+| Many of one | `many-of-one` | A grid of one thing off every edge, one tile in focus by depth, the only one with words |
+| Fade crop | `fade-crop` | A window fading out at its foot, over filler, instead of running off an edge |
+| Panel over product | `panel-annotation` | A settings panel over the product's margin, one leader from the setting to what it changed |
+| Overlapping windows | `overlap` | A card in front of a window, its edge on the window's sidebar line |
+| Stacked cards | `stacked-cards` | Two components at one width, a small gap, the lower one off the bottom |
+| Opposite corners | `opposite-corners` | A bento tile: copy bottom-left, the product hung from the top-right corner |
+| Tilted stack | `tilted-stack` | A loose pile of paper, small alternating angles, only the top card has words |
+| Corner chip | `corner-chip` | A small chip centered on a window's corner, half outside |
+| Monochrome | `monochrome` | Other companies' products in a row, grayscale, faded at the foot |
+| Row of windows | `window-row` | Sessions side by side at one height: focus by depth, neighbors cut by the stage, only filler cropped |
+| Window and phone | `device-pair` | A dashboard and a lock screen telling one event; the phone straddles over margin, never over the figure |
+| Related objects | `story` | An invoice, a plan, a connector, rolling totals |
+| Calendar drag | `calendar` | A populated week, one focal event, a measured pickup |
+| Free dragging | `freeform-drag` | Grab offset, a measured grid, a drop slot that snaps |
+| Phone app | `phone-touch` | A card opens into its screen as one object, and the loop folds back |
+| Dynamic Island | `dynamic-island` | One black shape, its content a separate layer |
+| Messages | `messages` | Composer, typing, receipts, a bubble's lifetime |
+| Cursors | `cursors`, `cursor-morph`, `cursor-resize` | Five styles, element-driven kinds, resize edges and corners, no cursor at all |
+| Annotations | `annotations` | Leaders, dimensions, flows and a moving target; `references/annotations.md` |
+| Feature grid | `bento` | One hero, one window, a stat, an object, a diagram |
+| Dark ruled grid | `ruled-bento` | Shared rules and technical imagery |
+| Consumer grid | `staggered-bento` | Offset tiles, graphic art, physical objects |
+| Image-led hero grid | `hero-grid` | Different grounds and materials composed as one picture |
+| Upload | `upload` | A file dragged in from the desktop, an upload row with progress that settles as a file row |
+| Share | `share` | A share popover over a document: an email becomes a chip, a role menu, a person added to the list |
+| Swipe | `swipe` | A phone swipe to archive: press, swipe, a throw at the finger's speed, the gap closes |
+
+### Product studies
+
+Recognizable products (Figma, Linear, Slack, Raycast, Finder, Spotify, Notion, Gmail, Google's apps, Office, Wikipedia, Telegram, iMessage): read `references/products.md` first. Borrow the interaction, not another product's identity.
+
+| Need | Example | What to learn |
+|---|---|---|
+| Design tool | `figma` | Canvas selection, a color picker, a second cursor |
+| Issue tracker | `linear` | Command menu and assignment |
+| Chat | `slack` | Messages, a reaction, a thread reply |
+| Launcher | `raycast` | Search and clipboard history over a blurred desktop |
+| Files | `finder`, `finder-glass` | Quick Look over a file list; a file moved into a folder; the same window in frosted glass |
+| Music, dark | `spotify` | A dark desktop app with album art |
+| Docs and editors | `notion`, `google-docs` | A slash command; a comment and its reply |
+| Email | `gmail` | Hover actions, archive, an undo toast |
+| Calendar, real app | `google-calendar` | Drag to create an event, the quick-create popup |
+| Office | `powerpoint`, `excel` | Slide editing; AutoSum and a chart |
+| Browser page | `wikipedia` | Search suggestions in a browser |
+| Phone conversations | `telegram`, `imessage` | Native chat apps on an iPhone |
+
+### Specimen and reference sheets
+
+Catalogs of parts and grounds, described in `references/kit.md` (Specimen sheets). Look up a part here; compose from a gold example.
+
+| Need | Example | What to learn |
+|---|---|---|
+| Kit specimens | `chrome`, `phones`, `controls`, `parts`, `kit-extras` | Every frame and part |
+| Glass | `glass` | Frosted surfaces over a color field |
+| Backgrounds | `backgrounds` | One interface over twenty grounds; `references/backgrounds.md` |
+| Logos | `brand-marks` | Real marks, optically sized, on light and dark; `references/brands.md` |
+| A product's look | `looks` | Type, shape and color working together |
+
+## The kit
+
+Copy `kit/` into the project and import from `kit/index.ts`. React, react-dom and lucide-react (for `Icon`, which `Field` and `Chip` use); each part brings its own CSS. It does the parts that are hard to get right by hand and leaves the product's look to you. `references/kit.md` has every part's props and rules; read the entries for the parts you use.
+
+- **The stage.** `Stage`: design size and scale-to-fit, `compact`, scene state, playback, the look, the cursor. The script gets an `Act` (`set`, `wait`, `move`, `click`, `type` and the rest: `references/kit.md`, Act).
+- **Frames.** `Window`, `Phone` with `LockScreen` and `Notification`, `Keyboard`, `Thread` with `Bubble`, `Stamp`, `Receipt`. Real geometry; never draw a window, device or bubble by hand.
+- **Motion.** `Collapse`, `Roll`, `Swap`, `Count`, `Connector`, `Fly`, `Follow`, `States`, `Stream`, `Popover`, `Scroll`, `Camera`, `Expand`. They handle the frames a cold hand gets wrong.
+- **Small parts.** `Bar`, `Text`, `Row` (every list is made of it), `Avatar`, `Pin`, `Icon`, `Menu`, `Field`, `Segmented`, `Toggle`, `Tabs`, `Badge`, `Chip`, `BrandMark`, `Code`, `Chart`. Quiet starting points; restyle to the product, never reshape a kit part's geometry from outside.
+- **`stageshow.css`**: tokens, looks, edge fades, chrome, phones, keycaps.
+
+## The references
+
+`references/framing.md`: the framing rules and the layout table. `references/craft.md`: the still frame (restraint, type, spacing, icons, color, chrome). `references/motion.md`: story, loops, pace, the cursor and drags. `references/verify.md`: the checklist with a you-see / you-do table. `references/rehearse.md`: how to film, and the film lines that are never intentional.
+To read a supporting file, call `use_skill` again with the same `name`, `reference.generation` = `73e9dec708919d649f37191d2204e112e71a6ea1555a092af1c1cba67861a511`, and `reference.path` set to one of:
+- `LICENSE`
+- `NOTICE.md`
+- `README.md`
+- `assets/app-icons.ts`
+- `examples/ai-cards/cards.css`
+- `examples/ai-cards/index.tsx`
+- `examples/ai-chat/chat.css`
+- `examples/ai-chat/index.tsx`
+- `examples/annotations/annotations.css`
+- `examples/annotations/composed.css`
+- `examples/annotations/composed.tsx`
+- `examples/annotations/index.tsx`
+- `examples/backgrounds/backgrounds.css`
+- `examples/backgrounds/index.tsx`
+- `examples/bento/bento.css`
+- `examples/bento/index.tsx`
+- `examples/brand-marks/brands.css`
+- `examples/brand-marks/index.tsx`
+- `examples/calendar/calendar.css`
+- `examples/calendar/index.tsx`
+- `examples/chart-scrub/index.tsx`
+- `examples/chart-scrub/scrub.css`
+- `examples/choreography/choreography.css`
+- `examples/choreography/index.tsx`
+- `examples/chrome/chrome.css`
+- `examples/chrome/index.tsx`
+- `examples/close-up/close.css`
+- `examples/close-up/index.tsx`
+- `examples/controls/controls.css`
+- `examples/controls/index.tsx`
+- `examples/corner-chip/chip.css`
+- `examples/corner-chip/index.tsx`
+- `examples/cursor-morph/README.md`
+- `examples/cursor-morph/cursor-morph.css`
+- `examples/cursor-morph/cursor-morph.tsx`
+- `examples/cursor-morph/index.tsx`
+- `examples/cursor-resize/cursor-resize.css`
+- `examples/cursor-resize/index.tsx`
+- `examples/cursors/cursors.css`
+- `examples/cursors/index.tsx`
+- `examples/dark-bento/bento.css`
+- `examples/dark-bento/index.tsx`
+- `examples/dark-hero/hero.css`
+- `examples/dark-hero/index.tsx`
+- `examples/device-pair/index.tsx`
+- `examples/device-pair/payments.css`
+- `examples/dynamic-island/index.tsx`
+- `examples/dynamic-island/island.css`
+- `examples/excel/excel.css`
+- `examples/excel/index.tsx`
+- `examples/fade-crop/fade.css`
+- `examples/fade-crop/index.tsx`
+- `examples/figma/figma.css`
+- `examples/figma/index.tsx`
+- `examples/finder-glass/finder-glass.css`
+- `examples/finder-glass/index.tsx`
+- `examples/finder/finder.css`
+- `examples/finder/index.tsx`
+- `examples/form-error/form.css`
+- `examples/form-error/index.tsx`
+- `examples/freeform-drag/drag.css`
+- `examples/freeform-drag/index.tsx`
+- `examples/glass/glass.css`
+- `examples/glass/index.tsx`
+- `examples/gmail/gmail.css`
+- `examples/gmail/index.tsx`
+- `examples/google-calendar/gcal.css`
+- `examples/google-calendar/index.tsx`
+- `examples/google-docs/docs.css`
+- `examples/google-docs/index.tsx`
+- `examples/hero-demo/HeroDemo.tsx`
+- `examples/hero-demo/hero.css`
+- `examples/hero-demo/icons.tsx`
+- `examples/hero-demo/index.tsx`
+- `examples/hero-grid/grid.css`
+- `examples/hero-grid/index.tsx`
+- `examples/imessage/imessage.css`
+- `examples/imessage/index.tsx`
+- `examples/kit-extras/extras.css`
+- `examples/kit-extras/index.tsx`
+- `examples/linear/index.tsx`
+- `examples/linear/linear.css`
+- `examples/loading/index.tsx`
+- `examples/loading/loading.css`
+- `examples/looks/index.tsx`
+- `examples/looks/looks.css`
+- `examples/looks/radix.css`
+- `examples/looks/skeuomorphic.css`
+- `examples/looks/skeuomorphic.tsx`
+- `examples/looks/studies.css`
+- `examples/looks/studies.tsx`
+- `examples/many-of-one/index.tsx`
+- `examples/many-of-one/many.css`
+- `examples/messages/index.tsx`
+- `examples/messages/messages.css`
+- `examples/monochrome/index.tsx`
+- `examples/monochrome/mono.css`
+- `examples/notion/index.tsx`
+- `examples/notion/notion.css`
+- `examples/opposite-corners/corners.css`
+- `examples/opposite-corners/index.tsx`
+- `examples/overlap/index.tsx`
+- `examples/overlap/overlap.css`
+- `examples/panel-annotation/index.tsx`
+- `examples/panel-annotation/panel.css`
+- `examples/parts/index.tsx`
+- `examples/parts/parts.css`
+- `examples/payout-flow/index.tsx`
+- `examples/payout-flow/pace.css`
+- `examples/phone-touch/fitness.css`
+- `examples/phone-touch/index.tsx`
+- `examples/phones/index.tsx`
+- `examples/powerpoint/index.tsx`
+- `examples/powerpoint/pp.css`
+- `examples/presence/index.tsx`
+- `examples/presence/presence.css`
+- `examples/raycast/index.tsx`
+- `examples/raycast/raycast.css`
+- `examples/reorder/index.tsx`
+- `examples/reorder/reorder.css`
+- `examples/ruled-bento/grid.css`
+- `examples/ruled-bento/index.tsx`
+- `examples/share/index.tsx`
+- `examples/share/share.css`
+- `examples/slack/index.tsx`
+- `examples/slack/slack.css`
+- `examples/spotify/index.tsx`
+- `examples/spotify/spotify.css`
+- `examples/stacked-cards/index.tsx`
+- `examples/stacked-cards/stacked.css`
+- `examples/staggered-bento/grid.css`
+- `examples/staggered-bento/index.tsx`
+- `examples/static-card/card.css`
+- `examples/static-card/index.tsx`
+- `examples/story/index.tsx`
+- `examples/story/story.css`
+- `examples/subscriptions/index.tsx`
+- `examples/subscriptions/subs.css`
+- `examples/swipe/index.tsx`
+- `examples/swipe/swipe.css`
+- `examples/table-edit/index.tsx`
+- `examples/table-edit/table.css`
+- `examples/telegram/index.tsx`
+- `examples/telegram/telegram.css`
+- `examples/tilted-stack/index.tsx`
+- `examples/tilted-stack/tilted.css`
+- `examples/upload/index.tsx`
+- `examples/upload/upload.css`
+- `examples/wikipedia/PHOTOS.md`
+- `examples/wikipedia/index.tsx`
+- `examples/wikipedia/wiki.css`
+- `examples/window-row/index.tsx`
+- `examples/window-row/row.css`
+- `kit/act.ts`
+- `kit/brands/1password-dark.svg`
+- `kit/brands/1password.svg`
+- `kit/brands/LICENSE-CRYPTO-FLAT.txt`
+- `kit/brands/LICENSE-PAYMENT-ICONS.txt`
+- `kit/brands/LICENSE-SIMPLE-ICONS.txt`
+- `kit/brands/LICENSE-SVGL.txt`
+- `kit/brands/SOURCES.md`
+- `kit/brands/amex-tile.svg`
+- `kit/brands/amex.svg`
+- `kit/brands/bankofamerica-dark.svg`
+- `kit/brands/bankofamerica.svg`
+- `kit/brands/barclays.svg`
+- `kit/brands/bitcoin.svg`
+- `kit/brands/chase.svg`
+- `kit/brands/discover.svg`
+- `kit/brands/dropbox-glyph.svg`
+- `kit/brands/dropbox.svg`
+- `kit/brands/ethereum.svg`
+- `kit/brands/figma.svg`
+- `kit/brands/github-dark.svg`
+- `kit/brands/github.svg`
+- `kit/brands/gmail.svg`
+- `kit/brands/google-calendar.svg`
+- `kit/brands/google-docs.svg`
+- `kit/brands/google-drive.svg`
+- `kit/brands/google-meet.svg`
+- `kit/brands/google-sheets.svg`
+- `kit/brands/google-slides.svg`
+- `kit/brands/hsbc.svg`
+- `kit/brands/index.ts`
+- `kit/brands/linear-dark.svg`
+- `kit/brands/linear.svg`
+- `kit/brands/mastercard.svg`
+- `kit/brands/monzo-dark.svg`
+- `kit/brands/monzo.svg`
+- `kit/brands/notion.svg`
+- `kit/brands/paypal.svg`
+- `kit/brands/revolut-dark.svg`
+- `kit/brands/revolut.svg`
+- `kit/brands/shopify.svg`
+- `kit/brands/slack.svg`
+- `kit/brands/solana.svg`
+- `kit/brands/stripe.svg`
+- `kit/brands/tether.svg`
+- `kit/brands/usdc.svg`
+- `kit/brands/vercel-dark.svg`
+- `kit/brands/vercel.svg`
+- `kit/brands/visa.svg`
+- `kit/brands/wellsfargo.svg`
+- `kit/brands/zoom.svg`
+- `kit/chart.css`
+- `kit/chart.tsx`
+- `kit/clock.ts`
+- `kit/code.css`
+- `kit/code.tsx`
+- `kit/controls/Badge.css`
+- `kit/controls/Badge.tsx`
+- `kit/controls/Field.css`
+- `kit/controls/Field.tsx`
+- `kit/controls/Segmented.css`
+- `kit/controls/Segmented.tsx`
+- `kit/controls/Slot.css`
+- `kit/controls/Slot.tsx`
+- `kit/controls/Tabs.css`
+- `kit/controls/Tabs.tsx`
+- `kit/controls/Toggle.css`
+- `kit/controls/Toggle.tsx`
+- `kit/controls/index.ts`
+- `kit/cursor.css`
+- `kit/cursor.tsx`
+- `kit/cursors.tsx`
+- `kit/ease.ts`
+- `kit/index.ts`
+- `kit/ios.css`
+- `kit/ios.tsx`
+- `kit/keys.css`
+- `kit/keys.tsx`
+- `kit/looks.ts`
+- `kit/measure.ts`
+- `kit/messages.css`
+- `kit/messages.tsx`
+- `kit/motion/Camera.css`
+- `kit/motion/Camera.tsx`
+- `kit/motion/Collapse.css`
+- `kit/motion/Collapse.tsx`
+- `kit/motion/Connector.css`
+- `kit/motion/Connector.tsx`
+- `kit/motion/Count.css`
+- `kit/motion/Count.tsx`
+- `kit/motion/Expand.css`
+- `kit/motion/Expand.tsx`
+- `kit/motion/Fly.css`
+- `kit/motion/Fly.tsx`
+- `kit/motion/Follow.css`
+- `kit/motion/Follow.tsx`
+- `kit/motion/Popover.css`
+- `kit/motion/Popover.tsx`
+- `kit/motion/Roll.css`
+- `kit/motion/Roll.tsx`
+- `kit/motion/Scroll.css`
+- `kit/motion/Scroll.tsx`
+- `kit/motion/States.css`
+- `kit/motion/States.tsx`
+- `kit/motion/Stream.css`
+- `kit/motion/Stream.tsx`
+- `kit/motion/Swap.css`
+- `kit/motion/Swap.tsx`
+- `kit/motion/index.ts`
+- `kit/parts/Avatar.css`
+- `kit/parts/Avatar.tsx`
+- `kit/parts/BrandMark.css`
+- `kit/parts/BrandMark.tsx`
+- `kit/parts/Check.css`
+- `kit/parts/Check.tsx`
+- `kit/parts/Chip.css`
+- `kit/parts/Chip.tsx`
+- `kit/parts/Facepile.css`
+- `kit/parts/Facepile.tsx`
+- `kit/parts/Icon.css`
+- `kit/parts/Icon.tsx`
+- `kit/parts/Menu.css`
+- `kit/parts/Menu.tsx`
+- `kit/parts/Meter.css`
+- `kit/parts/Meter.tsx`
+- `kit/parts/Pin.css`
+- `kit/parts/Pin.tsx`
+- `kit/parts/Row.css`
+- `kit/parts/Row.tsx`
+- `kit/parts/Spinner.css`
+- `kit/parts/Spinner.tsx`
+- `kit/parts/Toast.css`
+- `kit/parts/Toast.tsx`
+- `kit/parts/Tooltip.css`
+- `kit/parts/Tooltip.tsx`
+- `kit/parts/index.ts`
+- `kit/phone.css`
+- `kit/phone.tsx`
+- `kit/reduced-motion.ts`
+- `kit/stage.css`
+- `kit/stage.tsx`
+- `kit/stageshow.css`
+- `kit/util.ts`
+- `kit/window.css`
+- `kit/window.tsx`
+- `package-lock.json`
+- `package.json`
+- `playground/catalog.ts`
+- `playground/index.html`
+- `playground/main.tsx`
+- `playground/playback.ts`
+- `playground/preview.css`
+- `playground/preview.tsx`
+- `playground/tsconfig.json`
+- `playground/viewer.css`
+- `playground/viewer.tsx`
+- `playground/vite.config.ts`
+- `references/annotations.md`
+- `references/backgrounds.md`
+- `references/bento.md`
+- `references/brands.md`
+- `references/choreography.md`
+- `references/craft.md`
+- `references/framing.md`
+- `references/kit.md`
+- `references/looks.md`
+- `references/motion.md`
+- `references/products.md`
+- `references/rehearse.md`
+- `references/review.md`
+- `references/teaching.md`
+- `references/verify.md`
+- `scripts/browser.mjs`
+- `scripts/class-clash-core.mjs`
+- `scripts/class-clash.mjs`
+- `scripts/dev.mjs`
+- `scripts/film-checks.mjs`
+- `scripts/film.mjs`
+- `scripts/jumps-core.mjs`
+- `scripts/jumps.mjs`
+- `scripts/layout-core.mjs`
+- `scripts/layout.mjs`
+- `scripts/motion-watch.mjs`
+- `scripts/verification.mjs`
+- `teaching/composition.css`
+- `teaching/composition.tsx`
+- `teaching/continuity.css`
+- `teaching/continuity.tsx`
+- `teaching/contrasts.css`
+- `teaching/contrasts.tsx`
+- `teaching/details.css`
+- `teaching/details.tsx`
+- `teaching/edges.css`
+- `teaching/edges.tsx`
+- `teaching/relationships.css`
+- `teaching/relationships.tsx`
+- `teaching/scenes.css`
+- `teaching/scenes.tsx`
+- `teaching/style.css`
+- `teaching/style.tsx`
+- `teaching/text-settle.css`
+- `teaching/text-settle.tsx`

@@ -1,0 +1,11 @@
+{
+  "title": "Designed by Kyle",
+  "description": "The web application helps users manage tasks, track progress, and stay organized.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

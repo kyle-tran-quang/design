@@ -1,0 +1,38 @@
+/*
+ * From the cinematic's compiled stylesheet: the design's font classes resolve to Be Vietnam Pro weights
+ * (Tailwind would read them as font family names), and the screen stays hidden until the generation
+ * runtime takes over each region. Scoped to .cd-root; Tailwind compiles every other class.
+ *
+ * The Be Vietnam Pro faces are self-hosted in index.css (public/assets/fonts), so they're defined before the
+ * cinematic waits on document.fonts.ready and don't depend on Google Fonts being reachable.
+ */
+
+.cd-root {
+  line-height: 1.5;
+  letter-spacing: normal;
+  color: #000;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+.cd-root .font-\[\'Be_Vietnam_Pro\:Light\'\] {
+  font-family: 'Be Vietnam Pro';
+  font-weight: 300;
+}
+.cd-root .font-\[\'Be_Vietnam_Pro\:Regular\'\] {
+  font-family: 'Be Vietnam Pro';
+  font-weight: 400;
+}
+.cd-root .font-\[\'Be_Vietnam_Pro\:Medium\'\] {
+  font-family: 'Be Vietnam Pro';
+  font-weight: 500;
+}
+.cd-root .font-\[\'Be_Vietnam_Pro\:SemiBold\'\] {
+  font-family: 'Be Vietnam Pro';
+  font-weight: 600;
+}
+.cd-root .font-\[\'Be_Vietnam_Pro\:Bold\'\] {
+  font-family: 'Be Vietnam Pro';
+  font-weight: 700;
+}
+.cd-root[data-cd-pending] [data-cd-region] {
+  opacity: 0;
+}

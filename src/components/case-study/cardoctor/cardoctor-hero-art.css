@@ -1,0 +1,937 @@
+/*
+ * The CarDoctor hero art (CarDoctorHeroArt.tsx). Everything is scoped under .cdh. Inside a phone 1px is one iOS
+ * point of a 402 x 874 screen: the Figma frame's values divided by its 0.8957 scale (8.957px -> 10, 12.54px -> 14),
+ * so at the kit's 360px phone they render at their Figma size.
+ *
+ * The look is the Figma frame's: a #e0e0e0 ground (a step darker than the Figma's #eee, so the band stands off the
+ * hero section's #f2f2f2), CarDoctor indigo #453eed, Be Vietnam Pro, the design's own icons.
+ */
+
+.cdh {
+  --cdh-ground: #e0e0e0;
+  --cdh-indigo: #453eed;
+  --cdh-ink: #202438;
+  --cdh-ink-map: #292d32;
+  --cdh-muted: #707487;
+  --cdh-muted-map: #7d8896;
+  --cdh-rule: #e7e7f0;
+  --cdh-well: #f4f4f4;
+  /* Each phone's crop: the screen point at the band's top edge, so each shows the part its beat happens in */
+  --cdh-ps: 0.8955;
+
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--cdh-ground);
+  /* A lasting layer: the hero band slides in on entrance, and its text would hop to whole pixels as it lands */
+  will-change: transform;
+}
+
+/*
+ * Sized by the band's height (CaseStudyHero: 260 to 330px on phones, 360px from 640px, 476px from 1024px), centred,
+ * and cropped by the band at the sides: the wide design (1440 x 476) at 1x on desktop, the compact one (358 x 260)
+ * at 1x to 1.27x on phones and 1.38x on tablets.
+ */
+.cdh-slot {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  height: 100%;
+  aspect-ratio: 358 / 260;
+  transform: translateX(-50%);
+}
+
+@media (min-width: 1024px) {
+  .cdh-slot {
+    aspect-ratio: 1440 / 476;
+  }
+}
+
+.cdh .ss-stage {
+  overflow: hidden;
+  background: none;
+}
+
+/* ------------------------------------------------------------------ the row */
+
+.cdh .cdh-phone {
+  position: absolute;
+  box-shadow: 0 11px 11px rgb(0 0 0 / 0.06);
+}
+
+/* Three 360px phones 40px apart, centred on the 1440px stage. The top of each in stage px: minus the screen point
+   the band's top edge falls on, times the phone's scale */
+.cdh .cdh-phone[data-screen='assist'] {
+  left: 140px;
+  top: calc(var(--cdh-ps) * -142px);
+}
+
+.cdh .cdh-phone[data-screen='done'] {
+  left: 540px;
+  top: calc(var(--cdh-ps) * -240px);
+}
+
+.cdh .cdh-phone[data-screen='service'] {
+  left: 940px;
+  top: calc(var(--cdh-ps) * -225px);
+}
+
+/* From 1024 to 1279px the band (976 to 1231px) is narrower than the row of three, which would cut the map's provider
+   card and the receipt at its sides. The row scales to 0.8 there (288px phones, 32px apart, the middle one still
+   centred), and each phone shows more of its screen, so each crop starts a little higher */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .cdh .ss-stage[data-layout='wide'] .cdh-phone {
+    transform: scale(0.8);
+    transform-origin: 0 0;
+  }
+
+  .cdh .ss-stage[data-layout='wide'] .cdh-phone[data-screen='assist'] {
+    left: 256px;
+    top: calc(var(--cdh-ps) * 0.8 * -120px);
+  }
+
+  .cdh .ss-stage[data-layout='wide'] .cdh-phone[data-screen='done'] {
+    left: 576px;
+    top: calc(var(--cdh-ps) * 0.8 * -104px);
+  }
+
+  .cdh .ss-stage[data-layout='wide'] .cdh-phone[data-screen='service'] {
+    left: 896px;
+    top: calc(var(--cdh-ps) * 0.8 * -104px);
+  }
+
+  /* At 0.8 the design's 8pt and 12pt gaps would read as touching; they open a little */
+  .cdh .ss-stage[data-layout='wide'] .cdh-address {
+    gap: 12px;
+  }
+
+  .cdh .ss-stage[data-layout='wide'] .cdh-actions {
+    gap: 16px;
+  }
+}
+
+/* Compact: the completion phone alone, 310px wide (s = 310 / 402), cropped from screen point 255 */
+.cdh .ss-stage[data-layout='compact'] .cdh-phone[data-screen='done'] {
+  top: calc(310px / 402 * -255);
+}
+
+/* Under a 374px viewport the band is narrower than the 358px compact stage and crops it, so the phone would lose its
+   side gutters: it scales down about the band's top edge (the crop line), keeping 16px or more of ground each side */
+@media (max-width: 373px) {
+  .cdh .ss-stage[data-layout='compact'] .cdh-phone[data-screen='done'] {
+    transform: scale(0.955);
+    transform-origin: 50% calc(310px / 402 * 255);
+  }
+}
+
+@media (max-width: 359px) {
+  .cdh .ss-stage[data-layout='compact'] .cdh-phone[data-screen='done'] {
+    transform: scale(0.826);
+  }
+}
+
+/* Focus by depth: the story's phone sits in front with a deeper shadow */
+.cdh .cdh-phone[data-focus] {
+  z-index: 1;
+  box-shadow:
+    0 11px 11px rgb(0 0 0 / 0.06),
+    0 24px 48px -16px rgb(36 26 143 / 0.18);
+}
+
+/* ------------------------------------------------------------------ type */
+
+.cdh .cdh-screen {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #fff;
+  color: var(--cdh-ink);
+  font-family: 'Be Vietnam Pro:Regular', 'Be Vietnam Pro', system-ui, sans-serif;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: normal;
+}
+
+.cdh .cdh-l {
+  font-family: 'Be Vietnam Pro:Light', 'Be Vietnam Pro', system-ui, sans-serif;
+  font-weight: 300;
+}
+
+.cdh .cdh-r {
+  font-family: 'Be Vietnam Pro:Regular', 'Be Vietnam Pro', system-ui, sans-serif;
+  font-weight: 400;
+}
+
+.cdh .cdh-m {
+  font-family: 'Be Vietnam Pro:Medium', 'Be Vietnam Pro', system-ui, sans-serif;
+  font-weight: 500;
+}
+
+.cdh .cdh-sb {
+  font-family: 'Be Vietnam Pro:SemiBold', 'Be Vietnam Pro', system-ui, sans-serif;
+  font-weight: 600;
+}
+
+.cdh .cdh-b {
+  font-family: 'Be Vietnam Pro:Bold', 'Be Vietnam Pro', system-ui, sans-serif;
+  font-weight: 700;
+}
+
+.cdh .cdh-screen img {
+  display: block;
+  max-width: none;
+}
+
+.cdh .cdh-bar--light {
+  background: rgb(255 255 255 / 0.55) !important;
+}
+
+.cdh .cdh-bar--accent {
+  background: #c9c6fa !important;
+}
+
+/* ------------------------------------------------------------------ header */
+
+/* Indigo under the kit's status bar (54pt) with the app's 48pt top bar below it */
+.cdh .cdh-header {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 1;
+  height: 102px;
+  padding-top: 54px;
+  background: var(--cdh-indigo);
+}
+
+.cdh .cdh-assist .cdh-header {
+  background: rgb(21 12 223 / 0.8);
+}
+
+.cdh .cdh-topbar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 48px;
+  padding: 10px 16px;
+}
+
+.cdh .cdh-topbar__icon {
+  width: 24px;
+  height: 24px;
+}
+
+/* ------------------------------------------------------------------ Emergency assistance */
+
+.cdh .cdh-map {
+  position: absolute;
+  top: 10px;
+  left: 0;
+  width: 402px;
+  height: 520px;
+  overflow: hidden;
+  background: linear-gradient(#f7f7f7, #d9d9d9);
+}
+
+.cdh .cdh-road {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cdh .cdh-road > div {
+  flex: none;
+}
+
+.cdh .cdh-road__line {
+  position: relative;
+  height: 0;
+}
+
+.cdh .cdh-road__img {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.cdh .cdh-road__img img {
+  width: 100%;
+  height: 100%;
+}
+
+.cdh .cdh-here {
+  position: absolute;
+  top: 242px;
+  left: 161px;
+  width: 42px;
+  height: 42px;
+}
+
+.cdh .cdh-here img {
+  position: absolute;
+  /* The design's inset (-8.33% -27.38% -46.43%): the halo runs past the dot's box */
+  top: -8.33%;
+  left: -27.38%;
+  width: 154.76%;
+  height: 154.76%;
+}
+
+.cdh .cdh-marker {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.cdh .cdh-pin {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 3px solid #fff;
+  border-radius: 999px;
+  background: var(--cdh-ink-map);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.08);
+  transition: background-color 0.2s ease;
+}
+
+.cdh .cdh-pin img {
+  width: 15px;
+  height: 15px;
+}
+
+.cdh .cdh-marker[data-picked] .cdh-pin {
+  background: var(--cdh-indigo);
+}
+
+/* The picked provider's ETA and price, dropping in over its marker; it holds its place when hidden so the pin
+   never moves */
+.cdh .cdh-marker__detail {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.08);
+  color: var(--cdh-ink-map);
+  font-size: 11px;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(-6px) scale(0.96);
+  will-change: transform;
+  transition:
+    opacity 0.3s ease,
+    transform 0.5s cubic-bezier(0.3, 0.75, 0.1, 1);
+}
+
+.cdh .cdh-marker[data-picked] .cdh-marker__detail {
+  opacity: 1;
+  transform: none;
+}
+
+.cdh .cdh-marker__price {
+  color: #ff5e67;
+}
+
+.cdh .cdh-locate {
+  position: absolute;
+  top: 452px;
+  left: 342px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.8);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.08);
+}
+
+.cdh .cdh-locate img {
+  width: 20px;
+  height: 20px;
+}
+
+.cdh .cdh-address {
+  position: absolute;
+  top: 158px;
+  left: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgb(36 26 143 / 0.08);
+}
+
+.cdh .cdh-address img {
+  width: 16px;
+  height: 16px;
+}
+
+.cdh .cdh-help {
+  position: absolute;
+  top: 404px;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 18px 20px;
+  border-radius: 30px 30px 0 0;
+  background: #fff;
+  filter: drop-shadow(0 -8px 14px rgb(36 26 143 / 0.12));
+}
+
+.cdh .cdh-help__handle {
+  width: 44px;
+  height: 5px;
+  border-radius: 999px;
+  background: #d5d4e5;
+}
+
+.cdh .cdh-help__body {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-self: stretch;
+}
+
+/* "Your help is near." at 24px / 1.12 */
+.cdh .cdh-help__heading {
+  display: flex;
+  align-items: center;
+  height: 27px;
+}
+
+/* The provider card: a hairline at rest; picked, the app's 2px indigo edge and lift. The border is always 2px so
+   nothing inside moves */
+.cdh .cdh-provider {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  border: 2px solid var(--cdh-rule);
+  border-radius: 18px;
+  background: #fff;
+  /* A lasting layer: the press scales it, and its text would hop to whole pixels as it lands */
+  will-change: transform;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.4s ease,
+    transform 0.15s ease;
+}
+
+.cdh .cdh-provider[data-picked] {
+  border-color: var(--cdh-indigo);
+  box-shadow: 0 8px 24px rgb(36 26 143 / 0.08);
+}
+
+.cdh .cdh-provider[data-pressed] {
+  transform: scale(0.985);
+}
+
+.cdh .cdh-provider__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cdh .cdh-provider__name {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--cdh-ink-map);
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+.cdh .cdh-pill {
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: #ecfeff;
+  color: #14b8d4;
+  font-size: 11px;
+}
+
+.cdh .cdh-provider__sub {
+  color: var(--cdh-muted-map);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.cdh .cdh-facts {
+  display: flex;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.cdh .cdh-fact {
+  display: flex;
+  flex: 1 0 0;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 9px 10px;
+  border-radius: 14px;
+  background: #ecebff;
+}
+
+.cdh .cdh-fact--plain {
+  background: none;
+}
+
+.cdh .cdh-fact__label {
+  color: var(--cdh-muted-map);
+  font-size: 9px;
+  text-transform: uppercase;
+}
+
+.cdh .cdh-fact__value {
+  color: var(--cdh-indigo);
+  font-size: 18px;
+}
+
+.cdh .cdh-compare {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  align-self: stretch;
+  height: 56px;
+  padding: 0 12px;
+  border: 1px solid #c6c6c6;
+  border-radius: 16px;
+}
+
+.cdh .cdh-continue {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  align-self: stretch;
+  height: 58px;
+  padding: 0 16px;
+  border-radius: 14px;
+  background: var(--cdh-indigo);
+}
+
+.cdh .cdh-continue__icon {
+  width: 17px;
+  height: 17px;
+  transform: rotate(90deg);
+}
+
+/* ------------------------------------------------------------------ Service completed */
+
+.cdh .cdh-done {
+  display: flex;
+  flex-direction: column;
+  background: var(--cdh-indigo);
+}
+
+/* The animated shader behind the status bar, top bar and message */
+.cdh .cdh-backdrop {
+  position: relative;
+  flex: none;
+  height: 270px;
+  overflow: hidden;
+  padding-top: 54px;
+  color: #fff;
+}
+
+.cdh .cdh-backdrop__shader {
+  position: absolute;
+  inset: 0;
+}
+
+.cdh .cdh-message {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 24px 100px 0 20px;
+}
+
+.cdh .cdh-message__meta {
+  color: rgb(255 255 255 / 0.78);
+  font-size: 12px;
+}
+
+.cdh .cdh-message__sub {
+  line-height: 17px;
+}
+
+.cdh .cdh-message__title {
+  font-size: 34px;
+  line-height: 38px;
+  letter-spacing: -1.4px;
+}
+
+.cdh .cdh-sheet {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 20px;
+  padding: 28px 20px 20px;
+  border-radius: 28px 28px 0 0;
+  background: #fff;
+}
+
+.cdh .cdh-sheet__label {
+  color: #e94ba5;
+  font-size: 9px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.cdh .cdh-work {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.cdh .cdh-work__count {
+  color: var(--cdh-indigo);
+  font-size: 48px;
+  letter-spacing: -1.5px;
+}
+
+/* The figures fade out to reset unseen at the loop's end */
+.cdh .cdh-fig {
+  transition: opacity 0.3s ease;
+}
+
+.cdh .cdh-fig[data-dim] {
+  opacity: 0;
+}
+
+.cdh .cdh-work__summary {
+  display: flex;
+  flex: 1 0 0;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.cdh .cdh-work__title {
+  font-size: 18px;
+  line-height: 24px;
+}
+
+.cdh .cdh-work__text {
+  color: var(--cdh-muted);
+  font-size: 11px;
+  line-height: 17px;
+}
+
+.cdh .cdh-divider {
+  flex: none;
+  height: 1px;
+  background: var(--cdh-rule);
+}
+
+.cdh .cdh-detail {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  /* One line box, so the row keeps its height while its total resolves and the notice below never shifts */
+  height: 18px;
+  font-size: 14px;
+  line-height: 18px;
+}
+
+.cdh .cdh-detail__label {
+  flex: 1 0 0;
+  min-width: 0;
+  color: var(--cdh-muted);
+}
+
+.cdh .cdh-detail__value {
+  white-space: nowrap;
+}
+
+.cdh .cdh-detail__value--accent {
+  color: var(--cdh-indigo);
+}
+
+/* The service total over its skeleton bar, right-aligned in one cell */
+.cdh .cdh-detail__total {
+  display: grid;
+  justify-items: end;
+  align-items: baseline;
+}
+
+/* The figures are tabular so they roll in fixed columns; a leading 1 sits on the right of its column so it closes
+   up to the separator, as it does in the design's set text */
+.cdh .cdh-detail__value .ss-count__digit:first-child .ss-count__strip > span {
+  text-align: right;
+}
+
+.cdh .cdh-notice {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--cdh-well);
+}
+
+.cdh .cdh-notice__title {
+  font-size: 14px;
+  line-height: 18px;
+}
+
+.cdh .cdh-notice__text {
+  color: var(--cdh-muted);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.cdh .cdh-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cdh .cdh-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  padding: 0 16px;
+  border-radius: 12.54px;
+  font-size: 14.33px;
+  line-height: 21.5px;
+  white-space: nowrap;
+  will-change: transform;
+  transition:
+    background-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.cdh .cdh-button--primary {
+  background: var(--cdh-indigo);
+  color: #fff;
+}
+
+/* The finger's press: a step of its own colour, and the button gives a little under it */
+.cdh .cdh-button--primary[data-pressed] {
+  background: #3a33d6;
+  transform: scale(0.98);
+}
+
+.cdh .cdh-button--secondary {
+  border: 1px solid #4e5ff8;
+  color: var(--cdh-indigo);
+}
+
+/* Compact: a closer crop, so the record runs from its figures straight to the action */
+.cdh .ss-stage[data-layout='compact'] .cdh-sheet__label,
+.cdh .ss-stage[data-layout='compact'] .cdh-notice,
+.cdh .ss-stage[data-layout='compact'] .cdh-button--secondary {
+  display: none;
+}
+
+/* ------------------------------------------------------------------ Your service */
+
+.cdh .cdh-service__content {
+  position: absolute;
+  top: 102px;
+  right: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px 16px;
+}
+
+/* "Your repair works, plainly stated." (34px on a 38px line) and its two 11px lines, as bars in their line boxes */
+.cdh .cdh-intro {
+  display: flex;
+  flex-direction: column;
+}
+
+.cdh .cdh-intro__line {
+  display: flex;
+  align-items: center;
+  height: 38px;
+}
+
+.cdh .cdh-intro__meta {
+  display: flex;
+  align-items: center;
+  height: 17px;
+}
+
+.cdh .cdh-intro__line + .cdh-intro__meta {
+  margin-top: 12px;
+}
+
+.cdh .cdh-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cdh .cdh-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin: 0;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--cdh-rule);
+}
+
+.cdh .cdh-row__n {
+  display: grid;
+  flex: none;
+  align-items: center;
+  width: 36px;
+  height: 25px;
+  color: #525252;
+  font-size: 20px;
+}
+
+.cdh .cdh-row__copy {
+  display: flex;
+  flex: 1 0 0;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.cdh .cdh-row__title {
+  display: grid;
+  align-items: center;
+  height: 21px;
+  color: var(--cdh-ink);
+  font-size: 16px;
+  letter-spacing: -0.32px;
+}
+
+.cdh .cdh-row__text {
+  display: flex;
+  align-items: center;
+  height: 16px;
+}
+
+/* Real words over their skeleton in one grid cell: resolving crossfades them in place */
+.cdh .cdh-row__real,
+.cdh .cdh-row__skel {
+  grid-area: 1 / 1;
+  transition: opacity 0.35s ease;
+}
+
+.cdh .cdh-row__skel {
+  display: flex;
+  align-items: center;
+}
+
+.cdh .cdh-row__real {
+  opacity: 0;
+  white-space: nowrap;
+}
+
+.cdh .cdh-row[data-on] .cdh-row__real,
+.cdh .cdh-receipt__sum[data-on] .cdh-row__real,
+.cdh .cdh-detail__total[data-on] .cdh-row__real {
+  opacity: 1;
+}
+
+.cdh .cdh-row[data-on] .cdh-row__skel,
+.cdh .cdh-receipt__sum[data-on] .cdh-row__skel,
+.cdh .cdh-detail__total[data-on] .cdh-row__skel {
+  opacity: 0;
+}
+
+.cdh .cdh-note {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--cdh-well);
+  transition: background-color 0.35s ease;
+}
+
+.cdh .cdh-note[data-on] {
+  background: #ecebff;
+}
+
+.cdh .cdh-note__title {
+  display: flex;
+  align-items: center;
+  height: 18px;
+}
+
+.cdh .cdh-note__line {
+  display: flex;
+  align-items: center;
+  height: 16px;
+}
+
+.cdh .cdh-receipt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+}
+
+.cdh .cdh-receipt__cost {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cdh .cdh-receipt__label {
+  color: var(--cdh-muted);
+  font-size: 11px;
+  line-height: 16px;
+}
+
+.cdh .cdh-receipt__sum {
+  display: grid;
+  align-items: center;
+  height: 27px;
+  color: var(--cdh-ink);
+  font-size: 22px;
+}
+
+.cdh .cdh-receipt__button {
+  padding: 6px 12px;
+  border: 1px solid var(--cdh-indigo);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--cdh-indigo);
+  font-size: 11px;
+  line-height: 16px;
+  will-change: transform;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+/* The receipt is ready: the button fills */
+.cdh .cdh-receipt__button[data-on] {
+  background: var(--cdh-indigo);
+  color: #fff;
+}
+
+.cdh .cdh-warranty {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 24px;
+}

@@ -1,0 +1,24 @@
+{
+  "selfHosted": false,
+  "files": {
+    "avatarOverload": { "file": "cardoctor-research-avatar-overload.png", "url": "https://framerusercontent.com/images/NsmJAFiVo2xYmj7BxOeQh6K3H4I.png?width=724&height=880" },
+    "avatarTransparency": { "file": "cardoctor-research-avatar-transparency.png", "url": "https://framerusercontent.com/images/4zMfRHVrcmx56GDUouYsoi69AM.png?width=624&height=880" },
+    "motionShowcase": { "file": "cardoctor-revamp-motion-showcase.gif", "url": "https://framerusercontent.com/images/QN79ovLDcsxS105hicN3bio1VA.gif?width=1440&height=1440" },
+    "languageLoop": { "file": "cardoctor-revamp-language-loop.gif", "url": "https://framerusercontent.com/images/ky0MhHWUw8ys4VkzeYbuMrfaqg.gif?width=738&height=1440" },
+    "revampHero": { "file": "cardoctor-revamp-hero.png", "url": "https://framerusercontent.com/images/aLC0iaRDNJt0XNgXRpAbvP0XU8g.png?width=2580&height=1626" },
+    "revampWalkthrough": { "file": "cardoctor-revamp-walkthrough.mp4", "url": "https://framerusercontent.com/assets/hHY0WtV6uv3ejL50IdEbx1ug5W8.mp4" },
+    "levelOne": { "file": "cardoctor-features-level-1.png", "url": "https://framerusercontent.com/images/uFlxqDnXS6oo8GLG8hEUXY4Dk8.png?width=3211&height=1300" },
+    "searchBooking": { "file": "cardoctor-features-search-booking.mp4", "url": "https://framerusercontent.com/assets/iw83YHFYVbLGgJFKA9uwa4wZOw.mp4" },
+    "serviceTracking": { "file": "cardoctor-features-service-tracking.mp4", "url": "https://framerusercontent.com/assets/Hb0dvoYBdeI4pL7QjpShremAypU.mp4" },
+    "payment": { "file": "cardoctor-features-payment.mp4", "url": "https://framerusercontent.com/assets/Saga2ZUmeGdSI436fSYQsQGW0.mp4" },
+    "levelTwo": { "file": "cardoctor-features-level-2.png", "url": "https://framerusercontent.com/images/c6C2pXExok8M2Qxc7LzdAgcwy1s.png?width=4471&height=1643" },
+    "emergency": { "file": "cardoctor-features-emergency-assistance.png", "url": "https://framerusercontent.com/images/AMq6okKFbBF9ES3lp16Pa5xz3zg.png?width=2484&height=1575" },
+    "maintenance": { "file": "cardoctor-features-maintenance-guide.png", "url": "https://framerusercontent.com/images/uhqHtqftWaGX9eAaJkqonERmA.png?width=3361&height=1737" },
+    "commissionBypass": { "file": "cardoctor-gaps-commission-bypass.svg", "url": "https://framerusercontent.com/images/umRGUuDyaEDpqmzIctgJWvJKd0.svg?width=816&height=1296" },
+    "vcNobleEdge": { "file": "cardoctor-outcome-vc-noble-edge.png", "url": "https://framerusercontent.com/images/swoh2oiMsfy9YRtl2KIWZGx2IJc.png?width=300&height=150" },
+    "vcTitans": { "file": "cardoctor-outcome-vc-titans.png", "url": "https://framerusercontent.com/images/dfq2Dxk0E0pgyfslFEZDyWsuLw.png?width=380&height=168" },
+    "promoWarranty": { "file": "cardoctor-outcome-promo-warranty.png", "url": "https://framerusercontent.com/images/8osNkfje2T3CVExEQXe3m7rg4.png?width=1080&height=1080" },
+    "promoReturns": { "file": "cardoctor-outcome-promo-returns.png", "url": "https://framerusercontent.com/images/MY5UoH6k7xNEI8ugFuraDSixVVQ.png?width=1080&height=1080" },
+    "lessons": { "file": "cardoctor-outcome-lessons.png", "url": "https://framerusercontent.com/images/T32nKPaPqAuQ0j4PnEMyGYWuBw.png?width=2436&height=3148" }
+  }
+}

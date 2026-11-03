@@ -1,0 +1,593 @@
+/*
+ * The Breadslice hero art (BreadsliceHeroArt.tsx). Everything is scoped under .bsh. Inside a phone, 1px is one iOS
+ * point of a 402 x 874 screen; the kit scales the screen down as a whole.
+ *
+ * The look is the app's own, sampled from the case study's screens: a #2c2c2c ground, #181818 screens, #2c2c2c
+ * docks and cards, Breadslice green for play and save, yellow for record, Nunito, Lucide.
+ */
+
+.bsh {
+  --bsh-ground: #2c2c2c;
+  --bsh-screen: #181818;
+  --bsh-surface: #2c2c2c;
+  --bsh-raised: #383838;
+  --bsh-track: #2a2a2a;
+  --bsh-text: #f4f4f4;
+  --bsh-icon: #e8e8e8;
+  --bsh-icon-quiet: #9b9b9b;
+  --bsh-green: #38b387;
+  --bsh-green-dim: #2b6b55;
+  --bsh-wave-rest: #3c3c3c;
+  --bsh-yellow: #edc024;
+  --bsh-lilac: #b2a7f2;
+  /* The band's sides fade the row out, so a phone the crop catches never ends as a hard sliver */
+  --bsh-fade: clamp(32px, 6%, 112px);
+
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--bsh-ground);
+  /* A lasting layer: the hero band slides in on entrance, and its text would hop to whole pixels as it lands */
+  will-change: transform;
+}
+
+.bsh-row {
+  position: absolute;
+  inset: 0;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 var(--bsh-fade), #000 calc(100% - var(--bsh-fade)), transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 var(--bsh-fade), #000 calc(100% - var(--bsh-fade)), transparent);
+}
+
+/*
+ * Sized by the band's height (CaseStudyHero: 260 to 330px on phones, 360px from 640px, 476px from 1024px), centred,
+ * and cropped by the band at the sides. Its width follows from the design's shape, and the stage scales to that
+ * width: the compact design (760 x 260) at 1x to 1.27x on phones and 1.38x on tablets, the wide one (2600 x 476)
+ * at 1x on desktop.
+ */
+.bsh-slot {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  height: 100%;
+  aspect-ratio: 760 / 260;
+  transform: translateX(-50%);
+}
+
+@media (min-width: 1024px) {
+  .bsh-slot {
+    aspect-ratio: 2600 / 476;
+  }
+}
+
+.bsh .ss-stage {
+  overflow: hidden;
+  background: none;
+}
+
+/* ------------------------------------------------------------------ the row */
+
+/* One height, one gap, every foot a gutter above the band's bottom edge; the tops run off the band */
+.bsh .bsh-phone {
+  position: absolute;
+  bottom: 48px;
+}
+
+.bsh .ss-stage[data-layout='compact'] .bsh-phone {
+  bottom: 24px;
+}
+
+/* A phone-width band holds the loaf alone; its neighbours would only ever show as slivers */
+@media (max-width: 639px) {
+  .bsh .ss-stage[data-layout='compact'] .bsh-phone:not([data-focus]) {
+    display: none;
+  }
+}
+
+/* Focus by depth: the story's phone sits in front with the hero shadow */
+.bsh .bsh-phone[data-focus] {
+  z-index: 1;
+  box-shadow:
+    0 calc(var(--ps) * 48) calc(var(--ps) * 96) calc(var(--ps) * -12) rgb(0 0 0 / 0.55),
+    0 calc(var(--ps) * 18) calc(var(--ps) * 36) calc(var(--ps) * -18) rgb(0 0 0 / 0.5);
+}
+
+/* ------------------------------------------------------------------ the screens */
+
+.bsh .bsh-screen {
+  position: absolute;
+  inset: 0;
+  color: var(--bsh-text);
+  font-family: 'Nunito', ui-rounded, system-ui, sans-serif;
+  font-size: 15px;
+  letter-spacing: 0;
+}
+
+.bsh .bsh-screen svg {
+  display: block;
+  flex: none;
+}
+
+.bsh .bsh-ink-yellow {
+  color: var(--bsh-yellow);
+}
+
+.bsh .bsh-ink-lilac {
+  color: var(--bsh-lilac);
+}
+
+.bsh .bsh-ink-green {
+  color: var(--bsh-green);
+}
+
+/* The dock: a sheet with a rounded top over the bottom of the screen; the phone draws the home indicator over it */
+.bsh .bsh-dock {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 194px;
+  padding: 24px 20px 0;
+  border-radius: 36px 36px 0 0;
+  background: var(--bsh-surface);
+}
+
+.bsh .bsh-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  /* One row the bar's height, so the taller open tab stands out of it evenly above and below */
+  grid-template-rows: 100%;
+  align-items: center;
+  height: 56px;
+  border-radius: 16px;
+  background: #000;
+  color: var(--bsh-icon);
+}
+
+.bsh .bsh-tab {
+  display: grid;
+  place-items: center;
+  height: 100%;
+}
+
+/* The open tab: a white tile standing a little proud of the bar, as the app draws it */
+.bsh .bsh-tab[data-selected] {
+  align-self: center;
+  height: 64px;
+  margin: 0 18px;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 0 0 2px #d9d9d9;
+  color: #111;
+}
+
+.bsh .bsh-save {
+  display: grid;
+  place-items: center;
+  height: 54px;
+  border-radius: 14px;
+  background: var(--bsh-green);
+  color: #fff;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+/* ------------------------------------------------------------------ slices */
+
+/* Bottom-anchored over the dock, as the app stacks them; one slice is a title over its row of controls */
+.bsh .bsh-slices {
+  position: absolute;
+  right: 20px;
+  bottom: 218px;
+  left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bsh .bsh-slice {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+}
+
+.bsh .bsh-slice__title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 22px;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 22px;
+}
+
+.bsh .bsh-slice__row {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) 48px;
+  align-items: center;
+  height: 48px;
+}
+
+.bsh .bsh-btn {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--bsh-surface);
+  color: var(--bsh-icon);
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    transform 0.15s ease;
+}
+
+/* The finger's press: the button gives a little under it */
+.bsh .bsh-btn[data-pressed] {
+  transform: scale(0.94);
+}
+
+/* Play and pause in one cell, crossfading */
+.bsh .bsh-btn__icon {
+  grid-area: 1 / 1;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.bsh .bsh-btn__icon[data-on] {
+  opacity: 1;
+}
+
+/* The track: a hairline from button to button with the slice's length on a pill in the middle */
+.bsh .bsh-slice__track {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 26px;
+  margin: 0 14px;
+}
+
+.bsh .bsh-slice__track::before {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  left: 0;
+  height: 2px;
+  margin-top: -1px;
+  border-radius: 1px;
+  background: var(--bsh-track);
+  content: '';
+}
+
+.bsh .bsh-slice__time {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  width: 128px;
+  height: 26px;
+  border-radius: 8px;
+  background: var(--bsh-surface);
+  color: #e6e6e6;
+  font-size: 15px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+
+/* How much of the slice has played, filling its pill from the left at the playhead's pace */
+.bsh .bsh-slice__fill {
+  position: absolute;
+  inset: 0;
+  background: var(--bsh-green);
+  opacity: 0;
+  transform-origin: left center;
+  transition: opacity 0.3s ease;
+}
+
+.bsh .bsh-slice__label {
+  position: relative;
+}
+
+/* The slice playing: its controls and length turn Breadslice green, as in the app */
+.bsh .bsh-slice[data-playing] .bsh-btn {
+  background: var(--bsh-green);
+  color: #fff;
+}
+
+.bsh .bsh-slice[data-playing] .bsh-slice__time {
+  background: var(--bsh-green-dim);
+  color: #fff;
+  font-weight: 800;
+}
+
+.bsh .bsh-slice[data-playing] .bsh-slice__fill {
+  opacity: 1;
+  transition:
+    opacity 0.3s ease,
+    transform 0.48s linear;
+}
+
+/* In filler the controls step back */
+.bsh .bsh-record .bsh-btn,
+.bsh .bsh-record .bsh-slice__time {
+  color: var(--bsh-icon-quiet);
+}
+
+/* ------------------------------------------------------------------ the loaf */
+
+/* The whole recording, cut into its slices; the one playing is lit up to the playhead. Its top runs off the band */
+.bsh .bsh-wave {
+  position: absolute;
+  top: 300px;
+  right: 20px;
+  left: 20px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 152px;
+  padding: 0 0 20px;
+  border-radius: 20px;
+  background: #222;
+}
+
+/* 4px bars 3px apart, 11px between slices: the playhead's position (headX) is worked out from these */
+.bsh .bsh-wave__bars {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 11px;
+}
+
+.bsh .bsh-wave__slice {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+}
+
+.bsh .bsh-wave__bar {
+  width: 4px;
+  border-radius: 2px;
+  background: var(--bsh-wave-rest);
+  transition: background-color 0.25s ease;
+}
+
+.bsh .bsh-wave__slice[data-playing] .bsh-wave__bar {
+  background: var(--bsh-green-dim);
+}
+
+.bsh .bsh-wave__slice[data-playing] .bsh-wave__bar[data-played] {
+  background: var(--bsh-green);
+}
+
+/* The playhead: a white line travelling at the audio's pace, just left of the next bar to play */
+.bsh .bsh-wave__head {
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  width: 2px;
+  height: 60px;
+  border-radius: 1px;
+  background: #fff;
+  opacity: 0;
+  transition:
+    opacity 0.3s ease,
+    transform 0.48s linear;
+}
+
+.bsh .bsh-wave__head[data-on] {
+  opacity: 1;
+}
+
+/* Compact: a closer crop, so the loaf is "Personal ethics" over the dock */
+.bsh .ss-stage[data-layout='compact'] .bsh-wave,
+.bsh .ss-stage[data-layout='compact'] .bsh-slice[data-slice='work'] {
+  display: none;
+}
+
+/* ------------------------------------------------------------------ record */
+
+/* The three controls span the dock at its own inset, as the app lays them out */
+.bsh .bsh-record__dock {
+  align-items: center;
+  gap: 14px;
+  height: 170px;
+  padding-top: 22px;
+}
+
+/* Its slices stack on its shorter dock */
+.bsh .bsh-record .bsh-slices {
+  bottom: 194px;
+}
+
+.bsh .bsh-record__controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  align-self: stretch;
+  padding: 0 2px;
+}
+
+.bsh .bsh-record__side {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--bsh-raised);
+  color: var(--bsh-icon-quiet);
+}
+
+/* The record button, ringed in Breadslice yellow. A neighbour, so it rests in its quiet state rather than the
+   white of a live recording, which would outshine the loaf */
+.bsh .bsh-record__mic {
+  display: grid;
+  place-items: center;
+  width: 112px;
+  height: 72px;
+  border: 4px solid var(--bsh-yellow);
+  border-radius: 16px;
+  background: var(--bsh-raised);
+  color: var(--bsh-yellow);
+}
+
+.bsh .bsh-record__label {
+  background: #5f4f1d;
+}
+
+/* ------------------------------------------------------------------ collaboration */
+
+.bsh .bsh-collab {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  /* The band's top edge crosses the first card between its label and its stats, well past the card's top */
+  padding: 290px 20px 0;
+}
+
+.bsh .bsh-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.bsh .bsh-section__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 22px;
+}
+
+.bsh .bsh-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.bsh .bsh-card {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: 18px 16px;
+  border-radius: 16px;
+  background: var(--bsh-surface);
+  color: var(--bsh-icon-quiet);
+}
+
+.bsh .bsh-card--wide {
+  gap: 34px;
+}
+
+.bsh .bsh-card--row {
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+  margin-top: 12px;
+}
+
+/* A card's value line: one height whether it holds a figure or a person, so neighbouring cards line up */
+.bsh .bsh-card__line {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 28px;
+}
+
+.bsh .bsh-card__line[data-person] {
+  justify-content: space-between;
+}
+
+.bsh .bsh-face {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--bsh-raised);
+}
+
+.bsh .bsh-stats {
+  display: flex;
+  gap: 34px;
+}
+
+.bsh .bsh-stat {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ------------------------------------------------------------------ library */
+
+.bsh .bsh-loaves {
+  position: absolute;
+  top: 318px;
+  right: 20px;
+  left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bsh .bsh-loaves__row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0;
+  padding: 12px;
+  border-radius: 18px;
+  background: #1f1f1f;
+}
+
+.bsh .bsh-loaves__art {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: var(--bsh-surface);
+  color: var(--bsh-icon-quiet);
+}
+
+.bsh .bsh-loaves__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bsh .bsh-loaves__line {
+  display: flex;
+  align-items: center;
+  height: 21px;
+}
+
+.bsh .bsh-loaves__line--meta {
+  height: 18px;
+}
+
+/* The library's tab bar floats over the bottom of its list, a gutter in from the screen's edges */
+.bsh .bsh-library__tabs {
+  position: absolute;
+  right: 20px;
+  bottom: 44px;
+  left: 20px;
+}
+
+/* A neighbour at the band's ends: its open tab rests on the raised surface, not the loaf's white, so nothing bright
+   sits out at the edges */
+.bsh .bsh-library .bsh-tab[data-selected] {
+  background: var(--bsh-raised);
+  box-shadow: none;
+  color: var(--bsh-icon);
+}

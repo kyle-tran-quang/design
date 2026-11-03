@@ -1,0 +1,18 @@
+/*
+ * The CarDS cinematic screen (CarDSScreen.tsx): Inter for every UI label (self-hosted, see index.css), and the
+ * regions stay hidden until the generation runtime takes each one over, so the finished screen never flashes first.
+ */
+.cds-root {
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  line-height: 1.4;
+  letter-spacing: normal;
+  color: #0a0a0a;
+  font-feature-settings: 'cv11', 'ss01';
+}
+.cds-root[data-cds-pending] [data-cds-region] {
+  opacity: 0;
+}
+/* The card grid (drawn in CarDSScreen) fades out downwards, as in the art. */
+.cds-grid {
+  mask-image: linear-gradient(to bottom, rgb(0 0 0 / 0.9), transparent);
+}
