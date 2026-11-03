@@ -16,7 +16,7 @@ import {
   removeCurtain,
   takeHandoff,
   zoomStart,
-} from './cinematic'
+} from './cinematicCore'
 
 // The case-page cinematic: a full-screen frame that takes over from the card page's curtain, plays the
 // CarDoctor blueprint-to-hi-fi generation at 50% of the curtain's width, zooms quickly to 70% as the
