@@ -1,4 +1,4 @@
-name: Deploy static site to GitHub Pages
+name: Deploy to GitHub Pages
 
 on:
   push:
@@ -20,36 +20,42 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          lfs: true
 
-      - name: Verify site directory
-        run: test -f output/kyletran/index.html
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.34.3
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
 
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
 
-      - name: Prepare site with base path
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
         env:
-          BASE_PATH: ${{ steps.pages.outputs.base_path }}
-        run: |
-          rm -rf _site
-          cp -R output/kyletran _site
-          # Root-absolute asset URLs (/assets/...) 404 when the site is served
-          # from a sub-path such as /<repo>/. Prefix them with the base path.
-          if [ -n "$BASE_PATH" ]; then
-            find _site -type f \( -name '*.html' -o -name '*.css' -o -name '*.js' -o -name '*.json' \) -print0 \
-              | xargs -0 perl -pi -e 's{(?<![\w./-])/assets/}{$ENV{BASE_PATH}/assets/}g'
-          fi
-          # Fail the build if any font referenced by CSS/HTML/JS is missing.
-          grep -rhoE "[A-Za-z0-9_./-]*/assets/fonts/[A-Za-z0-9_.-]+\.woff2" _site \
-            --include='*.html' --include='*.css' --include='*.js' \
-            | sed -E "s#.*/assets/fonts/#_site/assets/fonts/#" | sort -u \
-            | while read -r f; do test -f "$f" || { echo "Missing font: $f"; exit 1; }; done
+          NODE_ENV: production
+          # vite.config.ts turns this into `base`. Empty for a user/org site,
+          # "/<repo>" for a project site.
+          FIGMA_PUBLIC_URL: ${{ steps.pages.outputs.base_path }}
+        run: pnpm run build
+
+      - name: Add 404 fallback
+        run: cp dist/index.html dist/404.html
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: _site
+          path: dist
 
   deploy:
     needs: build
