@@ -4,11 +4,11 @@
   "robots": {
     "index": false
   },
+  "icons": {
+    "icon": "/.figma/make/favicon.png"
+  },
   "accessibility": {
     "addBypassLinks": false,
     "ignoreReducedMotion": false
-  },
-  "icons": {
-    "icon": "/favicon.png"
   }
 }

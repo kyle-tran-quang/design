@@ -2,7 +2,13 @@ import { useEffect, useRef, useState } from "react"
 
 type AutoplayVideoProps = {
   src: string
-  label: string
+  /** Accessible name. Leave it out for a decorative clip (one with a visible caption), which is then hidden. */
+  label?: string
+  /**
+   * Still shown until the clip loads, and in its place where autoplay is blocked (e.g. iOS Low Power Mode),
+   * so a clip that replaces an animated image never shows up empty.
+   */
+  poster?: string
   className?: string
 }
 
@@ -10,6 +16,7 @@ type AutoplayVideoProps = {
 export default function AutoplayVideo({
   src,
   label,
+  poster,
   className,
 }: AutoplayVideoProps) {
   const ref = useRef<HTMLVideoElement>(null)
@@ -51,7 +58,10 @@ export default function AutoplayVideo({
     <video
       ref={ref}
       src={nearby ? src : undefined}
+      poster={poster}
       aria-label={label}
+      // With reduced motion it shows controls, which must stay reachable.
+      aria-hidden={label || reduced ? undefined : true}
       muted
       loop
       playsInline

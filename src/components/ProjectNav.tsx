@@ -92,7 +92,7 @@ export default function ProjectNav() {
   useEffect(() => () => window.clearTimeout(closeTimerRef.current), [])
 
   const itemClass =
-    'flex rounded p-1.5 type-subtopic transition-colors duration-150 hover:bg-[#f4f4f4] hover:text-accent'
+    'flex rounded px-2 py-1.5 text-2xl leading-8 tracking-[-0.0762px] transition-colors duration-150 hover:bg-[#f4f4f4] hover:text-accent'
 
   // Pointer events (not mouse events) so emulated mouseenter on touch doesn't open the menu before the tap is handled.
   const onPointerEnter = (event: ReactPointerEvent) => {
@@ -192,10 +192,10 @@ export default function ProjectNav() {
                   <a href={homeHref} className={`${itemClass} text-[#ada9a3]`}>
                     Home
                   </a>
-                  <div aria-hidden="true" className="mx-1.5 mt-2 h-px bg-[#f4f4f4]" />
+                  <div aria-hidden="true" className="mx-2 mt-2 h-px bg-[#f4f4f4]" />
                 </>
               )}
-              <p id="project-menu-label" className="py-2 type-small text-[#ada9a3]">
+              <p id="project-menu-label" className="p-2 text-base leading-normal tracking-[-0.0762px] text-[#ada9a3]">
                 All case studies
               </p>
               <ul aria-labelledby="project-menu-label" className="flex flex-col">

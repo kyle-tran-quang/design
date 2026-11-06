@@ -605,3 +605,35 @@ html[data-page-transition='work-next'] [data-project-nav],
 html[data-page-transition='work-prev'] [data-project-nav] {
   view-transition-name: project-nav;
 }
+
+/* Low-power mode: html[data-low-power] is set on slower or data-saving devices (src/lib/performance.ts).
+   Kept outside any layer so it overrides the Stageshow kit (@layer stageshow) and the Tailwind utilities. */
+
+/* Backdrop blur re-renders whatever sits behind it on every frame. Without it, the frosted panels get a more solid
+   tint so they stay legible over busy content. */
+:root[data-low-power] * {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+:root[data-low-power] .ss-cursor__dot {
+  background: rgba(118, 118, 128, 0.42);
+}
+:root[data-low-power] .ss-window[data-chrome='glass'] {
+  background: rgba(248, 250, 253, 0.92);
+}
+:root[data-low-power] .ss-lock__control {
+  background: rgba(10, 12, 24, 0.5);
+}
+:root[data-low-power] .ss-notification {
+  background: rgba(252, 252, 253, 0.95);
+}
+
+/* The case study hero art keeps these elements on their own GPU layers so text lands on crisp sub-pixel positions
+   after a slide. On low-power devices the memory matters more than the sub-pixel polish. */
+:root[data-low-power] :is(.cdh, .bsh, .cdsh, .cdsb, .cdso),
+:root[data-low-power] .cdh :is(.cdh-marker__detail, .cdh-provider, .cdh-button, .cdh-receipt__button),
+:root[data-low-power] .cdsb .cdsb-carry,
+:root[data-low-power] .cdsh .cdsh-primary,
+:root[data-low-power] .cdso .cdso-menu {
+  will-change: auto;
+}

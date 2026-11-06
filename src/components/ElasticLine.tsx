@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef } from 'react'
+import { isLowPower, watchVisibility } from '@/lib/performance'
 
 /*
  * A pill with a plucky "string" inside. Hover across the line or drag it and it
@@ -7,6 +8,10 @@ import { useEffect, useId, useRef } from 'react'
  * The string is simulated as a chain of points (a discretised wave equation)
  * stepped at a fixed rate, then drawn as a filled outline whose half-width
  * swells around each bead.
+ *
+ * The loop only runs while the pill is on screen, and sleeps once the string is
+ * still and the beads aren't drifting (reduced motion, low-power mode); touching
+ * the string wakes it.
  */
 
 // Pill geometry (outer viewBox)
@@ -44,6 +49,9 @@ const DAMPING = 3.5
 const DAMPING_REDUCED = 14
 const STEP = 1 / 480
 const FOLLOW = 1 - Math.exp(-STEP / 0.04)
+// Below these the string reads as still and the loop can sleep.
+const REST_OFFSET = 0.01
+const REST_VELOCITY = 0.05
 
 type StringState = { x: Float32Array; v: Float32Array }
 type Grab = { u: number; target: number }
@@ -75,6 +83,13 @@ function step(state: StringState, dt: number, grab: Grab | null, damping: number
     v[i] += force * dt
   }
   for (let i = 1; i < POINTS - 1; i++) x[i] = clamp(x[i] + v[i] * dt, -MAX_OFFSET, MAX_OFFSET)
+}
+
+function atRest({ x, v }: StringState) {
+  for (let i = 1; i < POINTS - 1; i++) {
+    if (Math.abs(x[i]) > REST_OFFSET || Math.abs(v[i]) > REST_VELOCITY) return false
+  }
+  return true
 }
 
 /** Catmull-Rom sample of the string's sideways offset at position `u`. */
@@ -139,6 +154,7 @@ export default function ElasticLine({
   const pathRef = useRef<SVGPathElement>(null)
   const driftRef = useRef(drift)
   driftRef.current = drift
+  const wakeRef = useRef<() => void>(() => {})
 
   useEffect(() => {
     const svg = svgRef.current
@@ -146,6 +162,7 @@ export default function ElasticLine({
     if (!svg || !path) return
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const lowPower = isLowPower()
     const damping = reduced ? DAMPING_REDUCED : DAMPING
     const state: StringState = { x: new Float32Array(POINTS), v: new Float32Array(POINTS) }
     const pointer = { u: 0, v: 0 }
@@ -153,9 +170,43 @@ export default function ElasticLine({
     let pressed = false
     let shift = 0
     let frame = 0
+    let visible = false
     let last = performance.now()
     let pending = 0
     const start = last
+
+    const drifting = () => driftRef.current && !reduced && !lowPower
+
+    const tick = (now: number) => {
+      frame = 0
+      pending += Math.min(0.05, (now - last) / 1000)
+      last = now
+      while (pending >= STEP) {
+        if (grab) {
+          grab.u += (pointer.u - grab.u) * FOLLOW
+          grab.target += (pointer.v - grab.target) * FOLLOW
+        }
+        step(state, STEP, grab, damping)
+        pending -= STEP
+      }
+      if (drifting()) {
+        const t = (now - start) % BEAD_CYCLE_MS
+        shift = t < BEAD_MOVE_MS ? easeInOutCubic(t / BEAD_MOVE_MS) * BEAD_SPACING : 0
+      } else {
+        shift = 0
+      }
+      path.setAttribute('d', buildPath(state, shift))
+      // Keep going while something moves; otherwise sleep until the pointer touches the string.
+      if (visible && (drifting() || grab || !atRest(state))) frame = requestAnimationFrame(tick)
+    }
+
+    const wake = () => {
+      if (frame || !visible) return
+      last = performance.now()
+      pending = 0
+      frame = requestAnimationFrame(tick)
+    }
+    wakeRef.current = wake
 
     // Pointer position in string coordinates: v is sideways, u runs along the string.
     const toLocal = (event: PointerEvent) => {
@@ -183,6 +234,7 @@ export default function ElasticLine({
         pointer.u = p.u
         pointer.v = p.v
         grab = { u: p.u, target: offsetAt(state, p.u) }
+        wake()
       }
     }
     const onDown = (event: PointerEvent) => {
@@ -193,6 +245,7 @@ export default function ElasticLine({
       pointer.u = clampU(p.u)
       pointer.v = clampV(p.v)
       grab = { u: pointer.u, target: offsetAt(state, pointer.u) }
+      wake()
     }
     const onUp = () => {
       pressed = false
@@ -208,30 +261,22 @@ export default function ElasticLine({
     svg.addEventListener('pointercancel', onUp)
     svg.addEventListener('pointerleave', onLeave)
 
-    const tick = (now: number) => {
-      pending += Math.min(0.05, (now - last) / 1000)
-      last = now
-      while (pending >= STEP) {
-        if (grab) {
-          grab.u += (pointer.u - grab.u) * FOLLOW
-          grab.target += (pointer.v - grab.target) * FOLLOW
-        }
-        step(state, STEP, grab, damping)
-        pending -= STEP
+    // Draw the resting string straight away, so it shows even before the loop first runs.
+    path.setAttribute('d', buildPath(state, 0))
+    const unwatch = watchVisibility(svg, (next) => {
+      visible = next
+      if (visible) {
+        wake()
+      } else if (frame) {
+        cancelAnimationFrame(frame)
+        frame = 0
       }
-      if (driftRef.current && !reduced) {
-        const t = (now - start) % BEAD_CYCLE_MS
-        shift = t < BEAD_MOVE_MS ? easeInOutCubic(t / BEAD_MOVE_MS) * BEAD_SPACING : 0
-      } else {
-        shift = 0
-      }
-      path.setAttribute('d', buildPath(state, shift))
-      frame = requestAnimationFrame(tick)
-    }
-    frame = requestAnimationFrame(tick)
+    })
 
     return () => {
       cancelAnimationFrame(frame)
+      unwatch()
+      wakeRef.current = () => {}
       svg.removeEventListener('pointermove', onMove)
       svg.removeEventListener('pointerdown', onDown)
       svg.removeEventListener('pointerup', onUp)
@@ -239,6 +284,11 @@ export default function ElasticLine({
       svg.removeEventListener('pointerleave', onLeave)
     }
   }, [])
+
+  // Turning the drift back on has to restart a sleeping loop.
+  useEffect(() => {
+    wakeRef.current()
+  }, [drift])
 
   const innerW = PILL_W - PILL_STROKE * 2
   const innerH = PILL_H - PILL_STROKE * 2

@@ -1,8 +1,12 @@
 import { playground } from "@/content/home"
 import { asset } from "@/lib/asset"
+import AutoplayVideo from "../AutoplayVideo"
 import DiscRig from "../DiscRig"
 import { ElasticDivider } from "./Dividers"
 import SectionIntro from "./SectionIntro"
+
+const MEDIA_CLASS =
+  "aspect-[320/308] w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04] lg:aspect-auto lg:h-full"
 
 export default function Playground() {
   return (
@@ -21,13 +25,21 @@ export default function Playground() {
         {playground.map((item) => (
           <li key={item.image}>
             <figure className="group relative overflow-hidden rounded-tr-[28px] bg-cloud lg:h-[308px]">
-              <img
-                src={asset(item.image)}
-                alt=""
-                loading="lazy"
-                decoding="async"
-                className="aspect-[320/308] w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04] lg:aspect-auto lg:h-full"
-              />
+              {item.image.endsWith(".mp4") ? (
+                <AutoplayVideo
+                  src={asset(item.image)}
+                  poster={item.poster && asset(item.poster)}
+                  className={MEDIA_CLASS}
+                />
+              ) : (
+                <img
+                  src={asset(item.image)}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  className={MEDIA_CLASS}
+                />
+              )}
               <figcaption className="border-t border-mist bg-white px-4 py-4 type-small text-graphite lg:absolute lg:inset-x-0 lg:bottom-0 lg:translate-y-full lg:bg-white/95 lg:backdrop-blur-sm lg:transition-transform lg:duration-500 lg:ease-out lg:group-hover:translate-y-0">
                 {item.caption}
               </figcaption>

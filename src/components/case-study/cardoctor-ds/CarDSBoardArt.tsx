@@ -183,7 +183,7 @@ function Sidebar() {
         <img src={asset("d58b7.svg")} alt="" className="cdsb-side__rule" />
         <div className="cdsb-account">
           <img
-            src={asset("e8962.png")}
+            src={asset("e8962-120w.webp")}
             alt=""
             className="cdsb-account__photo"
           />

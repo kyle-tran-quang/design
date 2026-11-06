@@ -2,8 +2,9 @@ export type Work = {
   company: string
   year: string
   title: string
-  readTime: string
-  /** Omitted while the case study isn't published yet: the card shows but doesn't link anywhere. */
+  /** Omitted on "coming soon" cards, which show a band in its place. */
+  readTime?: string
+  /** Omitted while the case study isn't published yet: the card shows as "coming soon" and doesn't link anywhere. */
   href?: string
   image: string
 }
@@ -15,7 +16,10 @@ export type Extra = {
 }
 
 export type PlaygroundItem = {
+  /** A still image, or an .mp4 clip (looping animations are stored as video: far lighter than GIF/animated WebP). */
   image: string
+  /** First frame of a clip, shown until it plays. */
+  poster?: string
   caption: string
 }
 
@@ -39,8 +43,7 @@ export const works: Work[] = [
     company: 'IBM',
     year: '2026',
     title: 'Growth Assessment to improve Maximo maturity for clients',
-    readTime: 'Coming soon',
-    image: 'assets/images/home-works-card-maximo-growth.png',
+    image: 'assets/images/home-works-card-maximo-growth.webp',
   },
   {
     company: 'CarDoctor',
@@ -72,17 +75,20 @@ export const extras: Extra[] = [
 
 export const playground: PlaygroundItem[] = [
   {
-    image: 'assets/images/home-playground-01.gif',
+    image: 'assets/images/home-playground-01.mp4',
+    poster: 'assets/images/home-playground-01-poster.webp',
     caption:
       'Carbon Next visualization for IBM Maximo Predictive asset health and Condition insights, giving a full overview of outstanding asset issues',
   },
   {
-    image: 'assets/images/home-playground-02.webp',
+    image: 'assets/images/home-playground-02.mp4',
+    poster: 'assets/images/home-playground-02-poster.webp',
     caption:
       'A new expression for AI-native Maximo, designed to hide complexity until complexity becomes useful, to progressively disclose the right action, at the right time.',
   },
   {
-    image: 'assets/images/home-playground-03.gif',
+    image: 'assets/images/home-playground-03.mp4',
+    poster: 'assets/images/home-playground-03-poster.webp',
     caption:
       "IBM Maximo visualization for modules & AppPoints currency usage, with the aim to help sellers and customers understand what they're using and how much they cost.",
   },
@@ -91,11 +97,13 @@ export const playground: PlaygroundItem[] = [
     caption: "Braun Design Playbook concept, with the aim to commemorate Braun's 100th year anniversary.",
   },
   {
-    image: 'assets/images/home-playground-05.gif',
+    image: 'assets/images/home-playground-05.mp4',
+    poster: 'assets/images/home-playground-05-poster.webp',
     caption: 'Maturity index visualization for IBM Maximo capabilities',
   },
   {
-    image: 'assets/images/home-playground-06.gif',
+    image: 'assets/images/home-playground-06.mp4',
+    poster: 'assets/images/home-playground-06-poster.webp',
     caption: 'Incident rate cards with data visualization for observability, with IBM Carbon Design System',
   },
   {
@@ -104,7 +112,8 @@ export const playground: PlaygroundItem[] = [
       'Concept exploration for an architecture agency based in Maynooth, to redesign their current page for more conversions.',
   },
   {
-    image: 'assets/images/shared-cards-carousel-anim.webp',
+    image: 'assets/images/shared-cards-carousel-anim.mp4',
+    poster: 'assets/images/shared-cards-carousel-anim-poster.webp',
     caption: 'CarDoctor widget cards, giving users insights and notifications about car service progress.',
   },
 ]

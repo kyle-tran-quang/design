@@ -12,6 +12,13 @@ import type {
   ShaderData,
 } from './types.js'
 import { useWebGPUDevice } from './webgpu.js'
+import { isLowPower, watchVisibility } from '../performance'
+
+// Canvas pixels per CSS pixel. Past 1.5x the extra sharpness is hard to see in a soft procedural fill but costs
+// up to 1.8x the pixels on a 2x screen (4x on 3x); low-power devices render at 1x.
+function getRenderScale() {
+  return Math.min(window.devicePixelRatio || 1, isLowPower() ? 1 : 1.5)
+}
 
 class RuntimeState {
   gpu: GpuState
@@ -37,7 +44,7 @@ class RuntimeState {
   }
 
   getShaderState(index: number): CustomEffectState {
-    const renderScale = window.devicePixelRatio || 1
+    const renderScale = getRenderScale()
     return {
       gpu: this.gpu,
       input: index === 0 ? this.input : this.intermediateTextures[index % 2]!,
@@ -180,6 +187,8 @@ export function useShaderRuntime({
   const stopClockRef = useRef<() => void>(() => {})
   const schedulePaintRef = useRef<() => void>(() => {})
   const isDirtiedRef = useRef(true)
+  // Whether the canvas is near the screen in a visible tab. Animated effects only run their clock while it is.
+  const onScreenRef = useRef(false)
   // The shared WebGPU device is initialized once and reused across every effect.
   const { device, error: deviceError } = useWebGPUDevice()
   // Per-canvas context setup failures (missing context, HTML-in-Canvas unsupported, texture
@@ -261,7 +270,8 @@ export function useShaderRuntime({
         console.warn('Failed to render effect', e)
         return
       }
-      if (runtime.isAnimated) {
+      // Low-power devices keep the first frame as a still.
+      if (runtime.isAnimated && onScreenRef.current && !isLowPower()) {
         startClockRef.current()
       } else {
         stopClockRef.current()
@@ -296,7 +306,7 @@ export function useShaderRuntime({
       const format: GPUTextureFormat = 'rgba8unorm'
       context.configure({ device, format, alphaMode: 'premultiplied' })
       const canvasRect = canvas.getBoundingClientRect()
-      const renderScale = window.devicePixelRatio || 1
+      const renderScale = getRenderScale()
       canvas.width = Math.max(Math.round(canvasRect.width * renderScale), 1)
       canvas.height = Math.max(Math.round(canvasRect.height * renderScale), 1)
       // RENDER_ATTACHMENT is mandatory on the destination of
@@ -396,6 +406,25 @@ export function useShaderRuntime({
     }
   }, [canvas, deviceReady, hasChildren])
 
+  // Pause the clock while the canvas is off screen or its tab is hidden; a paint on return restarts it.
+  useEffect(() => {
+    if (!canvas || !deviceReady) {
+      return
+    }
+    const unwatch = watchVisibility(canvas, (visible) => {
+      onScreenRef.current = visible
+      if (visible) {
+        schedulePaintRef.current()
+      } else {
+        stopClockRef.current()
+      }
+    })
+    return () => {
+      unwatch()
+      onScreenRef.current = false
+    }
+  }, [canvas, deviceReady])
+
   // Track device-pixel size so the canvas grid stays crisp.
   useEffect(() => {
     if (!canvas || !deviceReady) {
@@ -403,7 +432,7 @@ export function useShaderRuntime({
     }
 
     const resizeObserver = new ResizeObserver((entries) => {
-      const renderScale = window.devicePixelRatio || 1
+      const renderScale = getRenderScale()
       for (const entry of entries) {
         const size = entry.contentBoxSize?.[0]
         canvas.width = Math.max(

@@ -162,7 +162,7 @@ function Sidebar() {
         <NavItem src="1d0c8.svg" label="Settings" />
         <img src={icon("71187.svg")} alt="" className="cdso-side__rule" />
         <div className="cdso-account">
-          <img src={icon("e8962.png")} alt="" className="cdso-account__photo" />
+          <img src={icon("e8962-120w.webp")} alt="" className="cdso-account__photo" />
           <span className="cdso-account__copy">
             <span className="cdso-account__name">Van Le</span>
             <span>buro@cardoctor.com</span>

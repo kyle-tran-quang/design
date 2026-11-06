@@ -3,6 +3,9 @@ import ReactDOM from 'react-dom/client'
 import { Agentation } from 'agentation'
 import App from './App'
 import './index.css'
+import { applyLowPowerFlag } from './lib/performance'
+
+applyLowPowerFlag()
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

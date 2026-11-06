@@ -721,10 +721,11 @@ export default function CarDoctor() {
                 ordered, while workshops simply mark tasks as "Done."
               </p>
             </div>
-            <Shot
+            <AutoplayVideo
               src={local.cardsCarousel}
-              alt="Status widgets cycling through ongoing services"
-              className="aspect-[1.4]"
+              poster={local.cardsCarouselPoster}
+              label="Status widgets cycling through ongoing services"
+              className="aspect-[1.4] w-full object-cover"
             />
             <p className={`${caption} text-muted md:w-1/2`}>
               Some widgets that shows the car's status and other ongoing

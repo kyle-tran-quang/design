@@ -18,7 +18,8 @@ export const local = {
   hero: asset('assets/images/cardoctor-hero.webp'),
   introduction: asset('assets/images/cardoctor-challenge-solution.webp'),
   research: asset('assets/images/cardoctor-research.webp'),
-  cardsCarousel: asset('assets/images/shared-cards-carousel-anim.webp'),
+  cardsCarousel: asset('assets/images/shared-cards-carousel-anim.mp4'),
+  cardsCarouselPoster: asset('assets/images/shared-cards-carousel-anim-poster.webp'),
   upNextUnblok: asset('assets/images/shared-card-unblok-1024w.avif'),
 }
 

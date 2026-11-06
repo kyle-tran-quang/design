@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { hasFinePointer, isLowPower, watchVisibility } from "@/lib/performance";
 
 /**
  * Two discs: rotating orange rim (left) + cursor-following eye (right).
@@ -35,6 +36,8 @@ const FULL_TRAVEL_DISTANCE = 240;
 // Fraction of remaining distance covered per 60fps frame: gentle damping, no overshoot.
 const DAMPING = 0.09;
 const REDUCED_MOTION_FACTOR = 0.2;
+// The pupil is settled once it's within this many design px of its target.
+const SETTLED = 0.01;
 
 const SPIN_CLASS = "two-discs-rim-spin";
 const SPIN_CSS = `
@@ -106,6 +109,7 @@ function usePrefersReducedMotion() {
 
 export default function TwoDiscs(props: { style?: CSSProperties }) {
   const rootRef = useRef<HTMLDivElement>(null);
+  const spinRef = useRef<HTMLDivElement>(null);
   const eyeRef = useRef<HTMLDivElement>(null);
   const pupilRef = useRef<HTMLImageElement>(null);
   const [scale, setScale] = useState(1);
@@ -124,11 +128,25 @@ export default function TwoDiscs(props: { style?: CSSProperties }) {
     return () => ro.disconnect();
   }, []);
 
-  // Cursor-following pupil.
+  // The rim spins only while on screen, and rests in low-power mode.
   useEffect(() => {
+    const root = rootRef.current;
+    const spin = spinRef.current;
+    if (!root || !spin) return;
+    const lowPower = isLowPower();
+    spin.style.animationPlayState = "paused";
+    return watchVisibility(root, (visible) => {
+      spin.style.animationPlayState = visible && !lowPower ? "running" : "paused";
+    });
+  }, []);
+
+  // Cursor-following pupil: mouse and trackpad only, and only while on screen. The loop sleeps once the pupil
+  // reaches its target and the pointer or a scroll wakes it.
+  useEffect(() => {
+    const root = rootRef.current;
     const eye = eyeRef.current;
     const pupil = pupilRef.current;
-    if (!eye || !pupil) return;
+    if (!root || !eye || !pupil || !hasFinePointer()) return;
 
     let center = { x: 0, y: 0 };
     let unitScale = 1;
@@ -136,6 +154,9 @@ export default function TwoDiscs(props: { style?: CSSProperties }) {
     const current = { x: 0, y: 0 };
     let pointer: { x: number; y: number } | null = null;
     let frame = 0;
+    let visible = false;
+    // Layout is read lazily, at most once a frame, instead of on every scroll event.
+    let stale = true;
     let last = performance.now();
     const factor = reducedMotion ? REDUCED_MOTION_FACTOR : 1;
 
@@ -166,50 +187,80 @@ export default function TwoDiscs(props: { style?: CSSProperties }) {
       const r = eye.getBoundingClientRect();
       center = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
       unitScale = r.width / EYE_SIZE || 1;
-      updateTarget();
+      stale = false;
     };
 
     const tick = (now: number) => {
+      frame = 0;
+      if (stale) {
+        measure();
+        updateTarget();
+      }
       const dt = Math.min(64, now - last);
       last = now;
       const k = 1 - Math.pow(1 - DAMPING, dt / 16.667);
       current.x += (target.x - current.x) * k;
       current.y += (target.y - current.y) * k;
       pupil.style.transform = `translate3d(${current.x.toFixed(3)}px, ${current.y.toFixed(3)}px, 0)`;
+      const moving = Math.abs(target.x - current.x) > SETTLED || Math.abs(target.y - current.y) > SETTLED;
+      if (visible && (moving || stale)) frame = requestAnimationFrame(tick);
+    };
+
+    const wake = () => {
+      if (frame || !visible) return;
+      last = performance.now();
       frame = requestAnimationFrame(tick);
+    };
+
+    const invalidate = () => {
+      stale = true;
+      // A still pupil only needs a new target if there's a pointer to look at.
+      if (pointer) wake();
     };
 
     const onMove = (e: PointerEvent) => {
       pointer = { x: e.clientX, y: e.clientY };
-      updateTarget();
+      if (!stale) updateTarget();
+      wake();
     };
     const onLeave = (e: MouseEvent) => {
       if (!e.relatedTarget) {
         pointer = null;
         updateTarget();
+        wake();
       }
     };
     const onBlur = () => {
       pointer = null;
       updateTarget();
+      wake();
     };
 
-    measure();
-    const ro = new ResizeObserver(measure);
+    const ro = new ResizeObserver(invalidate);
     ro.observe(eye);
     ro.observe(document.documentElement);
-    window.addEventListener("resize", measure);
-    window.addEventListener("scroll", measure, { passive: true, capture: true });
+    window.addEventListener("resize", invalidate);
+    window.addEventListener("scroll", invalidate, { passive: true, capture: true });
     window.addEventListener("pointermove", onMove, { passive: true });
     document.addEventListener("mouseout", onLeave);
     window.addEventListener("blur", onBlur);
-    frame = requestAnimationFrame(tick);
+    const unwatch = watchVisibility(root, (next) => {
+      visible = next;
+      if (visible) {
+        stale = true;
+        wake();
+      } else if (frame) {
+        cancelAnimationFrame(frame);
+        frame = 0;
+      }
+    });
 
     return () => {
       cancelAnimationFrame(frame);
+      unwatch();
       ro.disconnect();
-      window.removeEventListener("resize", measure);
-      window.removeEventListener("scroll", measure, { capture: true });
+      window.removeEventListener("resize", invalidate);
+      window.removeEventListener("scroll", invalidate, { capture: true });
       window.removeEventListener("pointermove", onMove);
       document.removeEventListener("mouseout", onLeave);
       window.removeEventListener("blur", onBlur);
@@ -255,7 +306,7 @@ export default function TwoDiscs(props: { style?: CSSProperties }) {
           {/* Left disc */}
           <div style={{ position: "relative", flex: "none", width: DISC, height: DISC }}>
             {/* Rotating rim: orange ring + rim markings, spun around the disc's exact center */}
-            <div className={SPIN_CLASS} style={{ position: "absolute", inset: 0 }}>
+            <div ref={spinRef} className={SPIN_CLASS} style={{ position: "absolute", inset: 0 }}>
               <div style={abs(0, 0, DISC)}>
                 <img alt="" draggable={false} src={IMG_RIM} style={fillImg} />
               </div>

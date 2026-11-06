@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, type CSSProperties } from 'react'
+import { hasFinePointer, isLowPower, watchVisibility } from '@/lib/performance'
 
 /*
  * Paths are taken verbatim from the Figma frames Idle (1:2), Blink (1:7) and Happy (1:12).
@@ -65,6 +66,8 @@ const BLINK_GAP_RANGE = 1000
 const DOUBLE_BLINK_CHANCE = 1 / 6
 const EYE_TRAVEL_PX = 8 // max on-screen eye nudge
 const EYE_FALLOFF_PX = 360 // pointer distance that reaches full travel
+const LOOK_SETTLED = 0.005 // viewBox units; closer than this the eyes have stopped moving
+const RECT_MAX_AGE_MS = 250 // re-measure now and then too, in case an entrance animation moved the character
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
 const range = (v: number, a: number, b: number) => clamp01((v - a) / (b - a))
@@ -122,11 +125,24 @@ export default function CharacterCutout({ size = '100%', className = '' }: Chara
   const closedRefs = useRef<Record<EyeKey, SVGGElement | null>>({ left: null, right: null })
   const happyRefs = useRef<Record<EyeKey, SVGGElement | null>>({ left: null, right: null })
   const happyStartRef = useRef<number | null>(null)
+  const wakeRef = useRef<() => void>(() => {})
 
+  /*
+   * One loop drives the spin, the blinks, the click reaction and the eyes. It only runs while the character is on
+   * screen. Without the idle spin (reduced motion, low-power mode) it sleeps between blinks and wakes on a timer,
+   * a click or the pointer. The eyes follow a mouse or trackpad only; touch screens have no cursor to look at.
+   */
   useEffect(() => {
+    const svg = svgRef.current
+    if (!svg) return
     const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const lowPower = isLowPower()
+    const tracking = hasFinePointer()
     const pointer = { x: 0, y: 0, active: false }
     const look = { x: 0, y: 0 }
+    // The SVG's on-screen box, read lazily rather than every frame.
+    let rect: DOMRect | null = null
+    let rectAt = 0
     let angle = 0
     let spinStart: number | null = null
     let spinOffset = 0
@@ -136,24 +152,37 @@ export default function CharacterCutout({ size = '100%', className = '' }: Chara
     let isDoubleBlink = false
     let nextBlink = last + BLINK_GAP_MIN + Math.random() * BLINK_GAP_RANGE
     let frame = 0
+    let blinkTimer = 0
+    let visible = false
 
     const onMove = (e: PointerEvent) => {
       pointer.x = e.clientX
       pointer.y = e.clientY
       pointer.active = true
+      wake()
     }
     const onLeave = () => {
       pointer.active = false
+      wake()
     }
-    window.addEventListener('pointermove', onMove, { passive: true })
-    window.addEventListener('pointerdown', onMove, { passive: true })
-    document.documentElement.addEventListener('pointerleave', onLeave)
-    window.addEventListener('blur', onLeave)
+    const invalidateRect = () => {
+      rect = null
+    }
+    if (tracking) {
+      window.addEventListener('pointermove', onMove, { passive: true })
+      window.addEventListener('pointerdown', onMove, { passive: true })
+      document.documentElement.addEventListener('pointerleave', onLeave)
+      window.addEventListener('blur', onLeave)
+      window.addEventListener('scroll', invalidateRect, { passive: true, capture: true })
+      window.addEventListener('resize', invalidateRect)
+    }
 
     const tick = (now: number) => {
+      frame = 0
       const dt = Math.min(now - last, 50) / 1000
       last = now
       const reduced = motionQuery.matches
+      const spinning = !reduced && !lowPower
 
       // Happy timeline (0..1), null when inactive
       let happyT: number | null = null
@@ -176,15 +205,17 @@ export default function CharacterCutout({ size = '100%', className = '' }: Chara
       }
       if (!happy) spinStart = null
       spinOffset = happy && !reduced ? HAPPY_TURN * easeInOut(happyT!) : 0
-      angle = (angle + (reduced ? 0 : IDLE_SPIN) * dt) % 360
+      angle = (angle + (spinning ? IDLE_SPIN : 0) * dt) % 360
       spinRef.current?.setAttribute('transform', `rotate(${angle + spinOffset} ${CX} ${CY})`)
 
       // Eye tracking, disabled while happy
       let tx = 0
       let ty = 0
-      const svg = svgRef.current
-      if (svg && pointer.active && !happy && !reduced) {
-        const rect = svg.getBoundingClientRect()
+      if (pointer.active && !happy && !reduced) {
+        if (!rect || now - rectAt > RECT_MAX_AGE_MS) {
+          rect = svg.getBoundingClientRect()
+          rectAt = now
+        }
         const dx = pointer.x - (rect.left + rect.width / 2)
         const dy = pointer.y - (rect.top + rect.height / 2)
         const dist = Math.hypot(dx, dy)
@@ -288,21 +319,55 @@ export default function CharacterCutout({ size = '100%', className = '' }: Chara
         smile?.setAttribute('opacity', String(happyAlpha))
       }
 
+      if (!visible) return
+      const looking = Math.abs(tx - look.x) > LOOK_SETTLED || Math.abs(ty - look.y) > LOOK_SETTLED
+      if (spinning || happy || blinkStart !== null || looking) {
+        frame = requestAnimationFrame(tick)
+      } else {
+        // Nothing is moving: sleep until the next blink is due.
+        blinkTimer = window.setTimeout(wake, Math.max(0, nextBlink - now))
+      }
+    }
+
+    function wake() {
+      if (frame || !visible) return
+      clearTimeout(blinkTimer)
+      last = performance.now()
       frame = requestAnimationFrame(tick)
     }
-    frame = requestAnimationFrame(tick)
+    wakeRef.current = wake
+
+    const unwatch = watchVisibility(svg, (next) => {
+      visible = next
+      if (visible) {
+        rect = null
+        wake()
+      } else {
+        cancelAnimationFrame(frame)
+        clearTimeout(blinkTimer)
+        frame = 0
+      }
+    })
 
     return () => {
       cancelAnimationFrame(frame)
-      window.removeEventListener('pointermove', onMove)
-      window.removeEventListener('pointerdown', onMove)
-      document.documentElement.removeEventListener('pointerleave', onLeave)
-      window.removeEventListener('blur', onLeave)
+      clearTimeout(blinkTimer)
+      unwatch()
+      wakeRef.current = () => {}
+      if (tracking) {
+        window.removeEventListener('pointermove', onMove)
+        window.removeEventListener('pointerdown', onMove)
+        document.documentElement.removeEventListener('pointerleave', onLeave)
+        window.removeEventListener('blur', onLeave)
+        window.removeEventListener('scroll', invalidateRect, { capture: true })
+        window.removeEventListener('resize', invalidateRect)
+      }
     }
   }, [])
 
   const makeHappy = () => {
     happyStartRef.current = performance.now()
+    wakeRef.current()
   }
 
   return (
