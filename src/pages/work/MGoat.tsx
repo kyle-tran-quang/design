@@ -4,6 +4,7 @@ import ProjectNav from '@/components/ProjectNav'
 import ContactFooter from '@/components/case-study/ContactFooter'
 import UpNext from '@/components/case-study/UpNext'
 import ChapterRail from '@/components/case-study/mgoat/ChapterRail'
+import MGoatCinematic from '@/components/case-study/mgoat/MGoatCinematic'
 import MGoatHero from '@/components/case-study/mgoat/MGoatHero'
 import '@/components/case-study/mgoat/styles'
 import { asset } from '@/lib/asset'
@@ -52,6 +53,7 @@ export default function MGoat() {
     // so the pinned hero and the sticky stage column keep working.
     <MotionConfig reducedMotion="user">
       <div className="mg-root overflow-x-clip bg-white">
+        <MGoatCinematic />
         <ProjectNav />
         <MGoatHero />
         <div className="intro-under" id="introUnder" aria-hidden="true">
