@@ -1,0 +1,166 @@
+/* Scene styles. Theme is set per beat via [data-theme] (story.js), never by the OS.
+   Any element carrying data-theme="light|dark" receives the variables, so the text column can share them.
+
+   TOKEN STATUS (Carbon MCP returns token NAMES and specs, not hex values):
+     spec from the MCP:   tile padding 16 ($spacing-05), min-height 64, min-width 128; progress bar big = 8px high;
+                          label 14px ($body-compact-01), helper 12px ($helper-text-01), tag label 12px ($label-01), label-to-bar gap 8 ($spacing-03)
+     hex NOT from the MCP: --layer, --border-subtle, --border-interactive, --text-*  -> standard Carbon white-theme values
+                          (#0f62fe is the accent already used in the archived bob-scene). Verify against your Carbon v11 Theme variables in Figma. */
+:root, .mg-root [data-theme="light"] {
+  --bg: #f4f4f4;                     /* stage fill, from the Figma frame (#f4f4f4 measured in the export) */
+  --text: #000000; --muted: #a8a8a8; /* right column: black copy, #a8a8a8 eyebrow (Figma 41:31) */
+  --page: #ffffff;                   /* right column fill: white in Figma */
+  --line: #1c1c1f; --line-faint: rgba(28,28,31,.35); --fill: rgba(28,28,31,.035); --grid: rgba(28,28,31,.10);
+  --layer: #ffffff; --border-subtle: #c6c6c6; --border-interactive: #0f62fe; --text-primary: #161616; --text-secondary: #525252; --text-helper: #6f6f6f;
+  --tag-bg: #e0e0e0; --tag-text: #161616;
+  --accent: var(--border-interactive);
+}
+:root {
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;   /* right column + Carbon tiles: IBM Plex Sans (Figma uses 'IBM Plex Sans:Text') */
+  --stroke: 1.25px; --mono: ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+.asm { font-family: var(--sans); position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--bg); color: var(--text); }
+.asm *, .asm *::before, .asm *::after { box-sizing: border-box; }
+.asm-stage { position: absolute; inset: 0; perspective: 2400px; perspective-origin: 50% 40%; }
+/* Act 1's camera is always flat, so the world is not a 3D context: stacking follows piece order in scene-data.js. */
+.asm-world { position: absolute; left: 50%; top: 50%; will-change: transform; --sw: calc(var(--stroke) * var(--inv, 1)); }
+.asm-grid { display: none; }
+
+.asm .piece { position: absolute; left: 0; top: 0; transform-style: preserve-3d; will-change: transform, opacity; }
+.asm .piece .outline, .asm .piece .layer { position: absolute; inset: 0; border-radius: var(--r, 0); }
+/* Act 1 is UI morph only: no blueprint outlines or tags. Act 2.3's v2 -> v3 beat opts in per piece (piece.bp) */
+.asm .piece .outline, .asm .piece .tag { display: none; }
+.asm .piece[data-bp] .outline { display: block; border: var(--sw) solid var(--line); background: var(--fill); }
+.asm .piece[data-bp][data-kind="shell"] .outline { border-color: var(--line-faint); }
+.asm .piece[data-bp] .tag { display: block; position: absolute; left: 0; top: 0; font: 10px/1 var(--mono); letter-spacing: .05em; padding: 3px 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+                            background: var(--bg); color: var(--line); transform-origin: 0 100%; transform: translateY(-100%) scale(var(--inv, 1)); }
+/* Painted slabs (the diagram cards in the bridge): a 1px border centred on the edge, like the SVG stroke they replace */
+.asm .piece .paint { position: absolute; inset: -.5px; border: 1px solid; pointer-events: none; }
+.asm .piece .layer { background-repeat: no-repeat; pointer-events: none; }
+.asm .piece[data-html] .html-body { position: absolute; inset: 0; }
+
+/* ---------- Carbon-style tiles (beat 1.2 meters) ---------- */
+/* Layout is deterministic: label at the top, main content 8px below it, and the usage bar pinned to the bottom padding.
+   Tile 196x136: label 16..34, value 42..92, bar 112..120 (tile-relative). scene-data.js relies on the bar's position (BAR_Y = 112). */
+.mg-tile { position: absolute; inset: 0; background: var(--layer); color: var(--text-primary); padding: 16px; display: flex; flex-direction: column;
+           font-family: var(--sans); box-shadow: 0 1px 2px rgba(0,0,0,.10), 0 8px 24px rgba(0,0,0,.14); }   /* the tiles now overlap the dashboard, so they need lift */
+.mg-tile .mg-label { font-size: 14px; line-height: 18px; letter-spacing: .16px; color: var(--text-secondary); }
+.mg-tile .mg-value { margin-top: 8px; font-size: 42px; line-height: 50px; font-weight: 300; letter-spacing: 0; color: var(--text-primary); }
+.mg-tile .mg-tags  { margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap; }
+.mg-tag  { display: inline-flex; align-items: center; height: 24px; padding: 0 8px; border-radius: 16px; font-size: 12px; line-height: 16px; letter-spacing: .32px; background: var(--tag-bg); color: var(--tag-text); }
+.mg-bar  { position: relative; height: 8px; background: var(--border-subtle); margin-top: auto; }
+.mg-bar .fill   { position: absolute; left: 0; top: 0; bottom: 0; width: 35%; background: var(--border-interactive); }   /* width is overridden inline from STORY.data.usagePct */
+
+/* ---------- The unused remainder (beat 1.3) ----------
+   A separate piece laid exactly over the unused part of the Usage bar. It glows and pulses, then its box flies to the circle rect while
+   the blob swells into the white circle (corner radius 0% to 50%, blue to white). All values are set from t in scene-data.js. */
+.mg-unused { position: absolute; inset: 0; }
+.mg-unused .blob { position: absolute; inset: 0; background: var(--border-interactive); }
+
+
+/* ---------- Feedback sticky notes (Act 2.3 living layer). --k is the stage scale of the act 2 content (set inline from scene-data.js). ---------- */
+.fb-note { position: absolute; inset: 0; padding: calc(22px * var(--k, 1)) calc(24px * var(--k, 1)); background: #fff; border: calc(2px * var(--k, 1)) solid var(--border-interactive);
+           border-left-width: calc(8px * var(--k, 1)); box-shadow: 0 2px 4px rgba(0,0,0,.10), 0 14px 30px rgba(0,0,0,.14); color: var(--text-primary);
+           display: flex; flex-direction: column; gap: calc(12px * var(--k, 1)); }
+.fb-note .fb-tag { font: 500 calc(20px * var(--k, 1))/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--border-interactive); }
+.fb-note .fb-text { font-size: calc(32px * var(--k, 1)); line-height: calc(40px * var(--k, 1)); font-weight: 400; }
+
+
+/* ---------- v1 UI (Act 2.3, live HTML rebuilt from Figma frame 102:2757; see v1-ui.js) ----------
+   Drawn in SOURCE px (the Figma size) and scaled to the stage by --k (set inline), exactly like the sticky notes. */
+.v1h, .v1f { position: absolute; inset: 0; overflow: hidden; font-family: var(--sans); color: #161616; }
+.v1h { background: #0043ce; }
+.v1f { background: #f4f4f4; }
+.v1h-in, .v1f-in { position: absolute; left: 0; top: 0; transform: scale(var(--k, 1)); transform-origin: 0 0; }
+.v1h-col { position: absolute; top: 0; width: 900px; padding-top: 20px; }
+.v1h-chip { height: 31.5px; }
+.v1h-chip span { display: block; width: 207.82px; height: 22px; margin-top: 1.5px; padding: 2.5px 8px 0; background: rgba(255,255,255,.2); color: #fff;
+                 font-weight: 700; font-size: 10px; line-height: 16px; letter-spacing: 1px; text-transform: uppercase; white-space: nowrap; }
+.v1h-title { color: #fff; font-weight: 700; font-size: 18px; line-height: 28.8px; white-space: nowrap; }
+.v1h-sub { padding-top: 4px; height: 25px; color: rgba(255,255,255,.7); font-size: 13px; line-height: 20.8px; white-space: nowrap; }
+
+.v1-scroll { position: absolute; top: 0; width: 900px; will-change: transform; }
+.v1-est { padding: 20px 16px 0; height: 40px; font-size: 12px; line-height: 19.2px; color: #8d8d8d; white-space: nowrap; }
+.v1-card { margin: 16px 16px 0; padding: 28px 32px; background: #fff; border: 1px solid #e0e0e0; }
+.v1-lab { padding-bottom: 10px; border-bottom: 1px solid #e0e0e0; font-weight: 700; font-size: 11px; line-height: 17.6px; letter-spacing: .6px; text-transform: uppercase; color: #525252; }
+.v1-q { padding-top: 24px; }
+.v1-q.first { padding-top: 20px; }
+.v1-qh { display: flex; gap: 8px; align-items: flex-start; height: 23px; font-weight: 600; font-size: 14px; line-height: 22.4px; }
+.v1-qh.tall { height: 23px; }
+.v1-optional { font-weight: 400; font-size: 12px; line-height: 19.2px; color: #8d8d8d; }
+.v1-info { display: flex; align-items: center; justify-content: center; width: 20px; height: 21px; padding: 3px 2px 2px; }
+.v1-info img { display: block; width: 16px; height: 16px; }
+.v1-help { margin: 0; padding-top: 10px; font-size: 13px; line-height: 19.5px; color: #525252; }
+.v1-help.s { font-size: 12px; line-height: 19.2px; }
+
+.v1-opts { padding-top: 4px; }
+.v1-ow { padding-top: 6px; }
+.v1-ow:first-child { padding-top: 10px; }
+.v1-o, .v1-g { display: flex; gap: 12px; align-items: flex-start; border: 1px solid #e0e0e0; background: #fff; padding: 10px 14px; font-size: 13px; line-height: 20.8px; }
+.v1-m { display: flex; padding-top: 2px; flex: none; }
+.v1-radio, .v1-check { display: block; width: 13px; height: 13px; border: 1px solid #767676; background: #fff; box-sizing: border-box; }
+.v1-radio { border-radius: 50%; }
+.v1-check { border-radius: 2px; }
+.v1-ot { display: flex; flex-direction: column; min-width: 0; }
+.v1-od-t { font-weight: 600; }
+.v1-od-d { padding-top: 3px; font-size: 12px; line-height: 16.8px; color: #525252; }
+
+.v1-goals { display: grid; grid-template-columns: 396px 396px; gap: 10px; margin-top: 8px; }
+.v1-g { gap: 10px; padding: 12px 14px; line-height: 16.9px; font-weight: 600; }
+
+.v1-tw { padding-top: 10px; }
+.v1-tbl { display: grid; grid-template-columns: 320.8px repeat(4, 120.3px); width: 802px; }
+.v1-th { display: flex; align-items: center; justify-content: center; height: 31.7px; padding: 6px 8px; border-bottom: 1px solid #e0e0e0; font-weight: 600; font-size: 12px;
+         line-height: 19.2px; letter-spacing: .3px; text-transform: uppercase; color: #525252; }
+.v1-td { display: flex; flex-direction: column; justify-content: center; min-height: 82.2px; padding: 10px 8px; border-bottom: 1px solid #e0e0e0; }
+.v1-td.c { align-items: center; }
+.v1-td b { font-weight: 700; font-size: 13px; line-height: 20.8px; }
+.v1-td span { padding-top: 2px; width: 305px; font-size: 12px; line-height: 19.2px; color: #525252; }
+
+.v1-cta { padding: 24px 16px 8px; }
+.v1-btn { display: inline-flex; padding: 12px 28px; background: #0f62fe; color: #fff; font-weight: 600; font-size: 14px; line-height: normal; white-space: nowrap; }
+
+
+/* ---------- v2 UI (Act 2.3, live HTML rebuilt from Figma frame 69:101; see v2-ui.js). Source px, scaled by --k. ---------- */
+:root { --mono-plex: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace; }
+.v2s, .v2m { position: absolute; inset: 0; overflow: hidden; font-family: var(--sans); color: #161616; }
+.v2s-in, .v2m-in { position: absolute; left: 0; top: 0; transform: scale(var(--k, 1)); transform-origin: 0 0; }
+
+.v2s-in { width: 588px; height: 925px; padding: 38px 36px; display: flex; flex-direction: column; color: #fff;
+          background: linear-gradient(164.48deg, rgb(6,6,10) 6.17%, rgb(11,11,18) 25.46%, rgb(10,42,143) 51.75%, rgb(0,67,206) 72.79%, rgb(53,56,201) 93.83%); }
+.v2s-cap { font: 400 11px/17.6px var(--mono-plex); letter-spacing: 1.54px; text-transform: uppercase; color: rgba(255,255,255,.6); white-space: nowrap; }
+.v2s-mid { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+.v2s-mid h1 { margin: 0; width: 406px; font: 600 56px/57.68px var(--sans); letter-spacing: -1.96px; color: #fff; }
+.v2s-page { padding-top: 16px; font: 400 13px/20.8px var(--mono-plex); letter-spacing: 1.04px; color: rgba(255,255,255,.7); white-space: nowrap; }
+.v2s-foot { display: flex; align-items: center; justify-content: space-between; height: 23px; }
+.v2s-foot img { display: block; }
+.v2s-foot span { font: 600 14px/22.4px var(--sans); letter-spacing: -.07px; }
+
+.v2m-in { width: 892px; height: 925px; background: #fff; }
+.v2m-prog { position: absolute; left: 252px; top: 56px; width: 548px; height: 4px; background: #e4e4e4; overflow: hidden; }
+.v2m-prog i { display: block; width: 361.68px; height: 4px; background: #0f62fe; }
+.v2m-s1, .v2m-s2 { position: absolute; left: 252px; width: 633px; }
+.v2m-s1 { top: 98px; } .v2m-s2 { top: 902px; }
+.v2m-rule { display: flex; align-items: center; gap: 16px; }
+.v2m-rule span { font: 500 11px/17.6px var(--mono-plex); letter-spacing: 1.76px; text-transform: uppercase; color: #0f62fe; white-space: nowrap; }
+.v2m-rule i { flex: 1; height: 1px; background: #e4e4e4; }
+.v2m-q { position: relative; margin-top: 0; padding-top: 24px; min-height: 55px; }
+.v2m-q.two { padding-top: 30px; min-height: 55px; }
+.v2m-qt { width: 408px; padding-top: 2px; font: 600 20px/26.4px var(--sans); letter-spacing: -.32px; white-space: nowrap; }
+.v2m-opt { position: absolute; left: 9px; top: 63px; padding: 3px 7px; background: #f7f7f7; font: 500 10px/13.2px var(--mono-plex); letter-spacing: 1.1px; text-transform: uppercase; color: #8d8d8d; }
+.v2m-info { position: absolute; left: 601px; top: 22px; width: 32px; height: 32px; border-radius: 16px; background: #f7f7f7; display: flex; align-items: center; justify-content: center; }
+.v2m-info img { display: block; }
+.v2m-q.two .v2m-info { top: 28px; }
+
+.v2m-tbl { display: grid; margin-top: 14px; width: 633px; grid-template-columns: 208.23px repeat(4, 84.94px) 84.95px; grid-template-rows: 54.3px 110.98px 110.98px 112px 108px 132.88px; }
+.v2m-th { display: flex; align-items: flex-end; justify-content: center; padding: 6px 8px 14px 6px; font: 500 13px/16.9px var(--sans); color: #525252; white-space: nowrap; }
+.v2m-th.l { justify-content: flex-start; padding-left: 0; }
+.v2m-td { display: flex; align-items: center; justify-content: center; border-top: 1px solid #e4e4e4; }
+.v2m-td i { display: block; width: 17px; height: 17px; margin-left: 6px; border: 1px solid #767676; border-radius: 50%; background: #fff; box-sizing: border-box; }
+.v2m-td.l { flex-direction: column; align-items: flex-start; justify-content: center; padding: 14px 14px 14px 0; }
+.v2m-td.l b { font: 700 14px/22.4px var(--sans); white-space: nowrap; }
+.v2m-td.l span { padding-top: 2px; width: 195px; font: 400 12px/16px "IBM Plex Sans Condensed", var(--sans); letter-spacing: .32px; color: #525252; }
+
+.v2m-cap { display: flex; align-items: center; gap: 14px; margin-top: 7px; padding: 15px 17px 15px 19px; background: #f7f7f7; font-size: 14.5px; line-height: 21px; }
+.v2m-cap i { display: block; width: 16px; height: 16px; border: 1px solid #767676; border-radius: 2px; background: #fff; box-sizing: border-box; }

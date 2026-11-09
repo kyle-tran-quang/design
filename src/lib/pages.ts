@@ -6,6 +6,7 @@ type PageModule = { default: ComponentType }
 // Vite plugin gives each route its own HTML entry (keep its `reactRoutes` list in sync).
 const loaders: Record<string, () => Promise<PageModule>> = {
   '/work/mas-pricing': () => import('@/pages/work/MasPricing'),
+  '/work/m-goat': () => import('@/pages/work/MGoat'),
   '/work/cardoctor': () => import('@/pages/work/CarDoctor'),
   '/work/unblok': () => import('@/pages/work/Unblok'),
   '/work/breadslice': () => import('@/pages/work/Breadslice'),

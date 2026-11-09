@@ -1,0 +1,42 @@
+/* =========================================================================
+   STAGE B styles (beats 8-10: 7-layer stack, journey simulator, first iteration). Loaded AFTER scene.css.
+   ========================================================================= */
+
+/* The Figma stack (219:6843) is an ORTHOGRAPHIC 2:1 drawing. The default 2400px perspective would enlarge the near edge of the stack by several percent, so the
+   finished pose would not match the frame. Stage A never tilts the camera, so removing perspective changes nothing there. */
+.asm-stage { perspective: none; }
+
+/* ---------- slabs: the 14 diagram cards (Figma 208:6706) turning into wireframe layers. The 1px border is centred on the edge (inset -.5px),
+   exactly like the SVG stroke it replaces, so the swap from the SVG diagram to these is pixel-identical. Colours are set per frame in stage-b.js ---------- */
+.sb-face { position: absolute; inset: -.5px; border: 1px solid; box-sizing: border-box; pointer-events: none; }
+
+/* ---------- leader annotations (Figma 219:6856-6876). Each one is a SCREEN-facing plane: stage-b.js counter-rotates it against the camera so it reads flat.
+   The anchor (0,0) is the dot's centre; the leader starts 6px right of it and the label 150.83px right (Figma: dot x 346.67 + 2.5, line x 355.17, label x 500). ---------- */
+/* The engine sets `will-change: transform, opacity` on every piece, and a will-change on opacity makes the browser FLATTEN the piece (transform-style: preserve-3d is ignored), so the
+   billboard counter-rotation inside it would only half-cancel the camera. This piece keeps opacity at 1 for its whole life (it fades its children instead), so it can opt out. */
+.asm .piece[data-kind="annotation"] { will-change: transform; transform-style: preserve-3d; }
+.asm .piece[data-kind="annotation"] .html-body { transform-style: flat; }
+.sb-ann { position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; }
+.sb-ann .dot { position: absolute; left: -2.5px; top: -2.5px; width: 5px; height: 5px; border-radius: 50%; background: #52525c; }
+.sb-ann .ln  { position: absolute; left: 6px; top: -.5px; width: 136.83px; height: 1px; background: rgba(158,158,168,.9); transform-origin: 0 50%; }
+.sb-ann .lb  { position: absolute; left: 150.83px; top: -8px; height: 16px; font: 400 12px/16px var(--mono-plex, "IBM Plex Mono", ui-monospace, monospace); white-space: nowrap; color: #52525c; }
+
+/* ---------- the assessment card that lands on the stack (Figma 219:6852 body + 219:6853 header). Same two pieces become the flat v1 (Figma 208:7016) ---------- */
+.sb-card-body { position: absolute; inset: 0; background: #fff; border: 1.5px solid #0f61ff; box-sizing: border-box; }
+.sb-card-head { position: absolute; inset: 0; background: #0043ce; border: 1.5px solid #0f61ff; box-sizing: border-box; overflow: hidden; }
+.sb-card-head span { position: absolute; left: 16.5px; top: 8.49px; font: 500 14px/18px var(--sans); color: #fff; white-space: nowrap; }
+/* Figma: drop shadow 0 18 28 #0f3399 @ 18%. 28 is the Figma blur radius = sigma 14. 1 local px = 1 screen px along the stack's axes, so blur(14px). */
+.sb-shadow { position: absolute; inset: 0; background: rgba(15,51,153,.18); filter: blur(14px); }
+
+/* ---------- story column ---------- */
+.text-col p .sb-sim { display: block; margin-top: 80px; }
+.text-col p .sb-vid { display: block; width: 100%; aspect-ratio: 536 / 302; background: #161616; object-fit: cover; }   /* Figma 219:6877, 536 x 302 */
+.text-col p .sb-cap { display: block; margin-top: 16px; font: italic 400 16px/normal "IBM Plex Sans", system-ui, sans-serif; color: #525252; }   /* Figma 235:8229 */
+.text-col p .sb-quote { display: block; margin-top: 12px; font: 300 24px/normal "IBM Plex Serif", Georgia, serif; color: #8a3ffc; }            /* Figma 241:9889 */
+.text-col p .sb-cite  { display: block; margin-top: 8px; font: 400 14px/18px "IBM Plex Sans", system-ui, sans-serif; letter-spacing: .16px; color: #525252; }   /* Figma 241:9890 */
+
+/* The MaximoWorld quote (last paragraph of the "first" slot) sits at the bottom of the viewport, away from the copy.
+   The section is centred on 50vh (translateY(-50%)), so 50% + 50vh from its own top is the viewport bottom. */
+@media (min-width: 801px) {
+  .text-col section[data-beat="first"] p:last-of-type { position: absolute; left: 0; right: 0; top: calc(50% + 50vh - 64px); transform: translateY(-100%); }
+}

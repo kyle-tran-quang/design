@@ -2,10 +2,12 @@ export type Work = {
   company: string
   year: string
   title: string
-  /** Omitted on "coming soon" cards, which show a band in its place. */
+  /** Omitted on cards with a badge, which show a band in its place. */
   readTime?: string
-  /** Omitted while the case study isn't published yet: the card shows as "coming soon" and doesn't link anywhere. */
+  /** Omitted while the case study isn't published at all: the card then doesn't link anywhere. */
   href?: string
+  /** Status shown on an orange band across the card, e.g. "Work in progress" or "Coming soon". The book stays shut. */
+  badge?: string
   image: string
 }
 
@@ -34,16 +36,18 @@ export const works: Work[] = [
   {
     company: 'IBM',
     year: '2026',
-    title: 'Giving IBM Maximo sellers the control they need to cut 30% deal time',
-    readTime: '10 mins read',
-    href: 'work/mas-pricing',
-    image: 'assets/images/home-works-card-mas-pricing.avif',
+    title: 'Growth Assessment to improve Maximo maturity for clients',
+    badge: 'Work in progress',
+    href: 'work/m-goat',
+    image: 'assets/images/home-works-card-maximo-growth.webp',
   },
   {
     company: 'IBM',
     year: '2026',
-    title: 'Growth Assessment to improve Maximo maturity for clients',
-    image: 'assets/images/home-works-card-maximo-growth.webp',
+    title: 'Giving IBM Maximo sellers the control they need to cut 30% deal time',
+    readTime: '10 mins read',
+    href: 'work/mas-pricing',
+    image: 'assets/images/home-works-card-mas-pricing.avif',
   },
   {
     company: 'CarDoctor',

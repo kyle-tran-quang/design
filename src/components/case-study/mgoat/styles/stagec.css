@@ -1,0 +1,80 @@
+/* Stage C additions (beat 11). Link AFTER scene.css. Values are measured from Figma slide 13, file 1r4UreOVeEqdcXvnD5cetk:
+     stage #262626 (208:7717) | copy column #161616 | eyebrow #6f6f6f | body #f4f4f4 | highlight #a7f0ba | screen bg #161616, sidebar #333, option rows #262626.
+   scene.css has no dark theme yet, so the dark tokens live here. Write-back: add IBM Plex Serif (wght 300) to the Google Fonts URL in index.html (sidebar heading, 208:7740). */
+.mg-root [data-theme="dark"] {
+  --bg: #262626;
+  --text: #f4f4f4; --muted: #6f6f6f;
+  --page: #161616;
+  --line: #f4f4f4; --line-faint: rgba(244,244,244,.35); --fill: rgba(244,244,244,.04); --grid: rgba(244,244,244,.10);
+  --layer: #262626; --border-subtle: #525252; --border-interactive: #78a9ff; --text-primary: #f4f4f4; --text-secondary: #c6c6c6; --text-helper: #a8a8a8;
+  --tag-bg: #393939; --tag-text: #f4f4f4;
+  --accent: var(--border-interactive);
+}
+.text-col .hl-g { color: #a7f0ba; }                                   /* Figma highlight green (208:7910) */
+/* The nav (.progress) now carries data-theme itself (index.html). Figma draws the active tick #000 on the dark slides 13-15 too, which vanishes on #161616: kept visible (#f4f4f4) on purpose, flagged to the author. */
+.progress[data-theme="dark"] i { background: #6f6f6f; }
+.progress[data-theme="dark"] i.act { background: #f4f4f4; }
+
+/* ---------- the dark questionnaire screen: a 1:1 copy of Figma "ver3" 208:7718 (all sizes in Figma px; the camera scales it) ---------- */
+.asm [data-html] .sc-bgL, .asm [data-html] .sc-bgR { position: absolute; top: 0; height: 1024px; background: #f4f4f4; }
+.asm [data-html] .sc-bgL { left: 0; width: 720px; }
+.asm [data-html] .sc-bgR { left: 720px; width: 720px; }
+.asm [data-html] .sc-clip { position: absolute; left: 0; top: 0; width: 1440px; height: 1024px; overflow: hidden; }
+.asm [data-html] .sc-cam { position: absolute; left: 0; top: 0; width: 720px; height: 1024px; transform-origin: 0 0; will-change: transform; font-family: "IBM Plex Sans", system-ui, sans-serif; }
+.sc-screen { position: absolute; left: 20px; top: 326.35px; width: 680px; height: 420.05px; overflow: hidden; background: #161616; color: #f4f4f4; }
+.sc-wire { position: absolute; left: 20px; top: 326.35px; width: 680px; height: 420.05px; overflow: visible; pointer-events: none; }
+.sc-scan { position: absolute; left: 20px; width: 680px; height: 1px; background: linear-gradient(90deg, transparent, #a8a8a8 20%, #a8a8a8 80%, transparent); opacity: 0; pointer-events: none; }
+
+.sc-side { position: absolute; left: 0; top: 0; width: 231.2px; height: 419.64px; background: #333; overflow: hidden; padding: 15.363px 14.554px 0; }
+.sc-logo { position: relative; width: 12.937px; height: 12.937px; margin-bottom: 6.468px; }
+.sc-logo img, .sc-logo .sc-logo-g { position: absolute; inset: 0; width: 100%; height: 100%; }
+.sc-logo .sc-logo-g { -webkit-mask: url(/assets/mgoat/stagec/logo-mask.svg) center/100% 100% no-repeat; mask: url(/assets/mgoat/stagec/logo-mask.svg) center/100% 100% no-repeat; inset: 7.24% 3.13% 5.66% 3.12%; width: auto; height: auto; }
+.sc-logo .sc-logo-g img { width: 100%; height: 100%; }
+.sc-logo .sc-logo-d { inset: 34.4% 34.4% 34.4% 34.4%; width: auto; height: auto; }
+.sc-trow { display: flex; justify-content: space-between; align-items: flex-start; }
+.sc-t1 { font: 400 5.66px/7.277px "IBM Plex Sans", sans-serif; letter-spacing: .0647px; color: #f4f4f4; white-space: nowrap; }
+.sc-t1 b { font-weight: 600; }
+.sc-beta { font: 400 4.851px/9.056px "IBM Plex Sans", sans-serif; letter-spacing: -.0283px; color: #78a9ff; white-space: nowrap; }
+.sc-mid { position: absolute; left: 14.554px; top: 119.77px; width: 164.138px; }                     /* Figma 208:7740 title (14.55, 119.77), measured via use_figma */
+.sc-title { font: 300 19.405px/19.405px "IBM Plex Serif", Georgia, serif; color: #f4f4f4; }
+.sc-page { margin-top: 6.468px; font: 400 5.66px/8.086px "IBM Plex Sans", sans-serif; letter-spacing: .0647px; color: #f4f4f4; white-space: nowrap; }
+.sc-ibm { position: absolute; left: 14.554px; top: 244.25px; width: 21.831px; height: 8.086px; }        /* Figma 208:7744 */
+.sc-ibm-m img { display: block; width: 21.831px; height: 8.086px; }
+.sc-art { position: absolute; left: 0; top: 289px; width: 231.2px; height: 130.4px; overflow: hidden; }
+.sc-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+.sc-main { position: absolute; left: 231.2px; top: 0; width: 448.8px; height: 690.19px; }
+.sc-form { position: absolute; left: 73.7px; top: 0; width: 301.59px; padding: 0 22.64px 19.405px; will-change: transform; }
+.sc-pbspace { height: 39.6px; }
+.sc-section { padding-bottom: 12.128px; }
+.sc-label { display: flex; align-items: center; gap: 6.468px; height: 7.115px; margin-top: .03px; margin-bottom: 1.72px; }       /* label text top = 39.62 in Figma */
+.sc-label span { font: 500 4.447px/7.115px "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .7115px; text-transform: uppercase; color: #fff; white-space: nowrap; }
+.sc-label i { flex: 1; height: .404px; background: #525252; }
+.sc-q { padding-top: 9.703px; }
+.sc-q + .sc-q { padding-top: 10.87px; }                                   /* Figma: heading 2 at y 340.08 (+1.17 over the stack) */
+.sc-qh { display: flex; justify-content: space-between; align-items: flex-start; min-height: 12.937px; }
+.sc-h2 { width: 164.946px; padding-top: .809px; font: 600 8.086px/10.673px "IBM Plex Sans", sans-serif; letter-spacing: -.1294px; color: #f4f4f4; }
+.sc-info { width: 12.937px; height: 12.937px; margin-top: -.81px; border-radius: 6.468px; background: #262626; display: flex; align-items: center; justify-content: center; }
+.sc-opts { display: flex; flex-direction: column; gap: 3.234px; padding-top: 8.894px; }
+.sc-opt { display: flex; align-items: flex-start; width: 256.314px; height: 23.85px; padding: 6.468px; background: #262626; box-sizing: border-box; }
+.sc-cb { position: relative; flex: none; width: 6.468px; height: 6.468px; margin: 1.21px 0 0 1.21px; }
+.sc-cb svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.sc-cb rect { fill: #f4f4f4; fill-opacity: 0; stroke: #f4f4f4; stroke-width: .404; }                                  /* Figma 208:7782: 6.468 box, .404 border, .809 radius */
+.sc-cb path { fill: none; stroke: #161616; stroke-width: .9; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1; }
+.sc-ot { margin-left: 4.5px; font: 400 5.66px/7.277px "IBM Plex Sans", sans-serif; letter-spacing: .0647px; color: #f4f4f4; white-space: nowrap; height: 10.916px; padding-top: .404px; box-sizing: border-box; }   /* text box x = 346.04 in Figma */
+
+.sc-progress { position: absolute; left: 327.84px; top: 16.171px; width: 256.314px; height: 12.937px; background: #161616; box-shadow: 0 -16.171px 0 #161616, 0 4.851px 2.426px #161616; }
+.sc-pt { position: absolute; left: 0; top: 5.6px; width: 100%; height: 1.617px; background: #525252; }
+.sc-pf { width: 74.331px; height: 100%; background: #d0e2ff; }
+.sc-btns { position: absolute; left: 327.84px; top: 420px; width: 256.314px; height: 35.6px; padding-top: 6.468px; background: #161616; box-shadow: 0 -.404px 0 #161616; display: flex; justify-content: flex-start; }
+.sc-btn { position: relative; width: 111px; height: 28.714px; padding: 5.4px 6.468px; font: 400 6.064px/7.797px "IBM Plex Sans", sans-serif; letter-spacing: .0606px; color: #f4f4f4; background: #262626; border: .404px solid transparent; box-sizing: border-box; display: flex; justify-content: space-between; }
+.sc-next { background: #0f62fe; border-color: #fff; color: #fff; margin-left: .404px; }
+.sc-next img { position: absolute; left: 96.9px; top: 5.8px; }
+
+.sc-cur { position: absolute; left: 0; top: 0; width: 12px; height: 18px; opacity: 0; pointer-events: none; transform-origin: 1px 1px; filter: drop-shadow(0 1px 1.5px rgba(0,0,0,.5)); }
+
+/* collaborators' cursors (stagec-piece.js PEERS): a layer exactly over the window, clipped to it. Tip at the element's origin; the name flag rides below-right of the tip. */
+.sc-peers { position: absolute; left: 20px; top: 326.35px; width: 680px; height: 420.05px; overflow: hidden; pointer-events: none; display: none; opacity: 0; }
+.sc-peer { position: absolute; left: 0; top: 0; will-change: transform; }
+.sc-pa { position: absolute; left: -1px; top: -1px; display: block; transform-origin: 1px 1px; filter: drop-shadow(0 1px 1.2px rgba(0,0,0,.45)); }
+.sc-pn { position: absolute; left: 10px; top: 15px; padding: 2px 5.5px 2.2px; border-radius: 7px 7px 7px 1.8px; background: var(--pc); color: #fff; font: 600 9px/10.5px "IBM Plex Sans", sans-serif; letter-spacing: .1px; white-space: nowrap; box-shadow: 0 1px 2px rgba(0,0,0,.35); }

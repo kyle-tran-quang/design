@@ -1,0 +1,89 @@
+/* Stage F (slides 21a + 21b, the maturity-map window; 22 is an empty stage). Link AFTER scene.css. NO dependency on theme variables: every colour is an explicit Figma value, so the
+   window is identical on the dark and the light page. All sizes are Figma px of this drawing (about 0.3x of normal UI sizes), window-local, 600 x 600, clipped at the bottom.
+   Plex Sans / Serif / Mono are loaded by index.html. Positions mirror m-goat/assets/stagef/f21a.png and f21b.png (1.953 image px per stage px). */
+.asm [data-html] .sf-root { position: absolute; inset: 0; font-family: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif; color: #161616; -webkit-font-smoothing: antialiased; }
+.asm [data-html] .sf-win { position: absolute; inset: 0; overflow: hidden; background: #fff; box-shadow: .96px 1.37px 1.82px rgba(0,0,0,.09), 2.9px 4.14px 5.52px rgba(0,0,0,.07), 5.54px 7.92px 10.56px rgba(0,0,0,.05), 8.78px 12.54px 16.73px rgba(0,0,0,.03), 12.55px 17.93px 23.9px rgba(0,0,0,.02), 16.8px 24px 32px rgba(0,0,0,.02); }
+.asm [data-html] .sf-a { position: absolute; margin: 0; padding: 0; box-sizing: border-box; }
+.asm [data-html] .sf-clip { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+
+/* ---- UI shell header */
+.asm [data-html] .sf-nav { position: absolute; left: 0; top: 0; width: 600px; height: 18.18px; background: #f4f4f4; border-bottom: .38px solid #c6c6c6; box-sizing: border-box; }
+.asm [data-html] .sf-nav span { position: absolute; top: 5.7px; font: 400 5.3px/6.82px "IBM Plex Sans", sans-serif; white-space: nowrap; color: #525252; text-align: center; }
+.asm [data-html] .sf-nav .sf-ibm { color: #161616; }
+.asm [data-html] .sf-nav .sf-app { color: #161616; font-weight: 600; }
+.asm [data-html] .sf-nav .sf-ni.sel { color: #161616; top: 0; height: 18.18px; padding-top: 5.7px; border-bottom: 1.14px solid #0f62fe; box-sizing: border-box; }
+.asm [data-html] .sf-nav .sf-ni { text-align: center; }
+.asm [data-html] .sf-div { position: absolute; top: 4px; width: .38px; height: 10px; background: #c6c6c6; }
+
+/* ---- header section */
+.asm [data-html] .sf-hero { left: 0; top: 18.56px; width: 600px; height: 169.5px; background: #f4f4f4; border-bottom: .38px solid #e0e0e0; }
+.asm [data-html] .sf-logo { position: absolute; left: 87.88px; top: 30.3px; display: block; }
+.asm [data-html] .sf-brand { position: absolute; left: 114.1px; top: 30.3px; height: 24.24px; font: 400 12.12px/24.24px "IBM Plex Sans", sans-serif; letter-spacing: .0161em; white-space: nowrap; }
+.asm [data-html] .sf-brand b { font-weight: 600; }
+.asm [data-html] .sf-title { position: absolute; left: 87.88px; top: 66.4px; width: 260px; font: 300 18.18px/18.18px "IBM Plex Serif", serif; color: #000; }
+.asm [data-html] .sf-sub { position: absolute; left: 87.88px; top: 114.4px; width: 241px; font: 400 6.06px/8.33px "IBM Plex Sans", sans-serif; }
+
+/* ---- product tabs */
+.asm [data-html] .sf-pt { top: 190.3px; height: 13.4px; padding: 4.17px 6.06px; font: 400 5.3px/5.1px "IBM Plex Sans", sans-serif; color: #525252; border-bottom: .76px solid #c6c6c6; white-space: nowrap; }
+.asm [data-html] .sf-pt.sel { color: #161616; font-weight: 600; border-bottom: 1.14px solid #0f62fe; }
+
+/* ---- left rail + download button */
+.asm [data-html] .sf-rail { left: 87.88px; top: 264px; width: 62.12px; }
+.asm [data-html] .sf-rrow { position: relative; min-height: 24.24px; padding: 3px 0 3px 6.06px; margin-bottom: 4px; font: 400 5.3px/6.82px "IBM Plex Sans", sans-serif; color: #525252; display: flex; align-items: center; }
+.asm [data-html] .sf-rrow i { position: absolute; left: 0; top: 0; bottom: 0; width: 1.14px; background: #c6c6c6; }
+.asm [data-html] .sf-rrow.sel { color: #161616; font-weight: 600; }
+.asm [data-html] .sf-rrow.sel i { background: #0f62fe; }
+.asm [data-html] .sf-btn { left: 87.88px; top: 406.5px; width: 101.4px; height: 18.4px; background: #0f62fe; }
+.asm [data-html] .sf-btn span { position: absolute; left: 6.06px; top: 5.8px; font: 400 5.3px/6.82px "IBM Plex Sans", sans-serif; color: #fff; white-space: nowrap; }
+.asm [data-html] .sf-dl { position: absolute; left: 88.88px; top: 6.2px; display: block; }
+
+/* ---- stage tabs row / checkbox row / toggle */
+.asm [data-html] .sf-un { position: absolute; top: 249.5px; width: 31.4px; height: .76px; background: #c6c6c6; }
+.asm [data-html] .sf-un.sel { background: #161616; height: 1.14px; top: 249.1px; }
+.asm [data-html] .sf-ruler { display: none; }
+.asm [data-html] .sf-sl { position: absolute; left: 0; top: 0; font: 400 5.3px/6.82px "IBM Plex Sans", sans-serif; color: #525252; white-space: nowrap; }
+.asm [data-html] .sf-q { left: 220.6px; top: 234.6px; font: 400 4.55px/6.06px "IBM Plex Sans", sans-serif; color: #525252; white-space: nowrap; opacity: 0; }
+.asm [data-html] .sf-bx { position: absolute; top: 245.1px; width: 5.3px; height: 5.3px; box-sizing: border-box; border: .5px solid #161616; background: #fff; opacity: 0; display: block; }
+.asm [data-html] .sf-bx.on { background: #161616; }
+.asm [data-html] .sf-bx svg { position: absolute; left: -.2px; top: -.2px; display: block; }
+.asm [data-html] .sf-tgl { left: 451.5px; top: 237.2px; width: 80px; height: 9.09px; }
+.asm [data-html] .sf-trk { position: absolute; left: 0; top: 0; width: 18.18px; height: 9.09px; box-sizing: border-box; padding: 1.14px; border-radius: 4.55px; background: #8d8d8d; display: block; }
+.asm [data-html] .sf-knob { display: block; width: 6.82px; height: 6.82px; border-radius: 50%; background: #fff; will-change: transform; }
+.asm [data-html] .sf-tgl span { position: absolute; left: 21.2px; top: 1.1px; font: 400 5.3px/6.82px "IBM Plex Sans", sans-serif; white-space: nowrap; }
+
+/* ---- stage columns */
+.asm [data-html] .sf-col { color: #161616; }
+.asm [data-html] [data-c1] { left: 220.6px; top: 267.7px; width: 227.9px; }
+.asm [data-html] .sf-h1 { font: 400 10.6px/13.64px "IBM Plex Sans", sans-serif; }
+.asm [data-html] .sf-h2 { font: 400 7.58px/10.61px "IBM Plex Sans", sans-serif; }
+.asm [data-html] .sf-p { font: 400 6.06px/8.33px "IBM Plex Sans", sans-serif; }
+.asm [data-html] .sf-tags { display: flex; flex-wrap: wrap; gap: 3.03px; }
+.asm [data-html] .sf-tag { display: inline-block; padding: 0 3.03px; height: 6.06px; border-radius: 3.41px; background: #d0e2ff; color: #0043ce; font: 400 4.55px/6.06px "IBM Plex Sans", sans-serif; letter-spacing: .0267em; white-space: nowrap; }
+.asm [data-html] .sf-ready { background: #f4f4f4; padding: 6.06px; }
+.asm [data-html] .sf-rl { display: flex; align-items: center; gap: 3px; font: 400 4.55px/6.06px "IBM Plex Sans", sans-serif; }
+.asm [data-html] .sf-ck { display: block; flex: none; }
+.asm [data-html] .sf-rt { margin-top: 6.06px; font: 400 5.3px/6.82px "IBM Plex Sans", sans-serif; }
+.asm [data-html] .sf-vl { width: .38px; background: #c6c6c6; opacity: 0; }
+.asm [data-html] [data-c2] { opacity: 0; }
+
+/* ---- Feedback tab: blue, vertical, on the window's right edge */
+.asm [data-html] .sf-fb { width: 12.06px; height: 29px; background: #0f62fe; border-radius: .76px .76px 0 0; opacity: 0; transform-origin: 100% 50%; }
+.asm [data-html] .sf-fb span { position: absolute; left: 3.03px; top: 3.03px; writing-mode: vertical-rl; transform: rotate(180deg); font: 400 5.3px/6.06px "IBM Plex Sans", sans-serif; color: #fff; white-space: nowrap; }
+
+/* ---- cursor + tap ring (drawn only) */
+.asm [data-html] .sf-cur { position: absolute; left: 0; top: 0; display: block; transform-origin: 0 0; opacity: 0; filter: drop-shadow(0 .6px .8px rgba(0, 0, 0, .35)); }
+.asm [data-html] .sf-ring { position: absolute; left: 0; top: 0; box-sizing: border-box; border-radius: 50%; border: .8px solid #0f62fe; background: rgba(15, 98, 254, .12); opacity: 0; }
+
+.asm [data-html] .sf-face { position: absolute; inset: -.5px; border: 1px solid; box-sizing: border-box; pointer-events: none; }
+
+/* ---- the "// Maturity pathways" card as slabs (stagef-card.js). Each piece = a face (fill + 1px outline) and a real layer on top (strips, label, title).
+   Sizes are Figma px of 333:6551 (the card is 510 x 590 at stage (105, 217)); the pieces are positioned by the engine, so everything here is piece-local. */
+.asm [data-html] .sf-ew { position: absolute; inset: 0; }                                  /* Stage E's card, wrapped so the flip can rotate it */
+.asm [data-html] .sf-wrap { position: absolute; inset: 0; }
+.asm [data-html] .sf-real { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.asm [data-html] .sf-ttl { position: absolute; left: 0; top: 0; font: italic 400 24px/31px "IBM Plex Mono", ui-monospace, monospace; color: #4589ff; white-space: nowrap; }       /* 333:6552 */
+.asm [data-html] .sf-st { position: absolute; top: 0; bottom: 0; display: block; }       /* the five white strips on the APM / FSM bands: x and opacity inline */
+.asm [data-html] .sf-bl { position: absolute; left: 0; top: 0; bottom: 0; width: 1px; background: #fff; display: block; }       /* 333:6572 / 6574: 1px white left stroke */
+.asm [data-html] .sf-lbl { position: absolute; font: 400 16px/21px "IBM Plex Mono", ui-monospace, monospace; white-space: nowrap; }   /* 333:6555 etc. */
+.progress[data-flip] i { background: var(--tick); }
+.progress[data-flip] i.act { background: var(--tick-act); }

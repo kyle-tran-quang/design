@@ -2,6 +2,7 @@ import { asset } from './asset'
 
 /** Case studies in menu order, matching the homepage case study order. */
 export const caseStudies = [
+  { name: 'Maximo Growth Assessment Tool', slug: 'm-goat' },
   { name: 'Maximo Pricing Estimator', slug: 'mas-pricing' },
   { name: 'CarDoctor', slug: 'cardoctor' },
   { name: 'Unblok', slug: 'unblok' },

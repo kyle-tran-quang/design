@@ -60,7 +60,7 @@ react(),
  */
 function reactRouteHtml(): Plugin {
   /** Client-side routes rendered by src/App.tsx (keep in sync with `loaders` in src/lib/pages.ts). */
-  const reactRoutes = ['/work/mas-pricing', '/work/cardoctor', '/work/unblok', '/work/breadslice', '/work/cardoctor-ds']
+  const reactRoutes = ['/work/mas-pricing', '/work/m-goat', '/work/cardoctor', '/work/unblok', '/work/breadslice', '/work/cardoctor-ds']
 
   function routeForPath(pathname: string) {
     return pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '').replace(/\/$/, '') || '/'

@@ -1,0 +1,36 @@
+/* Stage C intro (stage-c-intro.js): the full-screen grey layer that plays the transitions-ui-generation build of the second-iteration screen.
+   Injected by stage-c-intro.js itself (next to the script), so index.html only needs the <script>. Retune the look here, the durations live at the top of the JS. */
+:root {
+  --sci-grey: #f4f4f4;                     /* the layer while the UI is generated (Stage B's own light grey) */
+  --sci-black: #161616;                    /* the layer once the polished UI is in = the page's existing dark (the screen itself is #161616, the sidebar #333) */
+  --sci-ease: cubic-bezier(0.22, 1, 0.36, 1);   /* the skill's --ease-smooth-out (ui-generation.js SMOOTH_OUT), used for the slide */
+}
+
+/* The generation overlay (.t-gen) is appended to <body>, not to the layer, so its light variables must be forced on <body> for the run (also on a dark OS theme).
+   --gen-surface = the layer's grey so the corner handles blend into it. */
+body.sci-on {
+  --gen-line: #9a9a9a; --gen-strong: #6c6c6c; --gen-ink: rgba(13, 13, 13, 0.32);
+  --gen-surface: var(--sci-grey); --gen-text: #0d0d0d; --gen-muted: #8b8b8b;
+}
+.sci-layer { --gen-surface: var(--sci-grey); }
+
+/* The design app's case study logo (ProjectNav) is fixed at the top left and, when this page was reached from another case study, sits at z-index
+   2147483001, above the runtime's overlay (2147483000). The layer cannot be raised past the runtime's overlay, so the logo steps aside for the
+   few seconds the intro is on (body.sci-on, removed by the engine when the run ends or the page is left). */
+body.sci-on [data-project-nav] { visibility: hidden; }
+
+.sci-layer {
+  position: fixed; inset: 0; z-index: 2147480000;          /* above #progress (3), the hero (5) and Stage C's overlay (2); below the runtime's own overlay (2147483000) */
+  background: var(--sci-grey); pointer-events: auto; touch-action: none; overscroll-behavior: contain;
+  cursor: default; will-change: opacity, transform;
+}
+
+/* the element the runtime generates: unscaled (680s x 420s), so the runtime's clip-path / scan line live in the same px as its measurements */
+.sci-box { position: absolute; }
+.sci-box.pre { opacity: 0; }                               /* hidden by CLASS (not inline) until generate() takes over, so the runtime restores a clean inline style */
+.sci-scale {
+  position: absolute; left: 0; top: 0; width: 680px; height: 420.05px; transform-origin: 0 0;
+  font: 400 10px/normal "IBM Plex Sans", system-ui, sans-serif; color: #f4f4f4;
+}
+.sci-scale, .sci-scale *, .sci-scale *::before, .sci-scale *::after { box-sizing: border-box; }   /* the real screen lives inside .asm (scene.css), which sets border-box on everything: same here, or the sidebar grows by its padding */
+.sci-scale .sc-screen { left: 0; top: 0; }                 /* stagec.css places the screen at (20, 326.35) of the stage; here it fills its box */

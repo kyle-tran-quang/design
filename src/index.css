@@ -2,6 +2,9 @@
    styles and below the utilities. Must come before the Tailwind import to set the order. */
 @layer theme, base, cinematic, components, utilities;
 @import 'tailwindcss';
+/* The M-GOAT scene engine (plain JS and its own CSS) holds no Tailwind classes. Tailwind v4 scans every source file for
+   class-like words and would emit utilities for ordinary words in it (it did for `collapse`). */
+@source not './components/case-study/mgoat/engine';
 
 /* Self-hosted brand fonts (files live in public/assets/fonts). Mikado is the full HVD family, 300-900 with italics;
    browsers only download the faces a page actually renders. */
@@ -146,6 +149,29 @@
   src: url('/assets/fonts/IBMPlexMono-Light-Italic.woff2') format('woff2');
   font-weight: 300;
   font-style: italic;
+  font-display: swap;
+}
+/* The M-GOAT case study's scene: ExtraLight Italic is the 160px "To be continued..." slide, Regular and Medium are its
+   mockups' code and label text. Latin subsets from Google Fonts (SIL OFL). */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('/assets/fonts/IBMPlexMono-ExtraLight-Italic.woff2') format('woff2');
+  font-weight: 200;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('/assets/fonts/IBMPlexMono-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('/assets/fonts/IBMPlexMono-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
   font-display: swap;
 }
 /* Nunito (SIL OFL, variable 200-1000, from @fontsource-variable/nunito 5): the Breadslice app's own face, used by

@@ -1,0 +1,117 @@
+/* Page-level styles lifted from the old m-goat/index.html: hero, split layout, progress ticks, theme transitions. */
+  /* Mikado (licensed) is the right-hand story column's font, per the author. The design app declares the family in src/index.css. */
+  /* The standalone page declared only Mikado Regular, so its italics (<i> in the story copy) were a browser-synthesised slant, which is wider
+     than the real Mikado Italic: "this will need to be simpler" is 392px that way, 366px with the true face, and the story column's line breaks
+     (and so the vertical centring of every slot) were authored against the wider one. This family keeps that look without changing the app's own
+     Mikado, whose true italics other pages use. */
+  @font-face { font-family: "Mikado Story"; src: url("/assets/fonts/Mikado-Regular.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+  :root { --story-font: "Mikado Story", "IBM Plex Sans", system-ui, sans-serif; }
+
+  /* Was `html, body { ... }` in the standalone page. Here it belongs to the page root, so it neither changes rem for the other pages nor outlives this route.
+     letter-spacing and font smoothing: the design app's body tracks text at -0.02em and sets `antialiased`; the scene's mockups were drawn (and
+     are checked pixel for pixel) without either. Both inherit, so they are reset here at the page root. */
+  .mg-root { margin: 0; background: var(--page); color: var(--text); font: 32px/normal var(--story-font); letter-spacing: normal; -webkit-font-smoothing: auto; -moz-osx-font-smoothing: auto; }
+
+  /* ---------- Hero (Figma 82:8717, 1440 x 968): grey image slot, title, description, Role / Timeline ---------- */
+  /* 100vh: a flex column. The text block keeps its natural height; the image slot absorbs the rest (476px at the Figma 968px height, taller on bigger screens). */
+  .hero { background: #f2f2f2; height: 100vh; min-height: 640px; padding: 100px 0 80px; box-sizing: border-box; display: flex; flex-direction: column; }
+  .hero-image { margin: 0 24px; flex: 1 1 auto; min-height: 160px; background: #dfdfdf; border-radius: 20px; overflow: hidden; }
+  .hero-image img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .hero-body { flex: 0 0 auto; display: flex; gap: 64px; width: 100%; max-width: 1200px; margin: 0 auto; padding: 40px 24px 0; box-sizing: border-box; }
+  .hero-title { flex: 1 1 0; min-width: 0; margin: 0; font: italic 300 68px/68px "IBM Plex Mono", ui-monospace, monospace; letter-spacing: -3.4px; color: #3d3d3d; }
+  .hero-side { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; justify-content: space-between; }
+  .hero-desc { margin: 0; padding-top: 8px; font: 400 24px/normal "IBM Plex Sans", system-ui, sans-serif; color: #7a7a7a; }
+  .hero-meta { display: flex; justify-content: space-between; margin: 0; font: 400 16px/22.4px "IBM Plex Sans", system-ui, sans-serif; letter-spacing: -.3925px; }
+  .hero-meta div { display: flex; flex-direction: column; }
+  .hero-meta div:last-child { text-align: right; }
+  .hero-meta dt { color: #7a7a7a; } .hero-meta dd { margin: 0; color: #3d3d3d; }
+
+
+  /* ---------- Hero -> stage transition (hero-transition.js). The hero is pinned for `introVh` of scroll while its image box morphs into the stage. ---------- */
+  .hero-track { position: relative; }                                   /* height set in JS: 100vh + introVh */
+  .hero-pin { position: sticky; top: 0; height: 100vh; overflow: hidden; background: transparent; z-index: 5; }
+  .hero-pin .hero { position: absolute; inset: 0; z-index: 1; }          /* the hero page: #f2f2f2, text; its own image slot is the box's starting rect */
+  .hero-pin .hero .hero-image { visibility: hidden; }                    /* the slot only reserves the space; the morphing box is drawn by .hero-box */
+  .hero-box { position: absolute; left: 0; top: 0; z-index: 2; overflow: hidden; background: #dfdfdf; will-change: transform, width, height, border-radius, opacity; }
+  .hero-box img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: var(--hero-focus, 0% 50%); display: block; }
+  .hero-box .tint { position: absolute; inset: 0; background: #f4f4f4; opacity: 0; }       /* fades the image's blue-grey toward the stage grey */
+  .hero-pin.done { visibility: hidden; }
+
+
+  /* While the hero is pinned the real layout is still below the fold, so a fixed copy of the first scene frame sits under the hero and is revealed by the dissolve. */
+  .intro-under { position: fixed; inset: 0; z-index: 4; display: grid; grid-template-columns: 1fr 1fr; pointer-events: none; visibility: hidden; }
+  .intro-under.on { visibility: visible; }
+  .intro-under .u-stage { position: relative; overflow: hidden; background: var(--bg); }
+  .intro-under .u-col { background: var(--page); }
+  .intro-under .u-col section, .intro-under .u-col section.active { opacity: var(--intro-copy, 0); transition: none; }   /* .active (set below) would otherwise force opacity 1 */   /* the first beat's text, fading in with the dissolve */
+  /* Mobile: the stage is the top 40vh and the copy is centred in the 60vh below it. Stage and column share ONE grid cell (as in .layout below) so the copy's
+     `top` (measured from the column's top, as on desktop) lines up with the scroll; stacked in two rows it would land a whole stage-height too low. */
+  @media (max-width: 800px) {
+    .intro-under { grid-template-columns: 1fr; grid-template-rows: 1fr; }
+    .intro-under .u-stage, .intro-under .u-col { grid-area: 1 / 1; }
+    .intro-under .u-stage { height: 40vh; z-index: 1; }
+  }
+
+  /* ---------- Split layout: scene (left, sticky) + story column (right) ---------- */
+  /* margin-top: -100vh puts the layout's top at the viewport top at the exact scroll position where the intro ends (hero track = 100vh + introVh).
+     Until then it is hidden (visibility), because the fixed .intro-under stands in for it and the layout would otherwise slide up behind the dissolve. */
+  .layout { display: grid; grid-template-columns: 1fr 1fr; position: relative; margin-top: -100vh; }
+  .layout.pre-intro { visibility: hidden; }
+  .stage-col { position: sticky; top: 0; height: 100vh; }
+  .text-col { position: relative; background: var(--page); }
+  .text-col section { position: absolute; left: 48px; width: min(536px, calc(100% - 144px)); transform: translateY(-50%); display: flex; flex-direction: column; gap: 24px;
+                      opacity: 0; transition: opacity .35s ease; }
+  .text-col section.active { opacity: 1; }
+  .text-col p { margin: 0; font-size: 32px; line-height: normal; color: var(--text); font-weight: 400; }
+  .text-col p.eyebrow { font-size: 16px; color: var(--muted); letter-spacing: 0; }
+  .text-col .hl-o { color: #fa680c; }                                       /* Figma highlight orange */
+  .text-col section img.slot-img { display: block; width: 100%; height: auto; margin-top: 8px; }   /* Stage F slide 2: the old map under the sentence (Figma 333:5958) */
+  /* Stage F slide 5 (Figma 208:9575): full-bleed. The text starts at x 33 of the 1440 frame, i.e. over the (empty) stage, 54 px below the top; 160px Plex Mono ExtraLight Italic at 50%. */
+  .text-col section.full { left: calc(33px - 50vw); width: calc(82.08vw); transform: translateY(calc(-50vh + 5.27vh)); }
+  .text-col section.full p { font: italic 200 160px/1.07em "IBM Plex Mono", ui-monospace, monospace; letter-spacing: -.06em; color: #161616; opacity: .5; }
+  .text-col i { font-style: italic; }
+  /* ---------- Page rail (SectionNav.tsx; pattern from the design project's SectionNav) ----------
+     #progress is owned by the engine (.on, data-theme, data-flip, inline opacity from Stage F), so the React markup lives inside it.
+     Closed: a column of 1px lines, one per chapter. Hover / focus / tap (data-open) shows the card of chapter names. */
+  .progress { position: fixed; right: 16px; top: 50%; transform: translateY(-50%); z-index: 3; opacity: 0; pointer-events: none; transition: opacity .3s; }
+  .progress.on { opacity: 1; pointer-events: auto; }
+  .progress-btn { display: flex; flex-direction: column; align-items: flex-end; gap: 15px; width: 56px; padding: 8px; margin: 0; border: 0; border-radius: 4px; background: none; cursor: pointer; font: inherit; }
+  .progress-btn:focus-visible { outline: 2px solid #fa680c; outline-offset: 2px; }
+  .progress i { display: block; height: 1px; width: 32px; background: #8d8d8d; transition: background-color .3s, width .3s; }
+  .progress i.act { background: #000; width: 40px; }                      /* the active chapter is the long black line (Figma 41:33) */
+  .progress-panel { position: absolute; top: 50%; right: 0; width: 232px; max-height: calc(100dvh - 32px); overflow-y: auto; box-sizing: border-box; padding: 12px 12px 0;
+                    background: #fff; border-radius: 14px; box-shadow: 0 14px 28px -6px rgba(25,25,25,.2), 0 2px 4px -1px rgba(25,25,25,.12);
+                    opacity: 0; visibility: hidden; transform: translate(8px, -50%) scale(.98); transform-origin: right center;
+                    transition: opacity .18s cubic-bezier(.16,1,.3,1), transform .18s cubic-bezier(.16,1,.3,1), visibility 0s .18s; }
+  .progress[data-open] .progress-panel { opacity: 1; visibility: visible; transform: translate(0, -50%); transition-delay: 0s; }
+  /* Figma 524:16673: one group = 6px container padding, rows of 24.9px (4px + 16.9px line + 4px) with no gap between them, and 12px under the group's last link. The chapters are one flat group. */
+  .progress-panel ol { margin: 0; padding: 6px 6px 18px; list-style: none; }
+  .progress-panel li { padding: 0; }
+  .progress-panel li button { display: block; width: 100%; margin: 0; padding: 4px 4px; border: 0; border-radius: 4px; background: none; cursor: pointer; text-align: left;
+                              font: 400 13px/16.9px var(--story-font); letter-spacing: -.0762px; word-break: break-word; color: #6b7280; transition: color .15s, background-color .15s; }
+  .progress-panel li button:hover, .progress-panel li button:focus-visible { background: #f3f4f6; color: #191919; outline: none; }
+  .progress-panel li button[aria-current] { color: #fa680c; }              /* the design project's accent */
+  @media (max-width: 1100px) { .hero-title { font-size: 52px; line-height: 52px; letter-spacing: -2.6px; } }
+  @media (max-width: 800px) {
+    .hero { padding: 72px 0 48px; min-height: 0; } .hero-image { margin: 0 16px; min-height: 120px; }
+    .hero-body { flex-direction: column; gap: 32px; padding: 32px 16px 0; }
+    .hero-title { font-size: 40px; line-height: 40px; letter-spacing: -2px; } .hero-desc { font-size: 20px; } .hero-meta { margin-top: 8px; }
+    .layout { grid-template-columns: 1fr; grid-template-rows: 1fr; }
+    .stage-col, .text-col { grid-area: 1 / 1; }                                       /* one cell: the sticky stage rides over the top of the full-height text column */
+    .stage-col { height: 40vh; z-index: 2; }
+    .text-col section { left: 24px; width: calc(100% - 96px); transform: translateY(calc(-50% + 20vh)); }   /* centred on the 60vh under the stage (the section's top already includes 50vh, so 50vh + 20vh = 70vh = 40vh stage + 30vh) */
+    .text-col p { font-size: 24px; }
+    /* Stage F slide 5: the desktop rule pulls the text back over the (empty) left half with -50vw and sets 160px type. The mobile column is already full width, so reset to
+       the normal inset and scale the type with the viewport ("continued..." = 12 glyphs x .54em must fit on one line). Without this it overflows ~485px and the browser widens the layout viewport. */
+    .text-col section.full { left: 16px; width: calc(100% - 32px); transform: translateY(-50%); }
+    .text-col section.full p { font-size: 13vw; }
+    .progress { display: none; }                                                      /* no page rail on phones */
+  }
+  /* Gentle theme change (light <-> dark): the beat's data-theme swaps the --bg / --page / --text variables in one frame; these transitions ease the surfaces and copy colour over it.
+     Stage F drives the same variables inline, scroll by scroll (stage-f.js): there the transition is switched off so the colours follow the scroll instead of lagging behind it. */
+  .asm, .text-col, .text-col p, .text-col p.eyebrow { transition: background-color .7s ease, color .7s ease; }
+  .text-col section { transition: opacity .35s ease, color .7s ease; }
+  .progress i { transition: background-color .7s ease, width .3s; }
+  #scene.asm[style*="--bg"], .layout[style*="--page"] .text-col, .layout[style*="--page"] .text-col p, .layout[style*="--page"] .text-col p.eyebrow { transition: none; }
+  .layout[style*="--page"] .progress i, .progress[style*="--tick"] i { transition: none; }
+  @media (prefers-reduced-motion: reduce) { .text-col section, .progress, .progress i, .progress-panel, .asm, .text-col, .text-col p { transition: none; } }

@@ -1,0 +1,29 @@
+/* Stage E (slides 20a + 20b, the "Next steps" card). Link AFTER scene.css. NO dependency on stagec.css or on theme variables: every colour is an explicit value measured from Figma
+   (file 1r4UreOVeEqdcXvnD5cetk): stage #262626 (painted by the host / test page, not by the piece) | card #393939 | text #f4f4f4, header text #fff | blue tag #0043ce / #d0e2ff |
+   green tag #0e6027 / #a7f0ba | highlight #0f62ff (10% fill, 2px inside stroke, radius 8). All sizes are Figma px at 20a's scale; the camera transform scales them. */
+.asm [data-html] .se-root { position: absolute; inset: 0; overflow: hidden; font-family: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif; color: #f4f4f4; -webkit-font-smoothing: antialiased; }
+.asm [data-html] .se-card { position: absolute; left: 0; top: 0; width: 562px; height: 666.331px; transform-origin: 0 0; will-change: transform; }
+.asm [data-html] .se-shell { position: absolute; left: 0; top: 0; width: 562px; height: 666.331px; background: #393939; border-radius: 5.854px; transform-origin: 0 0; }   /* scaleY by update(): 20b's card is 1.572 px shorter */
+.asm [data-html] .se-a { position: absolute; margin: 0; padding: 0; }
+.asm [data-html] .se-ico { position: absolute; display: block; }
+
+.asm [data-html] .se-step { font: 400 11.7083px/16.099px "IBM Plex Sans", sans-serif; color: #fff; }                    /* 239:6840: "Step 01:" SemiBold, the rest Regular, all white */
+.asm [data-html] .se-step .sb { font-weight: 600; }
+.asm [data-html] .se-h { font: 600 10.2448px/14.6354px "IBM Plex Sans", sans-serif; letter-spacing: .1171px; color: #f4f4f4; white-space: nowrap; }
+.asm [data-html] .se-p { font: 400 11.7083px/17.5625px "IBM Plex Sans", sans-serif; color: #f4f4f4; }
+
+.asm [data-html] .se-row { position: absolute; width: 240px; height: 23.417px; }
+.asm [data-html] .se-tag { position: absolute; top: 0; height: 23.417px; }
+.asm [data-html] .se-tag.b { color: #d0e2ff; }
+.asm [data-html] .se-tag.g { color: #a7f0ba; }
+.asm [data-html] .se-pill { position: absolute; left: 0; top: 0; display: block; width: 100%; height: 100%; border-radius: 11.708px; transform-origin: 0 50%; }   /* scaled in x by update(): Figma's 20b pill widths */
+.asm [data-html] .se-tag.b .se-pill { background: #0043ce; }
+.asm [data-html] .se-tag.g .se-pill { background: #0e6027; }
+.asm [data-html] .se-tag img { position: absolute; left: 5.854px; top: 5.854px; width: 11.708px; height: 11.708px; display: block; }
+.asm [data-html] .se-tag span { position: absolute; left: 20.489px; top: 5.269px; font: 400 8.78125px/11.708px "IBM Plex Sans", sans-serif; letter-spacing: .2342px; white-space: nowrap; }   /* top 5.122 (Figma) + 0.147 baseline correction */
+
+/* the dim scrim: card-coloured, over the header + "What this enables" + "Required Maximo modules"; opacity 0 -> .75 gives those blocks the same 25% as Figma's group opacity */
+.asm [data-html] .se-veil { position: absolute; background: #393939; opacity: 0; pointer-events: none; will-change: opacity; }
+
+/* 239:6888 / 239:6927: the same card-local rectangle in both slides; it is the top-most child of the card (painted over the blocks) */
+.asm [data-html] .se-hl { position: absolute; left: 0; top: 0; box-sizing: border-box; border: 2px solid #0f62ff; border-radius: 8px; background: rgba(15, 98, 255, .1); opacity: 0; transform-origin: 0 0; pointer-events: none; }                          /* position + scale come from update() (transform), see stagee-piece.js. No will-change on purpose: a promoted layer keeps the raster scale of its first frame (0.98) and the stroke stays soft after the zoom */

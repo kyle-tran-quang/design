@@ -52,7 +52,7 @@ function useOpenWhileCentred(ref: RefObject<HTMLElement | null>) {
 }
 
 /**
- * Distance from the top of the card to `slot`, a placeholder inside the cover. The "coming soon" band can't live in
+ * Distance from the top of the card to `slot`, a placeholder inside the cover. The status band can't live in
  * the slot itself (the cover clips it, and the band overhangs the cover's edges), so it's drawn over the card at this
  * offset. Re-measured whenever the cover or the slot's row resizes, e.g. when the title rewraps or the font loads.
  * offsetTop ignores transforms, so the homepage's zoom and 3D tilt don't skew it.
@@ -81,18 +81,21 @@ export default function WorkCard({ work }: { work: Work }) {
   const coverRef = useRef<HTMLDivElement>(null)
   const slotRef = useRef<HTMLDivElement>(null)
   const open = useOpenWhileCentred(ref)
-  // No case study yet: the book stays shut and an orange band announces it.
-  const comingSoon = !work.href
-  const bandTop = useSlotTop(coverRef, slotRef, comingSoon)
+  // A badge ("Work in progress", "Coming soon") puts an orange band across the card. The band lies flat over the
+  // cover, so the book stays shut under it: a cover swinging open beneath the band would look broken. A bandless card
+  // opens only when it links somewhere.
+  const banded = Boolean(work.badge)
+  const opens = Boolean(work.href) && !banded
+  const bandTop = useSlotTop(coverRef, slotRef, banded)
 
   return (
     <a
       ref={ref}
-      // Without an href the anchor is a plain, unfocusable placeholder. Dropping `group` there switches off every
-      // group-hover/focus/data-open style below, so the cover never opens.
+      // Without an href the anchor is a plain, unfocusable placeholder. Dropping `group` (no href, or a band) switches
+      // off every group-hover/focus/data-open style below, so the cover never opens.
       href={work.href ? asset(work.href) : undefined}
-      data-open={(!comingSoon && open) || undefined}
-      className={`${comingSoon ? '' : 'group '}relative block max-w-[600px] shrink-0 [--back:12px] [--pages:7px] [perspective:1400px] lg:h-[720px] lg:w-[600px] lg:self-center lg:[--back:16px] lg:[--pages:10px] lg:[perspective:2500px]`}
+      data-open={(opens && open) || undefined}
+      className={`${opens ? 'group ' : ''}relative block max-w-[600px] shrink-0 [--back:12px] [--pages:7px] [perspective:1400px] lg:h-[720px] lg:w-[600px] lg:self-center lg:[--back:16px] lg:[--pages:10px] lg:[perspective:2500px]`}
     >
       {/* Back cover: peeks out past the pages when the book opens. */}
       <span
@@ -117,7 +120,7 @@ export default function WorkCard({ work }: { work: Work }) {
               {work.company}
             </span>
           </span>
-          {!comingSoon && <span className="type-small text-muted">{work.year}</span>}
+          {!banded && <span className="type-small text-muted">{work.year}</span>}
         </div>
 
         <div className="flex min-w-0 flex-1 flex-col">
@@ -125,7 +128,7 @@ export default function WorkCard({ work }: { work: Work }) {
             {/* Loaded eagerly: lazy loading is unreliable inside the zoomed, sideways-scrolling track and the 3D cover. */}
             <img src={asset(work.image)} alt="" decoding="async" className="size-full object-cover" />
           </div>
-          {comingSoon ? (
+          {banded ? (
             // The title sits under the cover art. The empty slot is centred in the space left beneath it, so the gaps
             // above and below match; the band itself is drawn outside the cover (below) so it can overhang the edges.
             <div className="flex flex-1 flex-col">
@@ -159,7 +162,7 @@ export default function WorkCard({ work }: { work: Work }) {
         />
       </div>
 
-      {comingSoon && (
+      {work.badge && (
         // The band sits over the slot in the cover and runs 4px past both edges, as if wrapped around the book.
         // Shading on the overhang suggests it turning the corner. Hidden until the slot has been measured.
         <div
@@ -177,7 +180,7 @@ export default function WorkCard({ work }: { work: Work }) {
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgb(0_0_0/0.2)_0,transparent_4px,transparent_calc(100%-4px),rgb(0_0_0/0.2)_100%)]"
           />
-          <p className="relative type-body font-medium tracking-[1px] text-white">COMING SOON</p>
+          <p className="relative type-body font-medium tracking-[1px] text-white">{work.badge}</p>
         </div>
       )}
     </a>
