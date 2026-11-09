@@ -6,7 +6,7 @@ export type Work = {
   readTime?: string
   /** Omitted while the case study isn't published at all: the card then doesn't link anywhere. */
   href?: string
-  /** Status shown on an orange band across the card, e.g. "Work in progress" or "Coming soon". The book stays shut. */
+  /** Status shown on an orange band across the card, e.g. "Work in progress" or "Coming soon". Opens like any card if `href` is set. */
   badge?: string
   image: string
 }

@@ -81,18 +81,17 @@ export default function WorkCard({ work }: { work: Work }) {
   const coverRef = useRef<HTMLDivElement>(null)
   const slotRef = useRef<HTMLDivElement>(null)
   const open = useOpenWhileCentred(ref)
-  // A badge ("Work in progress", "Coming soon") puts an orange band across the card. The band lies flat over the
-  // cover, so the book stays shut under it: a cover swinging open beneath the band would look broken. A bandless card
-  // opens only when it links somewhere.
+  // A badge ("Work in progress", "Coming soon") puts an orange band across the card. A card opens like a book whenever
+  // it links somewhere, band or not: the band hinges with the cover (below). Without an href the book stays shut.
   const banded = Boolean(work.badge)
-  const opens = Boolean(work.href) && !banded
+  const opens = Boolean(work.href)
   const bandTop = useSlotTop(coverRef, slotRef, banded)
 
   return (
     <a
       ref={ref}
-      // Without an href the anchor is a plain, unfocusable placeholder. Dropping `group` (no href, or a band) switches
-      // off every group-hover/focus/data-open style below, so the cover never opens.
+      // Without an href the anchor is a plain, unfocusable placeholder. Dropping `group` there switches off every
+      // group-hover/focus/data-open style below, so the cover never opens.
       href={work.href ? asset(work.href) : undefined}
       data-open={(opens && open) || undefined}
       className={`${opens ? 'group ' : ''}relative block max-w-[600px] shrink-0 [--back:12px] [--pages:7px] [perspective:1400px] lg:h-[720px] lg:w-[600px] lg:self-center lg:[--back:16px] lg:[--pages:10px] lg:[perspective:2500px]`}
@@ -165,9 +164,11 @@ export default function WorkCard({ work }: { work: Work }) {
       {work.badge && (
         // The band sits over the slot in the cover and runs 4px past both edges, as if wrapped around the book.
         // Shading on the overhang suggests it turning the corner. Hidden until the slot has been measured.
+        // It is a sibling of the cover, not inside it, so it copies the cover's swing to open with the book: same
+        // angle, easing and timing, pivoting on x = 4px, which is the cover's left edge (the band overhangs it by 4px).
         <div
           style={{ top: bandTop }}
-          className={`absolute -inset-x-1 z-20 flex h-10 items-center justify-center overflow-hidden lg:h-[52px] ${bandTop === undefined ? 'invisible' : ''}`}
+          className={`absolute -inset-x-1 z-20 flex h-10 origin-[4px_50%] items-center justify-center overflow-hidden transition-transform lg:h-[52px] motion-safe:group-hover:[transform:rotateY(-12deg)] motion-safe:group-focus-visible:[transform:rotateY(-12deg)] motion-safe:group-data-open:[transform:rotateY(-12deg)] ${EASE} ${OPEN} ${bandTop === undefined ? 'invisible' : ''}`}
         >
           {/* Fabric texture, cropped and stretched exactly as in the design. */}
           <img
