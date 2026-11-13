@@ -29,6 +29,46 @@ function readOverride(): string | null {
   }
 }
 
+/*
+ * Speed probe. Core count and memory say little about how fast a device really is (an old phone with a good core
+ * count, a laptop on battery saver, a browser tab fighting a dozen others), so the page also times a short fixed
+ * piece of work before it first renders. Fast devices finish it in a few milliseconds; the devices that need the
+ * lighter page take many times longer. The result is kept for the session, so only the first load pays for it.
+ */
+const PROBE_KEY = 'cpuprobe'
+/** A run at or over this many milliseconds marks the device as slow. */
+export const SLOW_PROBE_MS = 12
+const PROBE_RUNS = 3
+
+function probeOnce(): number {
+  const start = performance.now()
+  let sum = 0
+  for (let i = 0; i < 200000; i++) sum += Math.sqrt(i) * Math.sin(i)
+  const rows: { a: number; b: string }[] = []
+  for (let i = 0; i < 10000; i++) rows.push({ a: i, b: String(i) })
+  rows.sort((p, q) => (p.b < q.b ? -1 : 1))
+  // Read the results so the work can't be optimised away.
+  return sum + rows.length < 0 ? Infinity : performance.now() - start
+}
+
+/** The fastest of a few timed runs, in ms. It stops at the first fast run, so quick devices pay for one. */
+function probeCpuMs(): number {
+  try {
+    const cached = sessionStorage.getItem(PROBE_KEY)
+    if (cached !== null && Number.isFinite(+cached)) return +cached
+  } catch {
+    // Storage can be blocked; the probe just runs again on the next load.
+  }
+  let best = Infinity
+  for (let run = 0; run < PROBE_RUNS && best >= SLOW_PROBE_MS; run++) best = Math.min(best, probeOnce())
+  try {
+    sessionStorage.setItem(PROBE_KEY, best.toFixed(1))
+  } catch {
+    // See above.
+  }
+  return best
+}
+
 /** True on devices that should get the lighter version of the site. Decided once per page load. */
 export function isLowPower(): boolean {
   if (lowPower !== undefined) return lowPower
@@ -42,7 +82,8 @@ export function isLowPower(): boolean {
   lowPower = Boolean(
     nav.connection?.saveData ||
       (nav.deviceMemory !== undefined && nav.deviceMemory <= 4) ||
-      (nav.hardwareConcurrency > 0 && nav.hardwareConcurrency <= 4),
+      (nav.hardwareConcurrency > 0 && nav.hardwareConcurrency <= 4) ||
+      probeCpuMs() >= SLOW_PROBE_MS,
   )
   return lowPower
 }

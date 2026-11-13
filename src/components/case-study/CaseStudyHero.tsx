@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { motion } from 'motion/react'
+import { motion, useReducedMotion } from 'motion/react'
 import TextEffect from '@/components/motion/TextEffect'
 import { entranceProps } from '@/components/motion/presets'
 import { contentFrame } from './frame'
@@ -7,8 +7,12 @@ import { contentFrame } from './frame'
 type CaseStudyHeroProps = {
   title: string
   summary: string
-  /** The hero image. Leave it out when `art` is given. */
+  /** The hero image. Leave it out when `art` is given. With `video`, it is the still shown while the clip loads and
+   * for visitors who prefer reduced motion. */
   image?: string
+  /** A looping clip in place of an animated image: far lighter than an animated WebP or GIF. Same band, same crop.
+   * Sources are tried in order, so list the smallest format first. */
+  video?: { sources: { src: string; type: string }[] }
   /**
    * Built art in place of the image: the same rounded band and entrance. Tablet and desktop keep the image's
    * 360 / 476px; on phones the band keeps a 358:260 shape from 260px up to 330px tall, so art laid out for a 358px
@@ -50,6 +54,7 @@ export default function CaseStudyHero({
   title,
   summary,
   image,
+  video,
   art,
   tallArt = false,
   role,
@@ -59,6 +64,8 @@ export default function CaseStudyHero({
 }: CaseStudyHeroProps) {
   // Framer appear effects, all played on load (or once `play` turns true).
   const text = { play, hold: false }
+  const reduced = useReducedMotion()
+  const imageClass = 'h-[260px] w-full rounded-[20px] bg-snow object-cover sm:h-[360px] lg:h-[476px]'
 
   return (
     // `data-case-study-hero`: SectionNav stays hidden until this frame has scrolled out of view.
@@ -76,6 +83,25 @@ export default function CaseStudyHero({
           >
             {art}
           </motion.div>
+        ) : video && !reduced ? (
+          <motion.video
+            poster={image}
+            width={1392}
+            height={476}
+            autoPlay
+            muted
+            loop
+            playsInline
+            aria-hidden="true"
+            initial={IMAGE_FROM}
+            animate={play ? { opacity: 1, y: 0 } : IMAGE_FROM}
+            transition={IMAGE_TRANSITION}
+            className={imageClass}
+          >
+            {video.sources.map((source) => (
+              <source key={source.src} src={source.src} type={source.type} />
+            ))}
+          </motion.video>
         ) : (
           <motion.img
             src={image}
@@ -86,7 +112,7 @@ export default function CaseStudyHero({
             initial={IMAGE_FROM}
             animate={play ? { opacity: 1, y: 0 } : IMAGE_FROM}
             transition={IMAGE_TRANSITION}
-            className="h-[260px] w-full rounded-[20px] bg-snow object-cover sm:h-[360px] lg:h-[476px]"
+            className={imageClass}
           />
         )}
       </div>

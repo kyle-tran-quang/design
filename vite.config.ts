@@ -22,7 +22,6 @@ export default defineConfig(({ mode }) => {
 react(),
       tailwindcss(),
       reactRouteHtml(),
-      caseStudyMediaImport(),
       figmaSiteConfiguration(siteConfiguration),
       figmaErrorOverlayReplay(),
       figmaReactRefreshBoundaryFallback(),
@@ -96,115 +95,6 @@ function reactRouteHtml(): Plugin {
           fs.writeFileSync(outputFile, appHtml)
         }
       }
-    },
-  }
-}
-
-/**
- * Dev-only helper for self-hosting the CarDoctor case study media. The sandbox can't reach Framer's CDN, but the
- * browser showing the preview can: open /__media-import in the preview and the page downloads every file listed in
- * src/components/case-study/{cardoctor,cardoctor-ds}/media.json, then posts each one back here. Files are staged
- * outside public/ and moved into public/assets/images/<study>/ once a study is complete, which also sets
- * `selfHosted` in its media.json. Same result as scripts/fetch-cardoctor-media.mjs.
- */
-function caseStudyMediaImport(): Plugin {
-  const studies = ['cardoctor', 'cardoctor-ds'] as const
-  const route = '/__media-import'
-  const maxBytes = 60 * 1024 * 1024
-  const stagingRoot = path.join(process.env.TMPDIR || '/tmp', 'case-study-media-import')
-
-  type Manifest = { selfHosted: boolean; files: Record<string, { file: string; url: string }> }
-  const manifestPath = (study: string) => path.resolve(__dirname, `src/components/case-study/${study}/media.json`)
-  const readManifest = (study: string): Manifest => JSON.parse(fs.readFileSync(manifestPath(study), 'utf8'))
-
-  const page = `<!doctype html><meta charset="utf-8"><title>Media import</title>
-<style>body{font:14px/1.5 system-ui,sans-serif;margin:32px;max-width:900px}li{margin:2px 0}.ok{color:#18794e}.fail{color:#c4320a}</style>
-<h1>Case study media import</h1><p id="status">Starting…</p><ul id="log"></ul>
-<script type="module">
-const log = (text, cls) => { const li = document.createElement('li'); li.textContent = text; if (cls) li.className = cls; document.getElementById('log').append(li) }
-const status = document.getElementById('status')
-const manifests = await (await fetch('${route}/manifests')).json()
-let failed = 0
-for (const [study, manifest] of Object.entries(manifests)) {
-  if (manifest.selfHosted) { log(study + ': already self-hosted, skipped', 'ok'); continue }
-  let studyFailed = 0
-  for (const [key, { file, url }] of Object.entries(manifest.files)) {
-    status.textContent = 'Downloading ' + study + ' / ' + file + '…'
-    try {
-      const res = await fetch(url, { mode: 'cors', credentials: 'omit' })
-      if (!res.ok) throw new Error('HTTP ' + res.status)
-      const save = await fetch('${route}/save?study=' + encodeURIComponent(study) + '&key=' + encodeURIComponent(key), { method: 'POST', body: await res.blob() })
-      if (!save.ok) throw new Error(await save.text())
-      log(study + ' / ' + file, 'ok')
-    } catch (error) {
-      studyFailed++
-      log(study + ' / ' + file + ': ' + (error.message || error) + (error instanceof TypeError ? ' (the browser blocked the download)' : ''), 'fail')
-    }
-  }
-  if (studyFailed) { failed += studyFailed; log(study + ': ' + studyFailed + ' file(s) failed, nothing was moved. Reload this page to retry.', 'fail'); continue }
-  const done = await fetch('${route}/done?study=' + encodeURIComponent(study), { method: 'POST' })
-  log(study + ': ' + (done.ok ? 'all files saved, now served from the project.' : 'could not finish: ' + await done.text()), done.ok ? 'ok' : 'fail')
-  if (!done.ok) failed++
-}
-status.textContent = failed ? 'Finished with errors (see below).' : 'Done. You can close this page.'
-</script>`
-
-  return {
-    name: 'case-study-media-import',
-    apply: 'serve',
-    configureServer(server) {
-      server.middlewares.use(async (req, res, next) => {
-        const url = new URL(req.url ?? '/', 'http://localhost')
-        if (!url.pathname.startsWith(route)) return next()
-        const send = (status: number, body: string, type = 'text/plain; charset=utf-8') => {
-          res.statusCode = status
-          res.setHeader('Content-Type', type)
-          res.end(body)
-        }
-        try {
-          if (req.method === 'GET' && url.pathname === route) return send(200, page, 'text/html; charset=utf-8')
-          if (req.method === 'GET' && url.pathname === `${route}/manifests`) {
-            return send(200, JSON.stringify(Object.fromEntries(studies.map((s) => [s, readManifest(s)]))), 'application/json')
-          }
-
-          const study = url.searchParams.get('study') ?? ''
-          if (req.method !== 'POST' || !(studies as readonly string[]).includes(study)) return send(400, 'Bad request')
-          const manifest = readManifest(study)
-          const staging = path.join(stagingRoot, study)
-
-          if (url.pathname === `${route}/save`) {
-            const entry = manifest.files[url.searchParams.get('key') ?? '']
-            if (!entry) return send(400, 'Unknown file')
-            const chunks: Buffer[] = []
-            let size = 0
-            for await (const chunk of req) {
-              size += chunk.length
-              if (size > maxBytes) return send(413, 'File too large')
-              chunks.push(chunk as Buffer)
-            }
-            if (!size) return send(400, 'Empty file')
-            fs.mkdirSync(staging, { recursive: true })
-            fs.writeFileSync(path.join(staging, entry.file), Buffer.concat(chunks))
-            return send(200, 'saved')
-          }
-
-          if (url.pathname === `${route}/done`) {
-            const files = Object.values(manifest.files).map((f) => f.file)
-            const missing = files.filter((f) => !fs.existsSync(path.join(staging, f)))
-            if (missing.length) return send(409, `Missing: ${missing.join(', ')}`)
-            const outDir = path.resolve(__dirname, `public/assets/images/${study}`)
-            fs.mkdirSync(outDir, { recursive: true })
-            for (const f of files) fs.copyFileSync(path.join(staging, f), path.join(outDir, f))
-            fs.rmSync(staging, { recursive: true, force: true })
-            manifest.selfHosted = true
-            fs.writeFileSync(manifestPath(study), `${JSON.stringify(manifest, null, 2)}\n`)
-            return send(200, 'done')
-          }
-          return send(404, 'Not found')
-        } catch (error) {
-          return send(500, error instanceof Error ? error.message : String(error))
-        }
-      })
     },
   }
 }

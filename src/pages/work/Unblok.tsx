@@ -16,11 +16,11 @@ import { contentFrame, readingFrame } from '@/components/case-study/frame'
 import Reveal from '@/components/motion/Reveal'
 import type { ScrollPreset } from '@/components/motion/presets'
 import { asset } from '@/lib/asset'
+import { framerImage } from '@/lib/framerImages'
 import { workHref } from '@/lib/routes'
 
-// Images not yet copied into public/ are still served from Framer's CDN.
-const framerImage = (id: string, ext = 'png', size = 1024) =>
-  `https://framerusercontent.com/images/${id}.${ext}?scale-down-to=${size}`
+// The default size matches what the page asked Framer for.
+const unblokImage = (id: string, ext = 'png', size = 1024) => framerImage(id, ext, size)
 const video = (name: string) => asset(`assets/videos/unblok-${name}.mp4`)
 
 const container = contentFrame
@@ -101,7 +101,14 @@ export default function Unblok() {
         <CaseStudyHero
           title="Dream hacking to unlock creativity with Unblok"
           summary="Unblok is a creative-block tool for iPhone and Apple Watch. It uses the edge of sleep to help you find ideas with a simple interface bound together by complex algorithms."
-          image={asset('assets/images/unblok-hero.webp')}
+          // The loop was a 900 kB animated WebP; as a clip it is under 200 kB. The poster is its first frame.
+          image={asset('assets/images/unblok-hero-poster.jpg')}
+          video={{
+            sources: [
+              { src: asset('assets/images/unblok-hero.webm'), type: 'video/webm; codecs=vp9' },
+              { src: asset('assets/images/unblok-hero.mp4'), type: 'video/mp4' },
+            ],
+          }}
           role="Product Designer"
           timelineLabel="Year"
           timeline="2025"
@@ -306,7 +313,7 @@ export default function Unblok() {
                 So that became my brief: build something simple, personal and useful for one individual.
               </p>
               <Shot
-                src={framerImage('k7eSnPJnLGrXLzKCRRA8Gbf1O8', 'png', 2048)}
+                src={unblokImage('k7eSnPJnLGrXLzKCRRA8Gbf1O8', 'png', 2048)}
                 alt="Research synthesis for the Unblok brief"
                 aspect="aspect-[2025/978]"
                 preset="fade"
@@ -342,7 +349,7 @@ export default function Unblok() {
                   </p>
                 </Reveal>
                 <Shot
-                  src={framerImage('gmVX9nwElg9L2E7EzBgM2Aj4NU')}
+                  src={unblokImage('gmVX9nwElg9L2E7EzBgM2Aj4NU')}
                   alt="Diagram of MIT's targeted dream incubation protocol"
                   aspect="aspect-[1400/1094]"
                   className="mt-10"
@@ -365,9 +372,9 @@ export default function Unblok() {
                   </p>
                 </div>
                 <div className="mt-10 grid items-end gap-6 sm:grid-cols-2">
-                  <Shot src={framerImage('WGR2kkVaUV1UUS0xBp4y9jvw')} alt="Dormio glove sensors" aspect="aspect-[1024/672]" />
+                  <Shot src={unblokImage('WGR2kkVaUV1UUS0xBp4y9jvw')} alt="Dormio glove sensors" aspect="aspect-[1024/672]" />
                   <Shot
-                    src={framerImage('4LtD3SH4g6G29K284O3ACJsSVsw')}
+                    src={unblokImage('4LtD3SH4g6G29K284O3ACJsSVsw')}
                     alt="Dormio signal readings during sleep onset"
                     aspect="aspect-[1124/746]"
                   />
@@ -436,19 +443,19 @@ export default function Unblok() {
               </figure>
 
               <Shot
-                src={framerImage('3wEBSjJAO8KCGZK6i25APSUm8s', 'png', 2048)}
+                src={unblokImage('3wEBSjJAO8KCGZK6i25APSUm8s', 'png', 2048)}
                 alt="Usability test notes"
                 aspect="aspect-[2507/1536]"
                 className="mt-24 lg:mt-[160px]"
               />
               <div className="mt-6 grid items-end gap-6 sm:grid-cols-2">
                 <Shot
-                  src={framerImage('nJpIDaLr8uHdUE1K3c5tprCGpTU', 'jpeg')}
+                  src={unblokImage('nJpIDaLr8uHdUE1K3c5tprCGpTU', 'jpeg')}
                   alt="A tester using Unblok on Apple Watch"
                   aspect="aspect-square"
                 />
                 <Shot
-                  src={framerImage('67fBhZluRKWHeM3y4nCDOx0C8fQ')}
+                  src={unblokImage('67fBhZluRKWHeM3y4nCDOx0C8fQ')}
                   alt="Ideas captured by testers in the journal"
                   aspect="aspect-[1956/1500]"
                 />
@@ -481,16 +488,16 @@ export default function Unblok() {
                   </p>
                 </div>
                 <div className="mt-10 grid gap-2 sm:grid-cols-2">
-                  <Shot src={framerImage('qYJqF7BWlQxsxFesM8A2ww')} alt="Putty, the AI sparring partner mascot" aspect="aspect-square" />
-                  <Shot src={framerImage('ItSBROmOrrfRZjtU0OX0cfR0wA')} alt="Creative technique library screens" aspect="aspect-square" />
+                  <Shot src={unblokImage('qYJqF7BWlQxsxFesM8A2ww')} alt="Putty, the AI sparring partner mascot" aspect="aspect-square" />
+                  <Shot src={unblokImage('ItSBROmOrrfRZjtU0OX0cfR0wA')} alt="Creative technique library screens" aspect="aspect-square" />
                   <Shot
-                    src={framerImage('Ji3vIgrEXsgnWdqwTdCxSlC7g8')}
+                    src={unblokImage('Ji3vIgrEXsgnWdqwTdCxSlC7g8')}
                     alt="Sparring session with Putty"
                     aspect="aspect-video"
                     className="sm:col-span-2"
                   />
-                  <Shot src={framerImage('LJWDkjjWUbJAb8jM5Z9TNV1c')} alt="Journal screens from the facilitator concept" aspect="aspect-square" />
-                  <Shot src={framerImage('iHMRRTuCcV220myYTChSRTHpyA', 'gif', 1000)} alt="Putty animation" aspect="aspect-square" />
+                  <Shot src={unblokImage('LJWDkjjWUbJAb8jM5Z9TNV1c')} alt="Journal screens from the facilitator concept" aspect="aspect-square" />
+                  <Shot src={unblokImage('iHMRRTuCcV220myYTChSRTHpyA', 'gif', 1000)} alt="Putty animation" aspect="aspect-square" />
                 </div>
               </TopicRow>
 
@@ -511,14 +518,14 @@ export default function Unblok() {
                   </p>
                 </div>
                 <div className="mt-10 grid items-end gap-6 sm:grid-cols-2">
-                  <Shot src={framerImage('evkLeXcIXBNvpP1eLK5sTRdu3Y')} alt="Unblok on Apple Watch" aspect="aspect-[1340/1458]" />
-                  <Shot src={framerImage('hi2qXUMp0SDAi6xF5g7BCgcT3Y')} alt="Unblok on iPhone" aspect="aspect-[2436/2060]" />
+                  <Shot src={unblokImage('evkLeXcIXBNvpP1eLK5sTRdu3Y')} alt="Unblok on Apple Watch" aspect="aspect-[1340/1458]" />
+                  <Shot src={unblokImage('hi2qXUMp0SDAi6xF5g7BCgcT3Y')} alt="Unblok on iPhone" aspect="aspect-[2436/2060]" />
                 </div>
                 <p className="mt-14 type-subtopic text-black">
                   For anyone curious, I used Cursor & Xcode to build Unblok with SwiftUI!
                 </p>
                 <Shot
-                  src={framerImage('8dPf8mz75Fw5O3PkmjpXFckbjGM', 'png', 2048)}
+                  src={unblokImage('8dPf8mz75Fw5O3PkmjpXFckbjGM', 'png', 2048)}
                   alt="Unblok's SwiftUI project open in Xcode"
                   aspect="aspect-[2740/2164]"
                   className="mt-10"

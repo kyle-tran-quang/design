@@ -1,4 +1,5 @@
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
+import { watchVisibility } from '@/lib/performance'
 
 /*
  * Text whose letters fill with tiny flowers, bursts, clovers and leaves that
@@ -118,7 +119,27 @@ export default function KineticType({
   const rootRef = useRef<HTMLSpanElement>(null)
   const [blooms, setBlooms] = useState<Bloom[][] | null>(null)
   const [layoutVersion, setLayoutVersion] = useState(0)
+  // Nothing is measured or drawn until the text is within a screen or so of the viewport. The flowers are decoration
+  // at the foot of a page, and building them on load (a canvas pass per glyph, then 100+ animated masks) costs a
+  // slow device far more than it gives.
+  const [near, setNear] = useState(false)
   const reduced = useMemo(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches, [])
+
+  useEffect(() => {
+    const root = rootRef.current
+    if (!root) return
+    return watchVisibility(root, (visible) => {
+      if (visible) setNear(true)
+    }, '800px')
+  }, [])
+
+  // The loop only runs while the text is on screen. Paused animations cost nothing per frame, unlike running ones
+  // that nobody can see (154 of them kept a phone-class CPU busy about a third of the time).
+  useEffect(() => {
+    const root = rootRef.current
+    if (!root) return
+    return watchVisibility(root, (visible) => root.style.setProperty('--kt-state', visible ? 'running' : 'paused'))
+  }, [])
 
   const { cells, words } = useMemo(() => {
     const cells = Array.from(text).map((ch) => ({ ch: /\s/.test(ch) ? ' ' : ch, space: /\s/.test(ch) }))
@@ -145,6 +166,7 @@ export default function KineticType({
   }, [])
 
   useLayoutEffect(() => {
+    if (!near) return
     const ctx = document.createElement('canvas').getContext('2d', { willReadFrequently: true })
     if (!ctx) return
     const canvas = ctx.canvas
@@ -234,7 +256,7 @@ export default function KineticType({
       return placed
     })
     setBlooms(next)
-  }, [cells, layoutVersion, density, bleed, seed, sweep])
+  }, [near, cells, layoutVersion, density, bleed, seed, sweep])
 
   const pct = (seconds: number) => `${((seconds / loop) * 100).toFixed(3)}%`
   const keyframes = `@keyframes ${animationName} {
@@ -263,7 +285,12 @@ export default function KineticType({
           '--rot': `${b.rot}deg`,
           ...(reduced
             ? { rotate: `${b.rot}deg` }
-            : { scale: 0, animation: `${animationName} ${loop}s ease-in-out ${b.delay}s infinite both` }),
+            : {
+                scale: 0,
+                animation: `${animationName} ${loop}s ease-in-out ${b.delay}s infinite both`,
+                // Set after the shorthand, which would otherwise reset it. Starts paused (see the root's --kt-state).
+                animationPlayState: 'var(--kt-state, paused)',
+              }),
         }
         return (
           <span

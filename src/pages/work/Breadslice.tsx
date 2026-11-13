@@ -13,11 +13,9 @@ import { BombIcon, ClimbIcon, HeartIcon } from '@/components/case-study/breadsli
 import { readingFrame, textFrame } from '@/components/case-study/frame'
 import Reveal from '@/components/motion/Reveal'
 import { asset } from '@/lib/asset'
+import { framerImage } from '@/lib/framerImages'
 import { workHref } from '@/lib/routes'
 
-// Images not yet copied into public/ are still served from Framer's CDN.
-const framerImage = (id: string, ext = 'png', size?: number) =>
-  `https://framerusercontent.com/images/${id}.${ext}${size ? `?scale-down-to=${size}` : ''}`
 
 const sections: SectionNavItem[] = [
   {

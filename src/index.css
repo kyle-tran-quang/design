@@ -242,40 +242,41 @@
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
     U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
-/* The CarDoctor hero art's faces (CarDoctorHeroArt.tsx), resolved from its Figma frame under the frame's own names:
+/* The CarDoctor hero art's faces (CarDoctorHeroArt.tsx), saved from its Figma frame under the frame's own names (TrueType,
+   self-hosted in public/assets/fonts):
    full character sets, so "đ" and "₫" render in every weight (the self-hosted Light/Regular/Medium are latin only).
    Everything else uses the self-hosted 'Be Vietnam Pro' above. */
 @font-face {
   font-family: 'Be Vietnam Pro:Light';
-  src: url('https://static.figma.com/font/BeVietnamPro-Light_1') format('woff2');
+  src: url('/assets/fonts/BeVietnamPro-Full-Light.ttf') format('truetype');
   font-weight: 300;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Be Vietnam Pro:Regular';
-  src: url('https://static.figma.com/font/BeVietnamPro-Regular_1') format('woff2');
+  src: url('/assets/fonts/BeVietnamPro-Full-Regular.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Be Vietnam Pro:Medium';
-  src: url('https://static.figma.com/font/BeVietnamPro-Medium_1') format('woff2');
+  src: url('/assets/fonts/BeVietnamPro-Full-Medium.ttf') format('truetype');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Be Vietnam Pro:SemiBold';
-  src: url('https://static.figma.com/font/BeVietnamPro-SemiBold_1') format('woff2');
+  src: url('/assets/fonts/BeVietnamPro-Full-SemiBold.ttf') format('truetype');
   font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Be Vietnam Pro:Bold';
-  src: url('https://static.figma.com/font/BeVietnamPro-Bold_1') format('woff2');
+  src: url('/assets/fonts/BeVietnamPro-Full-Bold.ttf') format('truetype');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -283,7 +284,7 @@
 /* Plus Jakarta Sans: the CarDS board mockup's "3 new" badge (cards-board-art.css), resolved from its Figma frame. */
 @font-face {
   font-family: 'Plus Jakarta Sans:SemiBold';
-  src: url('https://static.figma.com/font/PlusJakartaSans_wght__2') format('woff2');
+  src: url('/assets/fonts/PlusJakartaSans-SemiBold.ttf') format('truetype');
   font-weight: 600;
   font-style: normal;
   font-display: swap;

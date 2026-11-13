@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef, useState, type ComponentProps, type ComponentType } from 'react'
 import CaseStudyCinematicExport from './MASCaseStudyCinematicStandalone'
+import { isLowPower } from '@/lib/performance'
 
 // Its Framer controls are typed as required, but each has a default.
 const CaseStudyCinematic = CaseStudyCinematicExport as ComponentType<
@@ -42,13 +43,24 @@ type MasCinematicProps = {
  */
 export default function MasCinematic({ onOut, onDone }: MasCinematicProps) {
   const rootRef = useRef<HTMLDivElement>(null)
-  const [playing, setPlaying] = useState(true)
+  // Low-power devices skip the curtain: drawing the blueprint is the costliest thing the page does on load, and the
+  // export has no still mode that works on the page (its `still` frame is for Framer's canvas). Decided once.
+  const [skip] = useState(isLowPower)
+  const [playing, setPlaying] = useState(!skip)
   const onOutRef = useRef(onOut)
   onOutRef.current = onOut
   const onDoneRef = useRef(onDone)
   onDoneRef.current = onDone
 
+  // The page waits on these to start its own entrance, so a skipped curtain reports itself as already gone.
   useLayoutEffect(() => {
+    if (!skip) return
+    onOutRef.current?.()
+    onDoneRef.current?.()
+  }, [skip])
+
+  useLayoutEffect(() => {
+    if (skip) return
     // Before paint, so the unlayered stylesheet never applies.
     const style = rootRef.current?.querySelector('style')
     if (style) style.textContent = layerCss(style.textContent ?? '')
@@ -79,7 +91,7 @@ export default function MasCinematic({ onOut, onDone }: MasCinematicProps) {
     observer.observe(frame, { attributes: true, attributeFilter: ['style'] })
     check()
     return () => observer.disconnect()
-  }, [])
+  }, [skip])
 
   if (!playing) return null
   return (

@@ -16,22 +16,26 @@ import SectionHeading from '@/components/case-study/SectionHeading'
 import Stat from '@/components/case-study/Stat'
 import TopicRow from '@/components/case-study/TopicRow'
 import UpNext from '@/components/case-study/UpNext'
-import CostEstimatorCard from '@/components/case-study/mas/CostEstimatorCard'
-import ExecutivePrintCard from '@/components/case-study/mas/ExecutivePrintCard'
+import LazyWhenNear from '@/components/LazyWhenNear'
 import MasCinematic from '@/components/case-study/mas/MasCinematic'
 import { contentFrame, readingFrame } from '@/components/case-study/frame'
 import { asset } from '@/lib/asset'
+import { framerImage } from '@/lib/framerImages'
 import { workHref } from '@/lib/routes'
 
-// Images not yet copied into public/ are still served from Framer's CDN.
-const framerImage = (id: string, ext = 'png', size = 1024) =>
-  `https://framerusercontent.com/images/${id}.${ext}?scale-down-to=${size}`
+// The default size matches what the page asked Framer for.
+const masImage = (id: string, ext = 'png', size = 1024) => framerImage(id, ext, size)
 /** A Framer image at 1024px and 2048px, for the browser to pick by screen density. */
 const framerSet = (id: string, ext = 'png') => ({
   image: framerImage(id, ext, 1024),
   srcSet: `${framerImage(id, ext, 1024)} 1024w, ${framerImage(id, ext, 2048)} 2048w`,
 })
 const video = (name: string) => asset(`assets/videos/mas-pricing-${name}.mp4`)
+
+// The two Framer exports below are about 500 kB of source and sit far down the page, so their code loads only as the
+// reader nears them. Stable references: LazyWhenNear restarts its observer if `load` changes.
+const loadExecutivePrint = () => import('@/components/case-study/mas/ExecutivePrintCard')
+const loadCostEstimator = () => import('@/components/case-study/mas/CostEstimatorCard')
 
 const container = contentFrame
 const rule = <hr className="border-line" />
@@ -314,7 +318,7 @@ export default function MasPricing() {
                 <div>
                   {rule}
                   <div className="mt-[120px]">
-                    <ExecutivePrintCard />
+                    <LazyWhenNear load={loadExecutivePrint} fallback={<div className="min-h-[600px]" />} />
                   </div>
                 </div>
 
@@ -331,7 +335,7 @@ export default function MasPricing() {
                     }}
                   />
                   <div className="mt-16 lg:mt-[112px]">
-                    <CostEstimatorCard />
+                    <LazyWhenNear load={loadCostEstimator} fallback={<div className="min-h-[480px]" />} />
                   </div>
                 </div>
               </div>
@@ -359,7 +363,7 @@ export default function MasPricing() {
             </p>
 
             <TopicRow id="research" title="Research" label="wide" className="mt-20 lg:mt-[120px]">
-              <Shot src={framerImage('rIJQFibPf73QvwkFU7MBEQIijo')} alt="Interview synthesis board" className="aspect-[636/503]" />
+              <Shot src={masImage('rIJQFibPf73QvwkFU7MBEQIijo')} alt="Interview synthesis board" className="aspect-[636/503]" />
               <p className={`mt-10 type-body text-body ${readingFrame}`}>
                 I ran in-depth interviews with 8 sellers (SMEs, ecosystem leaders, global sales) and 4 Customer Success
                 Engineers (CSEs), who see the quote from the other side of the handoff. Clients don't care about AppPoints.
@@ -370,7 +374,7 @@ export default function MasPricing() {
                 quote="Most of our customers are actually confused at just what an AppPoint is, much less the pricing calculator."
                 source="IBM seller"
               />
-              <Shot src={framerImage('8qKcy1iCX3GaoMGyjEfoOzEqoxk')} alt="Collection of sellers' self-made quoting tools" className="mt-10 aspect-[636/503]" />
+              <Shot src={masImage('8qKcy1iCX3GaoMGyjEfoOzEqoxk')} alt="Collection of sellers' self-made quoting tools" className="mt-10 aspect-[636/503]" />
               <p className={`mt-10 type-body text-body ${readingFrame}`}>
                 Apart from the tooling problem, in fact, every seller built their own tools: custom calculators,
                 questionnaires, scoping decks,… because the official one was too complex to share with clients.
@@ -409,7 +413,7 @@ export default function MasPricing() {
                 </p>
                 <p>And then, this becomes the prerequisite to the AI Assistant in the Estimator itself.</p>
               </div>
-              <Shot src={framerImage('CqViqNphA2rLKwftcHnzUmXnMKM')} alt="Estimator with the AI assistant panel" className="mt-10 aspect-square" />
+              <Shot src={masImage('CqViqNphA2rLKwftcHnzUmXnMKM')} alt="Estimator with the AI assistant panel" className="mt-10 aspect-square" />
             </TopicRow>
 
             <div className="mt-20 lg:mt-[118px]">{rule}</div>
@@ -470,7 +474,7 @@ export default function MasPricing() {
               </p>
               <figure className="mt-10">
                 <img
-                  src={framerImage('JftjgYlQvDvGKYlfckwTPE6lS8', 'gif', 900)}
+                  src={masImage('JftjgYlQvDvGKYlfckwTPE6lS8', 'gif', 900)}
                   alt="AppPoints nudge concept: a usage meter with an explanation tooltip"
                   loading="lazy"
                   className="aspect-[636/509] w-full bg-white object-cover"
@@ -489,7 +493,7 @@ export default function MasPricing() {
 
             <div className="mt-24 grid items-start gap-8 lg:mt-[115px] lg:grid-cols-[300px_1fr] lg:gap-x-16">
               <img
-                src={framerImage('qOfao4HoXBuaYJoZkCx8bYQgI', 'png', 512)}
+                src={masImage('qOfao4HoXBuaYJoZkCx8bYQgI', 'png', 512)}
                 alt="IBM Bob"
                 loading="lazy"
                 className="h-[100px] w-[214px] object-contain object-left"

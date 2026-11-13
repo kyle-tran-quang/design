@@ -1,26 +1,67 @@
 {
-  "selfHosted": false,
   "files": {
-    "problem1": { "file": "cardoctor-ds-audit-problem-1.png", "url": "https://framerusercontent.com/images/irm38kEt3UYtHYKI5vH9zpwtVo.png?scale-down-to=1024" },
-    "problem2a": { "file": "cardoctor-ds-audit-problem-2-a.png", "url": "https://framerusercontent.com/images/6miI2O9tw48AEiK6qYn3itgBCg.png?scale-down-to=1024" },
-    "problem2b": { "file": "cardoctor-ds-audit-problem-2-b.png", "url": "https://framerusercontent.com/images/GhdovltV66vdPA0miroExpuirI.png?scale-down-to=1024" },
-    "problem3": { "file": "cardoctor-ds-audit-problem-3.png", "url": "https://framerusercontent.com/images/bOJkM5thAEr2nHku33YfTXQGOw.png?scale-down-to=2048" },
-    "style1": { "file": "cardoctor-ds-style-1.png", "url": "https://framerusercontent.com/images/qarmVGOD5XJnl9ZlFFZNyTlvEgY.png?scale-down-to=2048" },
-    "style2": { "file": "cardoctor-ds-style-2.png", "url": "https://framerusercontent.com/images/kZ1T8HZIT1sIVW7zS9ukqc1k8w.png?scale-down-to=2048" },
-    "style3": { "file": "cardoctor-ds-style-3.png", "url": "https://framerusercontent.com/images/rtr5o6nl5xg0Txh5eeCN1ZB6FU8.png?scale-down-to=2048" },
-    "style4": { "file": "cardoctor-ds-style-4.png", "url": "https://framerusercontent.com/images/y7uphcLB4q4Lv7jP2hAwtPsMw58.png?scale-down-to=2048" },
-    "style5": { "file": "cardoctor-ds-style-5.png", "url": "https://framerusercontent.com/images/Tl9pZd1je6erKAZTzUk8y9RgdM.png?scale-down-to=2048" },
-    "style6": { "file": "cardoctor-ds-style-6.png", "url": "https://framerusercontent.com/images/jwgWCsdqxn257rz6FrKo5EFP4Ec.png?scale-down-to=2048" },
-    "buttons1": { "file": "cardoctor-ds-buttons-1.png", "url": "https://framerusercontent.com/images/1bz6Qw4eTGi8gHbeyxO6j4W5PDM.png?scale-down-to=2048" },
-    "buttons2": { "file": "cardoctor-ds-buttons-2.png", "url": "https://framerusercontent.com/images/4uSaCe41ZhUBVyJDRv3ARcxqeUQ.png?scale-down-to=2048" },
-    "buttons3": { "file": "cardoctor-ds-buttons-3.png", "url": "https://framerusercontent.com/images/5yxX0I9sy89PWUz2cSPENGnIcs.png?scale-down-to=2048" },
-    "tokens1": { "file": "cardoctor-ds-tokens-1.png", "url": "https://framerusercontent.com/images/3tZ3uhA17MB5Ri03FUuHis1YmA.png?scale-down-to=1024" },
-    "tokens2": { "file": "cardoctor-ds-tokens-2.png", "url": "https://framerusercontent.com/images/8X22kDIziZY85DNH6xZfN6xL80.png?scale-down-to=2048" },
-    "devs1": { "file": "cardoctor-ds-devs-1.png", "url": "https://framerusercontent.com/images/kchOtNBPL1mFvKHm1vWw9rQ.png?scale-down-to=2048" },
-    "devs2": { "file": "cardoctor-ds-devs-2.png", "url": "https://framerusercontent.com/images/zljed5S7rcfqRDxZpqN3AwCOZg.png?scale-down-to=2048" },
-    "devs3": { "file": "cardoctor-ds-devs-3.png", "url": "https://framerusercontent.com/images/XYVpq5VhNWaXpGXdQ1n85bjeirE.png?scale-down-to=2048" },
-    "devs4": { "file": "cardoctor-ds-devs-4.png", "url": "https://framerusercontent.com/images/VJmHCMy61Dljg9EVaNjHv7Rsbs.png?scale-down-to=2048" },
-    "devs5": { "file": "cardoctor-ds-devs-5.png", "url": "https://framerusercontent.com/images/mUt3WCXu8I5EyqT2cTLCwusU3w.png?scale-down-to=2048" },
-    "devs6": { "file": "cardoctor-ds-devs-6.png", "url": "https://framerusercontent.com/images/zyujCKU2SecWukHk0En90DPs3Oc.png?scale-down-to=2048" }
+    "problem1": {
+      "file": "cardoctor-ds-audit-problem-1.avif"
+    },
+    "problem2a": {
+      "file": "cardoctor-ds-audit-problem-2-a.avif"
+    },
+    "problem2b": {
+      "file": "cardoctor-ds-audit-problem-2-b.avif"
+    },
+    "problem3": {
+      "file": "cardoctor-ds-audit-problem-3.avif"
+    },
+    "style1": {
+      "file": "cardoctor-ds-style-1.png"
+    },
+    "style2": {
+      "file": "cardoctor-ds-style-2.avif"
+    },
+    "style3": {
+      "file": "cardoctor-ds-style-3.avif"
+    },
+    "style4": {
+      "file": "cardoctor-ds-style-4.png"
+    },
+    "style5": {
+      "file": "cardoctor-ds-style-5.png"
+    },
+    "style6": {
+      "file": "cardoctor-ds-style-6.avif"
+    },
+    "buttons1": {
+      "file": "cardoctor-ds-buttons-1.avif"
+    },
+    "buttons2": {
+      "file": "cardoctor-ds-buttons-2.png"
+    },
+    "buttons3": {
+      "file": "cardoctor-ds-buttons-3.png"
+    },
+    "tokens1": {
+      "file": "cardoctor-ds-tokens-1.avif"
+    },
+    "tokens2": {
+      "file": "cardoctor-ds-tokens-2.avif"
+    },
+    "devs1": {
+      "file": "cardoctor-ds-devs-1.webp"
+    },
+    "devs2": {
+      "file": "cardoctor-ds-devs-2.avif"
+    },
+    "devs3": {
+      "file": "cardoctor-ds-devs-3.avif"
+    },
+    "devs4": {
+      "file": "cardoctor-ds-devs-4.avif"
+    },
+    "devs5": {
+      "file": "cardoctor-ds-devs-5.avif"
+    },
+    "devs6": {
+      "file": "cardoctor-ds-devs-6.avif"
+    }
   }
 }

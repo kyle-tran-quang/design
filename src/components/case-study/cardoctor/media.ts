@@ -3,13 +3,9 @@ import manifest from './media.json'
 
 export type MediaKey = keyof typeof manifest.files
 
-/**
- * CarDoctor media still on Framer's CDN. `node scripts/fetch-cardoctor-media.mjs` downloads every file into
- * public/assets/images/cardoctor/ and sets `selfHosted`, after which these resolve to the local copies.
- */
+/** CarDoctor case study media, self-hosted in public/assets/images/cardoctor/. */
 export function media(key: MediaKey) {
-  const { file, url } = manifest.files[key]
-  return manifest.selfHosted ? asset(`assets/images/cardoctor/${file}`) : url
+  return asset(`assets/images/cardoctor/${manifest.files[key].file}`)
 }
 
 /** Media already in public/: the four images the static export localised, and the cinematic's SVGs. */

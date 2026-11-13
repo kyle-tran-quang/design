@@ -7,6 +7,7 @@ import {
   type CSSProperties,
 } from 'react'
 import CarDoctor, { type GenerateFn } from './CarDoctorScreen'
+import { isLowPower } from '@/lib/performance'
 import {
   CINEMATIC,
   containerCss,
@@ -158,7 +159,8 @@ export default function Cinematic({
       removeCurtain()
       return
     }
-    const isReduced = prefersReducedMotion()
+    // Low-power devices get the same still-and-fade as reduced motion: the blueprint drawing is what costs them.
+    const isReduced = prefersReducedMotion() || isLowPower()
     scale.current.e = isReduced ? 1 : 0
     setReduced(isReduced)
     setPhase('play')
