@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "kyletran",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./dist",
+    // Unknown URLs get index.html so client-side routes still load.
+    "not_found_handling": "single-page-application"
+  },
+  "routes": [
+    { "pattern": "kyletran.co.uk", "custom_domain": true },
+    { "pattern": "www.kyletran.co.uk", "custom_domain": true }
+  ]
+}
