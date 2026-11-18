@@ -21,7 +21,7 @@ export default function Projects() {
     <section
       id="projects"
       aria-label="Case studies"
-      className="flex shrink-0 flex-col gap-12 px-6 pt-24 sm:px-10 lg:h-full lg:flex-row lg:items-center lg:gap-20 lg:pt-0 lg:pr-10 lg:pl-40"
+      className="flex shrink-0 flex-col gap-12 px-6 pt-24 sm:px-10 md:flex-row md:items-start md:gap-8 lg:h-full lg:items-center lg:gap-20 lg:pt-0 lg:pr-10 lg:pl-40"
     >
       <SectionIntro index="01/" title="Case studies">
         {/* Bookshelf: three upright books, two leaning ones and a ball, traced from the original artwork. */}
@@ -61,17 +61,22 @@ export default function Projects() {
 
       <ElasticDivider />
 
-      <div className="grid gap-8 md:grid-cols-2 lg:flex lg:gap-20">
-        {works.map((work, i) => (
-          <motion.div key={work.title} {...deckIn(i, works.length, reduced)} className="shrink-0 lg:self-center">
-            <WorkCard work={work} />
-          </motion.div>
-        ))}
-      </div>
+      {/* Tablets: the cards and the extras share one column beside the intro card. On desktop the wrapper dissolves, so
+          each group is a stop on the horizontal track again. It is a size container so the extras can pick one or
+          two columns from the room left beside the intro. */}
+      <div className="flex flex-col gap-12 max-lg:@container md:min-w-0 md:flex-1 lg:contents">
+        <div className="grid gap-8 lg:flex lg:gap-20">
+          {works.map((work, i) => (
+            <motion.div key={work.title} {...deckIn(i, works.length, reduced)} className="shrink-0 lg:self-center">
+              <WorkCard work={work} />
+            </motion.div>
+          ))}
+        </div>
 
-      <PillDivider />
-      <Extras />
-      <ElasticDivider />
+        <PillDivider />
+        <Extras />
+        <ElasticDivider />
+      </div>
     </section>
   )
 }

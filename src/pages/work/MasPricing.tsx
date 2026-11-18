@@ -9,7 +9,7 @@ import Ticket from '@/components/case-study/Ticket'
 import TicketRow from '@/components/case-study/TicketRow'
 import CaseStudyHero from '@/components/case-study/CaseStudyHero'
 import ContactFooter from '@/components/case-study/ContactFooter'
-import DarkButton from '@/components/case-study/DarkButton'
+import PillButton from '@/components/case-study/PillButton'
 import PullQuote from '@/components/case-study/PullQuote'
 import Reveal from '@/components/motion/Reveal'
 import SectionHeading from '@/components/case-study/SectionHeading'
@@ -220,9 +220,9 @@ export default function MasPricing() {
                   I designed and built an internal tool which replaces the full fragmented stack—Excel, CPQ, Slack,
                   email—with a single AI-powered workflow covering pricing, costing, and provisioning configuration.
                 </p>
-                <DarkButton href="https://kyle-tran-quang.github.io/mas-pricing-estimator/" icon="external" className="mt-8">
+                <PillButton href="https://kyle-tran-quang.github.io/mas-pricing-estimator/" icon="external" className="mt-8">
                   Launch Estimator prototype
-                </DarkButton>
+                </PillButton>
                 <Disclaimer />
                 <HowThisHelps>
                   <Stat value="> 30 mins">Seller + approver time per quote from 2-3 days.</Stat>
@@ -264,9 +264,9 @@ export default function MasPricing() {
                   I built an exploratory concept to reimagine the public pricing experience, transforming it from a static
                   list of technical add-ons into a guided, self-service estimator.
                 </p>
-                <DarkButton href="https://kyle-tran-quang.github.io/Maximo-Pricing-Page/" icon="external" className="mt-8">
+                <PillButton href="https://kyle-tran-quang.github.io/Maximo-Pricing-Page/" icon="external" className="mt-8">
                   Launch Pricing prototype
-                </DarkButton>
+                </PillButton>
                 <Disclaimer />
                 <HowThisHelps>
                   <Stat value="> 5 mins" wide className="sm:col-span-2">

@@ -1,6 +1,6 @@
 import Reveal from '@/components/motion/Reveal'
 import { homeHref } from '@/lib/routes'
-import DarkButton from './DarkButton'
+import PillButton from './PillButton'
 import { contentFrame } from './frame'
 
 type UpNextProps = {
@@ -13,9 +13,9 @@ export default function UpNext({ href, title, image }: UpNextProps) {
   return (
     <section aria-labelledby="up-next" className="bg-cloud pt-10 pb-16 lg:pb-[74px]">
       <div className={contentFrame}>
-        <DarkButton href={homeHref} icon="back">
+        <PillButton href={homeHref} icon="back">
           Go back Home
-        </DarkButton>
+        </PillButton>
         <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_360px] lg:gap-x-20">
           <h2 id="up-next" className="type-lede text-ink">
             Up next:

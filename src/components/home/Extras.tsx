@@ -18,13 +18,13 @@ export default function Extras() {
         <span aria-hidden="true" className="h-px flex-1 bg-line" />
       </div>
 
-      <ul className="mt-8 grid gap-10 md:grid-cols-2 lg:mt-[47px] lg:flex lg:gap-20">
+      <ul className="mt-8 grid gap-10 @lg:grid-cols-2 lg:mt-[47px] lg:flex lg:gap-20">
         {/* Tablets: a card left over on the last row sits centred under the pair instead of leaving a gap beside it. */}
         {extras.map((extra, i) => (
           <motion.li
             key={extra.href}
             {...deckIn(i, extras.length, reduced)}
-            className="max-w-[463px] md:max-lg:last:odd:col-span-2 md:max-lg:last:odd:w-[calc(50%-20px)] md:max-lg:last:odd:justify-self-center lg:w-[463px] lg:shrink-0"
+            className="max-w-[463px] @lg:max-lg:last:odd:col-span-2 @lg:max-lg:last:odd:w-[calc(50%-20px)] @lg:max-lg:last:odd:justify-self-center lg:w-[463px] lg:shrink-0"
           >
             <ExtraCard extra={extra} />
           </motion.li>

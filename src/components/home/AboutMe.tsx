@@ -7,10 +7,10 @@ export default function AboutMe() {
     <section
       id="aboutme"
       aria-labelledby="aboutme-title"
-      className="flex shrink-0 flex-col items-center gap-10 px-6 pt-24 pb-16 sm:px-10 md:flex-row md:justify-center md:gap-12 lg:h-full lg:justify-start lg:gap-0 lg:px-0 lg:pt-0 lg:pr-20 lg:pb-0"
+      className="flex shrink-0 flex-col items-center gap-10 px-6 pt-24 pb-16 sm:flex-row sm:justify-center sm:gap-8 sm:px-10 md:gap-12 lg:h-full lg:justify-start lg:gap-0 lg:px-0 lg:pt-0 lg:pr-20 lg:pb-0"
     >
       <PillDivider />
-      <div className="w-full max-w-[460px] md:flex-1 lg:ml-20 lg:w-[460px] lg:flex-none">
+      <div className="w-full max-w-[460px] sm:flex-1 lg:ml-20 lg:w-[460px] lg:flex-none">
         <h2 id="aboutme-title" className="type-display font-medium text-accent">
           {about.title}
         </h2>
@@ -23,7 +23,7 @@ export default function AboutMe() {
         height={512}
         loading="lazy"
         decoding="async"
-        className="w-full max-w-[400px] md:w-2/5 md:shrink-0 lg:ml-[81px] lg:w-[400px]"
+        className="w-full max-w-[400px] sm:w-2/5 sm:shrink-0 lg:ml-[81px] lg:w-[400px]"
       />
     </section>
   )

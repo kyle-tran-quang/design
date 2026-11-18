@@ -25,9 +25,9 @@ export default function ExtraCard({ extra }: { extra: Extra }) {
   return (
     <a href={asset(extra.href)} className="group @container block h-full">
       <div className="relative h-full drop-shadow-[0_4px_5px_rgb(0_0_0/0.1)] [--c:calc(var(--u)*42)] [--inset:calc(var(--u)*32)] [--rule:calc(var(--u)*45)] [--u:calc(100cqw/463)]">
-        {/* Minimum height leaves room for a three-line title under the image. */}
+        {/* Minimum height leaves room for a three-line title at 25px under the image. */}
         <div
-          className={`relative h-full min-h-[calc(var(--u)*533)] overflow-hidden rounded-[16px] bg-cloud transition-[clip-path] ${SHEET_CLIP} ${EASE}`}
+          className={`relative h-full min-h-[calc(var(--u)*600)] overflow-hidden rounded-[16px] bg-cloud transition-[clip-path] ${SHEET_CLIP} ${EASE}`}
         >
           {RULES.map((y) => (
             <div
@@ -64,7 +64,7 @@ export default function ExtraCard({ extra }: { extra: Extra }) {
           </div>
 
           {/* The rule is 1px wide, drawn just right of --rule; the image starts --inset past it. */}
-          <div className="relative flex flex-col gap-[calc(var(--u)*23)] pt-(--inset) pr-(--inset) pb-[calc(var(--u)*52)] pl-[calc(var(--rule)_+_1px_+_var(--inset))]">
+          <div className="relative flex flex-col gap-[calc(var(--u)*28)] pt-(--inset) pr-(--inset) pb-[calc(var(--u)*60)] pl-[calc(var(--rule)_+_1px_+_var(--inset))]">
             <div className="aspect-square overflow-hidden rounded-[16px] border border-[#d5c8ca] bg-mist">
               <img
                 src={asset(extra.image)}
@@ -75,7 +75,7 @@ export default function ExtraCard({ extra }: { extra: Extra }) {
               />
             </div>
             <h3
-              className={`pr-[calc(var(--u)*24)] text-[length:max(16px,calc(var(--u)*20))] leading-[1.2] font-medium tracking-[-0.016em] text-ink transition-colors group-hover:text-accent group-focus-visible:text-accent ${EASE}`}
+              className={`pr-[calc(var(--u)*16)] text-[length:max(18px,calc(var(--u)*25))] leading-[1.2] font-medium tracking-[-0.016em] text-ink transition-colors group-hover:text-accent group-focus-visible:text-accent ${EASE}`}
             >
               {extra.title}
             </h3>

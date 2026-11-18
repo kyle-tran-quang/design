@@ -113,7 +113,7 @@ export default function WorkCard({ work }: { work: Work }) {
         className={`relative z-10 flex h-full origin-left overflow-hidden rounded-l-[4px] rounded-r-[24px] border border-mist bg-white shadow-[0_1px_2px_rgb(0_0_0/0.05),0_12px_28px_-16px_rgb(0_0_0/0.2)] transition-[transform,box-shadow] group-hover:shadow-[0_2px_4px_rgb(0_0_0/0.06),14px_24px_44px_-18px_rgb(0_0_0/0.3)] group-focus-visible:shadow-[0_2px_4px_rgb(0_0_0/0.06),14px_24px_44px_-18px_rgb(0_0_0/0.3)] group-data-open:shadow-[0_2px_4px_rgb(0_0_0/0.06),14px_24px_44px_-18px_rgb(0_0_0/0.3)] lg:rounded-l-[6px] lg:rounded-r-[40px] motion-safe:group-hover:[transform:rotateY(-12deg)] motion-safe:group-focus-visible:[transform:rotateY(-12deg)] motion-safe:group-data-open:[transform:rotateY(-12deg)] ${EASE} ${OPEN}`}
       >
         {/* Spine: company name runs up the side, year sits at the foot (left off while the band covers the foot). */}
-        <div className="flex w-11 shrink-0 flex-col items-center border-r border-mist bg-cloud pb-5 lg:w-20 lg:pb-[29px]">
+        <div className="flex w-16 shrink-0 flex-col items-center border-r border-mist bg-cloud pb-5 lg:w-20 lg:pb-[29px]">
           <span className="flex flex-1 items-center">
             <span className="rotate-180 type-caption text-muted [writing-mode:vertical-rl]">
               {work.company}
@@ -152,7 +152,7 @@ export default function WorkCard({ work }: { work: Work }) {
         {/* Hinge crease beside the spine and a soft highlight down the fore-edge. */}
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 right-0 left-11 bg-[linear-gradient(90deg,rgb(0_0_0/0.08)_0,rgb(0_0_0/0.08)_1px,rgb(255_255_255/0.35)_3px,transparent_7%,transparent_97%,rgb(255_255_255/0.45)_100%)] lg:left-20"
+          className="pointer-events-none absolute inset-y-0 right-0 left-16 bg-[linear-gradient(90deg,rgb(0_0_0/0.08)_0,rgb(0_0_0/0.08)_1px,rgb(255_255_255/0.35)_3px,transparent_7%,transparent_97%,rgb(255_255_255/0.45)_100%)] lg:left-20"
         />
         {/* Light catching the cover as it lifts. */}
         <span

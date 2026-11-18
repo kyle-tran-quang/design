@@ -13,7 +13,7 @@ export default function Playground() {
     <section
       id="playground"
       aria-label="Playground"
-      className="flex shrink-0 flex-col gap-12 px-6 pt-24 sm:px-10 lg:h-full lg:flex-row lg:items-center lg:gap-20 lg:pt-0 lg:pr-20 lg:pl-10"
+      className="flex shrink-0 flex-col gap-12 px-6 pt-24 sm:px-10 md:flex-row md:items-start md:gap-8 lg:h-full lg:items-center lg:gap-20 lg:pt-0 lg:pr-20 lg:pl-10"
     >
       <SectionIntro index="02/" title="Playground">
         <DiscRig className="w-full max-w-[304px]" />
@@ -21,7 +21,7 @@ export default function Playground() {
 
       <ElasticDivider />
 
-      <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:w-[1328px] lg:shrink-0 lg:grid-cols-4">
+      <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:min-w-0 md:flex-1 lg:w-[1328px] lg:flex-none lg:shrink-0 lg:grid-cols-4">
         {playground.map((item) => (
           <li key={item.image}>
             <figure className="group relative overflow-hidden rounded-tr-[28px] bg-cloud lg:h-[308px]">
