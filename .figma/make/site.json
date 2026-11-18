@@ -1,8 +1,8 @@
 {
   "title": "Designed by Kyle",
-  "description": "The web application helps users manage tasks, track progress, and stay organized.",
+  "description": "Kyle Tran is a UX designer helping teams big and small win through solid & playful UX strategies.",
   "robots": {
-    "index": false
+    "index": true
   },
   "icons": {
     "icon": "/.figma/make/favicon.png"
@@ -10,5 +10,8 @@
   "accessibility": {
     "addBypassLinks": false,
     "ignoreReducedMotion": false
+  },
+  "openGraph": {
+    "image": "https://kyletran.co.uk/og-image.png"
   }
 }
