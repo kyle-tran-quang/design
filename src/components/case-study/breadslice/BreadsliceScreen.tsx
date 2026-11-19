@@ -31,7 +31,9 @@ export default function BreadsliceScreen({
   const cardRef = useRef<HiddenEl>(null)
   const onFinishedRef = useRef(onFinished)
   onFinishedRef.current = onFinished
-  // Hidden until the runtime takes over, so the finished image never flashes first.
+  // Hidden until the runtime takes over, so the finished image never flashes first. The flag sits on the root rather
+  // than as an inline style on the card: the runtime shows the card again at the inline opacity it saved (empty), and
+  // a React-set `opacity: 0` would be saved and restored as 0, leaving the finished image invisible to the slide-up.
   const [pending, setPending] = useState(enabled)
   const src = asset(ART)
 
@@ -68,8 +70,8 @@ export default function BreadsliceScreen({
 
   return (
     // Transparent: the cinematic frame owns the background (dark blueprint, then light grey).
-    <div className="relative h-[848px] w-[1408px] shrink-0 p-16" style={darkInk}>
-      <div ref={cardRef} className={`size-full overflow-hidden ${RADIUS}`} style={pending ? { opacity: 0 } : undefined}>
+    <div className="relative h-[848px] w-[1408px] shrink-0 p-16" style={darkInk} data-pending={pending ? '' : undefined}>
+      <div ref={cardRef} className={`size-full overflow-hidden ${RADIUS} [[data-pending]_&]:opacity-0`}>
         <img
           src={src}
           alt="Breadslice's recording, slice list and collaboration screens"
