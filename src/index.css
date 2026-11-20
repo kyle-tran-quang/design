@@ -294,6 +294,7 @@
   --font-sans: 'Mikado', ui-sans-serif, system-ui, sans-serif;
   --font-display: 'Bungee Shade', 'Mikado', sans-serif;
   --font-plex: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-plex-condensed: 'IBM Plex Sans Condensed', 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
   --font-plex-serif: 'IBM Plex Serif', ui-serif, Georgia, serif;
   --font-plex-mono: 'IBM Plex Mono', ui-monospace, monospace;
 

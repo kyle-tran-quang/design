@@ -10,6 +10,8 @@ type AutoplayVideoProps = {
    */
   poster?: string
   className?: string
+  /** Seconds to skip on the first play, for a clip that opens on blank frames. The loop still wraps to 0. */
+  start?: number
 }
 
 /** Muted looping clip that only plays while on screen. With reduced motion it waits for the user. */
@@ -18,6 +20,7 @@ export default function AutoplayVideo({
   label,
   poster,
   className,
+  start,
 }: AutoplayVideoProps) {
   const ref = useRef<HTMLVideoElement>(null)
   const [nearby, setNearby] = useState(false)
@@ -67,6 +70,13 @@ export default function AutoplayVideo({
       playsInline
       preload={nearby ? "metadata" : "none"}
       controls={reduced}
+      onLoadedMetadata={
+        start
+          ? (e) => {
+              e.currentTarget.currentTime = start
+            }
+          : undefined
+      }
       className={className}
     />
   )

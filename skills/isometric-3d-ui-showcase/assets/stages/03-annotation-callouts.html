@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Stage 03 — Focus-pull annotation: push-in, defocus, callouts, word highlights</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="shared/tokens.css">
+<style>
+  /* ---------- camera group: scales about a pivot ABOVE the frame so the card "falls" down-screen as we push in ---------- */
+  #cam { position: absolute; inset: 0; transform-origin: 956px -376px; will-change: transform; }
+
+  /* base plane = backdrop + card. This is what gets blurred and dimmed. The pill is NOT in here (it stays sharp). */
+  #base { position: absolute; inset: 0; will-change: filter; }
+  .grid {
+    background-image:
+      linear-gradient(to right,  rgba(60,80,120,.13) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(60,80,120,.13) 1px, transparent 1px);
+    background-size: var(--grid-minor) var(--grid-minor); background-position: 12.2px 12.5px;
+  }
+  .cross { position: absolute; inset: 0; }
+  .card-shadow { position: absolute; left: 538px; top: 118.5px; width: 843px; height: 843px;
+                 background: #929498; mix-blend-mode: multiply; filter: blur(9px); opacity: .74; transform: translate(144px, 55px); }
+  .card { position: absolute; left: 538px; top: 118.5px; width: 843px; height: 843px;
+          background: linear-gradient(90deg, #fcfcfc 0, #fcfcfc 45%, #f3f3f3 100%); }
+  .abs { position: absolute; }
+  .who { font: 600 22px/26px var(--sans); color: #000; white-space: nowrap; }
+  .who span { font-weight: 400; color: #525252; margin-left: 18px; }
+  .avatar { left: 609px; top: 516px; width: 57px; height: 57px; border-radius: 50%; background: var(--blue); }
+  .dots i { position: absolute; top: 0; width: 12px; height: 12px; border-radius: 50%; background: #525252; }
+
+  /* ---------- the focal object: user-message pill, sharp, floats above the base plane ---------- */
+  .pill-shadow { position: absolute; left: 734px; top: 317px; width: 615px; height: 118px;
+                 border-radius: 24px 0 24px 24px; background: linear-gradient(90deg,rgba(0,0,0,.14),rgba(0,0,0,.35)); filter: blur(3px); }
+  .pill { position: absolute; left: 688px; top: 297px; width: 615px; height: 118px; background: #fcfcfc;
+          border-radius: 24px 0 24px 24px; padding: 19px 46px; font: 400 36px/42px var(--sans); color: #000; white-space: pre; }
+  .chip { position: relative; display: inline-block; }
+  .chip > b { position: absolute; left: -4px; right: -4px; top: 3px; bottom: -3px; border-radius: 6px; font-size: 0;
+              clip-path: inset(0 100% 0 0 round 6px); }
+  .chip.y > b { background: #f2cc4a; } .chip.c > b { background: #82cfff; }
+  .chip > span { position: relative; }
+
+  /* ---------- callout panels: screen-space overlays (NOT affected by the camera) ---------- */
+  .panel { position: absolute; width: 514px; height: 264px; background: #303538; border-radius: 30px; overflow: hidden;
+           box-shadow: 0 18px 36px rgba(20,28,45,.22); will-change: transform; transform: scale(0); }
+  .panel .flow { position: absolute; left: 0; top: 0; width: 100%; font: 400 28px/33.5px var(--mono); color: #fff; white-space: pre; padding-left: 44px; }
+  .w { opacity: 0; }  .w.on { opacity: 1; }
+  .hl { color: #f2cc4a; }  .bl { color: #82cfff; }
+  .pchip { position: relative; display: inline-block; }
+  .pchip > b { position: absolute; left: -4px; right: -4px; top: 2px; bottom: -2px; font-size: 0; clip-path: inset(0 100% 0 0); }
+  .pchip.y > b { background: #f2cc4a; } .pchip.c > b { background: #82cfff; }
+  .pchip > span { position: relative; }
+</style>
+</head>
+<body>
+<div id="host">
+  <div id="stage">
+    <div id="cam">
+      <div id="base">
+        <div class="layer grid"></div>
+        <svg class="cross" viewBox="0 0 1920 1080" width="1920" height="1080" aria-hidden="true">
+          <defs><pattern id="xh" patternUnits="userSpaceOnUse" x="12.2" y="12.5" width="210.8" height="210.8">
+            <path d="M79.9 105.4H130.9M105.4 79.9V130.9" stroke="#767e8c" stroke-width="1.2" fill="none"/></pattern></defs>
+          <rect width="1920" height="1080" fill="url(#xh)"/>
+        </svg>
+        <div class="card-shadow"></div>
+        <div class="card"></div>
+        <div class="abs who" style="left:1003px;top:253px;width:302px;text-align:right">Nigel<span>10:45</span></div>
+        <div class="abs avatar"></div>
+        <div class="abs who" style="left:695px;top:527px;color:#0043ce">Cora+<span>10:45</span></div>
+        <div class="abs dots" id="dots" style="left:697px;top:588px"><i style="left:0"></i><i style="left:22px"></i><i style="left:44px"></i></div>
+      </div>
+      <!-- pill lives in the camera (it zooms with the card) but is excluded from blur/dim -->
+      <div class="pill-shadow"></div>
+      <div class="pill" id="pill"><span class="chip y" data-i="0"><b></b><span>I </span></span></div>
+    </div>
+
+    <div class="panel" id="panelTL" style="left:256px;top:115px;transform-origin:100% 0"><div class="flow" id="flowTL" style="top:0"></div></div>
+    <div class="panel" id="panelBR" style="left:1089px;top:671px;transform-origin:0 0"><div class="flow" id="flowBR" style="top:0"></div></div>
+  </div>
+</div>
+
+<script src="shared/stage.js"></script>
+<script>
+/* =====================================================================================
+   STAGE 03 — "focus-pull annotation": push in on the message, defocus + dim the base plane, pop two callout
+   panels out of a dot, wipe highlight chips over key words, stream the callout text word by word, auto-scroll.
+   Every number is from references/motion-spec.md §Stage 03 (clip 02 analysis). Raw 0-based frames @ 23.976.
+   ===================================================================================== */
+const { ease, prog, lerp, clamp, bezier, $ } = Stage;
+const FRAMES = 195;
+
+/* ---------- content ---------- */
+// pill: chips wipe left->right over the keywords, starting 5 f apart in reading order
+const PILL_CHIPS = [
+  { w: 'lost',        cls: 'y', start: 17.5, dur: 11   },
+  { w: 'wallet',      cls: 'y', start: 21,   dur: 13.5 },
+  { w: 'cancel',      cls: 'c', start: 27,   dur: 15   },
+  { w: 'credit card', cls: 'c', start: 32,   dur: 16.5 },
+];
+const PILL_TEXT = [['I ', null], ['lost', 0], [' my ', null], ['wallet', 1], ['. I need to ', null], ['cancel', 2], ['\nmy ', null], ['credit card', 3]];
+
+// panel text: a list of [text, frame it appears, colour class]. Whole words appear (opacity step) — never per-character.
+const TL_LINES = [ // top-left panel: "sentiments"
+  [['Subject:', 0, ''], ],
+  [['Lost wallet', 33, 'chipY']],
+  [],
+  [['Possible', 74, ''], ['sentiments:', 81, '']],
+  [['Frustration', 85, 'hl']], [['Anger', 88, 'hl']], [['Fear', 92, 'hl']],
+  [],
+  [['Tone:', 95, '']], [['Negative', 100, 'hl']],
+  [],
+  [['Sensitive', 107, 'hl']],
+];
+const BR_LINES = [ // bottom-right panel: "action items"
+  [['Action', 0, ''], ['item:', 0, '']],
+  [['Credit card cancellation', 33, 'chipC']],
+  [],
+  [['Confirmation', 68, ''], ['needed:', 70, '']],
+  [['Credit', 73, 'bl'], ['card', 76, 'bl'], ['number', 78, 'bl']],
+  [],
+  [['Subsequent', 81, ''], ['steps:', 83, '']],
+  [['1.', 82, ''], ['Offer', 85, 'bl'], ['new', 87, 'bl'], ['card', 90, 'bl']],
+  [['2.', 90, ''], ['Confirm', 92, 'bl'], ['interest', 95, 'bl']],
+  [['3.', 95, ''], ['Verify', 97, 'bl'], ['address', 100, 'bl']],
+  [['4.', 102, ''], ['Send', 104, 'bl'], ['request', 108, 'bl']],
+];
+// panel chips (long wipes, text flips to dark under the chip)
+const PANEL_CHIPS = [ { key: 'chipY', start: 41, dur: 30 }, { key: 'chipC', start: 39, dur: 28 } ];
+
+/* ---------- build ---------- */
+const pill = $('#pill'); pill.innerHTML = '';
+const chipEls = [];
+PILL_TEXT.forEach(([t, i]) => {
+  if (i === null) { pill.appendChild(document.createTextNode(t)); return; }
+  const c = document.createElement('span'); c.className = 'chip ' + PILL_CHIPS[i].cls;
+  c.innerHTML = '<b></b><span></span>'; c.lastChild.textContent = t; pill.appendChild(c); chipEls[i] = c;
+});
+
+function buildFlow(host, lines) {
+  const words = [];
+  lines.forEach((line, li) => {
+    const row = document.createElement('div'); row.style.height = '33.5px';
+    line.forEach(([t, at, cls], wi) => {
+      const sp = document.createElement('span'); sp.className = 'w ' + (cls === 'hl' || cls === 'bl' ? cls : '');
+      if (cls === 'chipY' || cls === 'chipC') {
+        sp.className = 'w pchip ' + (cls === 'chipY' ? 'y' : 'c'); sp.innerHTML = '<b></b><span></span>'; sp.lastChild.textContent = t;
+        sp.dataset.chip = cls;
+      } else sp.textContent = t + ' ';
+      sp.dataset.at = at; row.appendChild(sp); words.push(sp);
+    });
+    host.appendChild(row);
+  });
+  return words;
+}
+const flowTL = $('#flowTL'), flowBR = $('#flowBR');
+const wTL = buildFlow(flowTL, TL_LINES), wBR = buildFlow(flowBR, BR_LINES);
+
+/* ---------- curves (all measured) ---------- */
+const push   = bezier(.4, 0, .2, 1);      // f12.5 -> f34, scale 1 -> 1.2373
+const pull   = bezier(.65, 0, .35, 1);    // f173 -> f192.5, back to 1.000
+const panIn  = bezier(.3, 0, .1, 1);      // panel entrance, 11.5 f
+const panOut = bezier(.6, 0, .7, .5);     // panel exit (accelerating), 8 f
+const chipW  = (a, b) => bezier(.4, 0, .1, 1);
+const scrollV = (f, a, b, vmax, ramp) => {   // trapezoid-velocity integral: px scrolled by frame f
+  let y = 0; for (let t = a; t < Math.min(f, b); t++) { const v = Math.min(vmax, vmax * (t - a + 1) / ramp, vmax * (b - t) / ramp); y += Math.max(0, v); } return y; };
+
+function camScale(f) {
+  if (f < 173) return 1 + 0.2373 * push(clamp((f - 12.5) / 21.5));
+  return 1.2373 + (1.0 - 1.2373) * pull(clamp((f - 173) / 19.5));
+}
+function blurPx(f) {                                    // sigma of the base plane (card 6 px; grid layer ~9 px)
+  if (f <= 60) return 6.2 * (1 - Math.pow(1 - clamp((f - 14) / 46), 2.4));
+  if (f < 177) return 6.1;
+  return lerp(5.6, 0.7, Stage.ease.inOut(clamp((f - 177) / 15)));
+}
+function dim(f) {                                       // brightness multiplier of the base plane
+  if (f < 14) return 1; if (f < 52) return lerp(1, .87, ease.out(clamp((f - 14) / 38)));
+  if (f < 165) return lerp(.87, .91, clamp((f - 60) / 105)); if (f < 178) return .91; return lerp(.91, .995, ease.inOut(clamp((f - 178) / 14)));
+}
+
+const cam = $('#cam'), base = $('#base'), TL = $('#panelTL'), BR = $('#panelBR'), dots = $('#dots').children;
+
+function render(f) {
+  /* camera + base-plane focus */
+  cam.style.transform = `scale(${camScale(f)})`;
+  const b = blurPx(f);
+  base.style.filter = b < .15 ? 'none' : `blur(${b}px) brightness(${dim(f)})`;
+
+  /* typing dots: each rises 11 px over 6 f, holds 4, falls over 6; stagger 3.5 f; loop 26.7 f; dot1 down at f4 */
+  [0, 1, 2].forEach(i => {
+    const ph = ((f - 4 - i * 3.5) % 26.7 + 26.7) % 26.7;                 // 0 = start of fall completion
+    const up = ph < 6 ? Math.sin((ph / 6) * Math.PI / 2) : ph < 10 ? 1 : ph < 16 ? Math.cos(((ph - 10) / 6) * Math.PI / 2) : 0;
+    dots[i].style.transform = `translateY(${-11 * up}px)`;
+  });
+
+  /* highlight chips on the pill */
+  PILL_CHIPS.forEach((c, i) => {
+    const out = f >= 176 ? 1 - clamp((f - (176 + i * 1.2)) / 3.5, 0, 1) : 0;      // wipe-out L->R, 1-2 f stagger in reading order
+    const inn = bezier(.4, 0, .1, 1)(clamp((f - c.start) / c.dur));
+    const bEl = chipEls[i].firstChild;
+    bEl.style.clipPath = f >= 176 ? `inset(0 0 0 ${(1 - out) * 100}% round 6px)` : `inset(0 ${(1 - inn) * 100}% 0 0 round 6px)`;
+  });
+
+  /* callout panels: scale 0.018 -> 1 from a dot, same frame; exit accelerating, BR 2 f later */
+  const sIn = panIn(clamp((f - 26) / 11.5));
+  const sTL = f < 169 ? (f < 26 ? 0 : .018 + .982 * sIn) : 1 - panOut(clamp((f - 169) / 8));
+  const sBR = f < 171 ? (f < 26 ? 0 : .018 + .982 * sIn) : 1 - panOut(clamp((f - 171) / 9));
+  TL.style.transform = `scale(${Math.max(0, sTL)})`; BR.style.transform = `scale(${Math.max(0, sBR)})`;
+
+  /* word reveals (opacity step) + auto-scroll (trapezoid velocity, ~5 px/f cap) */
+  const rev = (ws) => ws.forEach(w => w.classList.toggle('on', f >= +w.dataset.at));
+  rev(wTL); rev(wBR);
+  flowTL.style.transform = `translateY(${-scrollV(f, 66, 114, 5, 8) + 52}px)`;
+  flowBR.style.transform = `translateY(${-scrollV(f, 67, 112, 5, 8) + 52}px)`;
+
+  /* panel chips: long left->right wipe; the text underneath flips to dark */
+  PANEL_CHIPS.forEach(c => {
+    const p = bezier(.45, 0, .15, 1)(clamp((f - c.start) / c.dur));
+    document.querySelectorAll(`[data-chip="${c.key}"]`).forEach(el => {
+      el.firstChild.style.clipPath = `inset(0 ${(1 - p) * 100}% 0 0)`;
+      el.lastChild.style.color = p > .5 ? '#1a1a1a' : (c.key === 'chipY' ? '#f2cc4a' : '#82cfff');
+    });
+  });
+}
+
+Stage.mount({ frames: FRAMES, render });
+</script>
+</body>
+</html>

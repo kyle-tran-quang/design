@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Stage 02 — Flat card tilts into an isometric layer stack</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="shared/tokens.css">
+<style>
+  #stage { background: #d2dae8; }
+
+  /* ---- 3D world: orthographic (no perspective). #stage is the flat 2D boundary. ---- */
+  #world { position: absolute; left: 0; top: 0; width: 0; height: 0; transform-style: preserve-3d; }
+  .box   { position: absolute; transform-style: preserve-3d; }
+  .box .f { position: absolute; }
+  .plane { position: absolute; }
+
+  /* ---- floor: '+' lattice, pitch 0.24 W. Two copies cross-fade = cheap rack focus (no giant blur filter) ---- */
+  .floor { left: -4000px; top: -4000px; width: 8000px; height: 8000px; background-size: 202px 202px; }
+  .floor.sharp { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='202' height='202'><path d='M101 78V124M78 101H124' stroke='%238f98a6' stroke-width='2.4' fill='none' opacity='.85'/></svg>"); }
+  .floor.blur  { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='202' height='202'><defs><filter id='b' x='-100%' y='-100%' width='300%' height='300%'><feGaussianBlur stdDeviation='13'/></filter></defs><circle cx='101' cy='101' r='22' fill='%238f98a6' opacity='.30' filter='url(%23b)'/></svg>"); }
+  .floor.hair  { background-image:
+      linear-gradient(to right, rgba(70,90,130,.07) 2px, transparent 2px),
+      linear-gradient(to bottom, rgba(70,90,130,.07) 2px, transparent 2px);
+    background-size: 50.5px 50.5px; }
+  .glow { border-radius: 50%; background: radial-gradient(closest-side, rgba(190,60,90,.55), transparent); }
+
+  .shadow { filter: blur(13px); }
+  .shadow i { position: absolute; background: #4a5470; }
+
+  /* ---- card face (chat UI), laid out in card-local px (card = 842 x 832) ---- */
+  .ui { position: absolute; inset: 0; transform-style: preserve-3d; }
+  .ui > * { position: absolute; }
+  .who { font: 600 22px/26px var(--sans); color: #000; white-space: nowrap; }
+  .who span { font-weight: 400; color: #525252; margin-left: 18px; }
+  .bubble-slab { background: #97999d; border-radius: 24px 0 24px 24px; }
+  .bubble { background: #fcfcfd; border-radius: 24px 0 24px 24px; padding: 19px 46px;
+            font: 400 36px/42px var(--sans); color: #000; white-space: pre; }
+  .avatar { width: 57px; height: 57px; border-radius: 50%; background: #174fcb; }
+  .body { font: 400 35px/41.5px var(--sans); color: #000; white-space: pre; }
+
+  .inset { position: absolute; border: 1.5px solid rgba(0,0,0,.55); }
+  .inset.lt { border-color: rgba(255,255,255,.28); }
+
+  /* ---- label pills: screen-space overlay, constant size (never scaled by the camera) ---- */
+  #pills { position: absolute; inset: 0; pointer-events: none; }
+  .pill { position: absolute; left: 0; top: 0; height: 61px; padding: 0 26px; display: flex; align-items: center;
+          border: 1.5px solid #6b7384; border-radius: 31px; font: 400 26px/1 var(--sans); color: #464958;
+          white-space: nowrap; background: rgba(214,221,232,.35); opacity: 0; will-change: transform, opacity; }
+</style>
+</head>
+<body>
+<div id="host">
+  <div id="stage">
+    <div id="world"></div>
+    <div id="pills"></div>
+  </div>
+</div>
+
+<script src="shared/stage.js"></script>
+<script>
+/* =====================================================================================
+   STAGE 02 — flat card -> dimetric -> layers rise from below and dock into a stack
+   Source of every number: references/motion-spec.md §Stage 02 (clip 04 analysis).
+   Frames are raw 0-based @ 23.976.   Local plane coords: x = east, y = south, z = up (toward viewer).
+   World units are px at the START scale (card = 842 px).  Camera scale S = s(f)/842.
+   ===================================================================================== */
+const { ease, prog, lerp, clamp, $ } = Stage;
+const W = 842, CH = 832, RAD = Math.PI / 180;
+const FRAMES = 317;
+
+/* ---------- 1. CAMERA: measured keyframes -> monotone cubic interpolation ---------- */
+//            f    s(card px)  rotZ   elev     cy
+const CAM_KF = [
+ [0,842,0,90,544],[2,838,0.3,90,542],[4,840,1.3,88,540],[6,845,3.9,81,540],[8,841,6.7,79.7,538],[10,848,10.7,72.9,540],
+ [12,850,14.6,66.4,538],[14,857,18.5,59,540],[16,860,22.7,53.4,534],[18,870,26.9,47,538],[20,872,31.4,41.9,533],
+ [22,875,34.7,37.1,536],[24,874,37.7,32.9,534],[26,886,39.2,28.6,533],[28,894,42.3,25.8,519],[30,894,43.4,24,500],
+ [32,893,44.1,23,476],[34,902,43.7,22.4,446],[36,891,44,22.9,418],[38,887,44.6,22.9,388],[40,889,44,23.1,359],
+ [42,876,45,23.5,333],[44,872,44.4,23.7,309],[46,871,44.5,24.2,286],[54,841,43,25.2,248],[60,822,43.7,26.6,257],
+ [66,797,43.9,27.5,272],[72,774,44,28.4,280],[78,750,44.6,29.4,284],[84,739,43,29.7,284],[90,699,45.3,31.5,280],
+ [96,690,44.2,32.1,274],[102,672,44.9,32.5,267],[108,650,45.2,33.3,265],[114,617,45.5,34,271],[120,610,46.3,34.3,274],
+ [126,589,48,34.8,281],[132,571,48.2,35.1,291],[138,549,48.8,35.3,299],[144,509,50.3,35.6,307],[150,459,52.5,35.8,312],
+ [156,420,54.3,35.9,313],[162,397,55.1,36.3,314],[168,386,55.2,36.8,316],[192,380,55.4,36.8,318],[216,377.5,55.5,36.7,319],
+ [240,374.5,55.3,36.9,321],[264,373,55.3,36.6,322],[288,369,55.3,36.6,324],[316,364.5,55.4,36.8,326]];
+// light 3-point smoothing of s (the measurement is +-1% noisy; unsmoothed it shimmers)
+CAM_KF.forEach((r, i, a) => { if (i > 3 && i < a.length - 1) r[1] = (a[i-1][1] + 2 * r[1] + a[i+1][1]) / 4; });
+CAM_KF.forEach((r, i, a) => { if (i > 3 && i < a.length - 1) r[1] = (a[i-1][1] + 2 * r[1] + a[i+1][1]) / 4; });
+
+function pchip(xs, ys) {                       // monotone cubic Hermite (no overshoot between samples)
+  const n = xs.length, h = [], d = [], m = [];
+  for (let i = 0; i < n - 1; i++) { h[i] = xs[i+1] - xs[i]; d[i] = (ys[i+1] - ys[i]) / h[i]; }
+  m[0] = d[0]; m[n-1] = d[n-2];
+  for (let i = 1; i < n - 1; i++) m[i] = d[i-1] * d[i] <= 0 ? 0 : 2 / (1 / d[i-1] + 1 / d[i]);
+  return (x) => {
+    if (x <= xs[0]) return ys[0]; if (x >= xs[n-1]) return ys[n-1];
+    let i = 0; while (x > xs[i+1]) i++;
+    const t = (x - xs[i]) / h[i], t2 = t * t, t3 = t2 * t;
+    return (2*t3 - 3*t2 + 1) * ys[i] + (t3 - 2*t2 + t) * h[i] * m[i] + (-2*t3 + 3*t2) * ys[i+1] + (t3 - t2) * h[i] * m[i+1];
+  };
+}
+const fx = CAM_KF.map(r => r[0]);
+const sCurve = pchip(fx, CAM_KF.map(r => r[1])), zCurve = pchip(fx, CAM_KF.map(r => r[2]));
+const eCurve = pchip(fx, CAM_KF.map(r => r[3])), yCurve = pchip(fx, CAM_KF.map(r => r[4]));
+const camAt = (f) => ({ s: sCurve(f), rotZ: zCurve(f), elev: eCurve(f), cx: 959, cy: yCurve(f) });
+
+/** world point -> screen px (same math the browser applies to the CSS transform below) */
+function project(f, x, y, z) {
+  const c = camAt(f), S = c.s / W, th = c.rotZ * RAD, ph = (90 - c.elev) * RAD;
+  const xr = x * Math.cos(th) - y * Math.sin(th), yr = x * Math.sin(th) + y * Math.cos(th);
+  return [c.cx + S * xr, c.cy + S * (yr * Math.cos(ph) - z * Math.sin(ph))];
+}
+
+/* ---------- 2. LAYER CONFIG (one table — tune here) ---------- */
+// z = TOP surface height as a multiple of W (negative = below the card). Final values, provisional +-15%.
+// fp = frame the item's first pixels cross the bottom edge (measured); tau = settle time-constant in frames.
+const Z = { card: 0, t2: -0.13, t3: -0.28, glass: -0.33, integ: -0.68, osh: -0.97 };   // top-face depth below card top, in W (final pass, +-0.05)
+const FLOOR_Z = -1.07 * W;
+const CELL = { N: [-1, -1], E: [1, -1], W: [-1, 1], S: [1, 1] };   // 2x2 grid of half-size tiles; N/E/S/W = on-screen compass at yaw 45
+const ITEMS = [
+  // tier 2 -------------------------------------------------------------------------------------------------
+  { id: 'cora-chat',  cell: 'W', z: Z.t2, t: .045, fp: 37, tau: 14, top: '#8e8e8e', s: '#f9f9f9', e: '#bdbdbd' },
+  { id: 'neuralseek', cell: 'E', z: Z.t2, t: .045, fp: 40, tau: 14, top: '#232323', s: '#58595c', e: '#0b0b0d', lt: true },
+  { id: 'cora-broker',cell: 'S', z: Z.t2, t: .045, fp: 47, tau: 14, top: '#424242', s: '#6a6c71', e: '#0b0b0d', lt: true },
+  // tier 3 -------------------------------------------------------------------------------------------------
+  { id: 'watsonx-ai', cell: 'N', z: Z.t3, t: .045, fp: 52, tau: 14, top: '#5072c7', s: '#5c88eb', e: '#051b59', lt: true },
+  { id: 'cloud-pak',  cell: 'W', z: Z.t3, t: .045, fp: 57, tau: 14, top: 'linear-gradient(135deg,#bed0f6,#7589b1)', s: '#bed0f6', e: '#8499c6' },
+  { id: 'assistant-e',cell: 'E', z: Z.t3, t: .045, fp: 62, tau: 14, top: '#102a74', s: '#1d42a4', e: '#0e2360', lt: true },
+  { id: 'assistant-s',cell: 'S', z: Z.t3, t: .045, fp: 76, tau: 14, top: 'linear-gradient(135deg,#f5f5f8,#b0b6bf)', s: '#ffffff', e: '#d6dae2' },
+  // full-size plates ---------------------------------------------------------------------------------------
+  { id: 'glass',      full: true, glass: true, z: Z.glass, t: .06, fp: 83,  tau: 37, ref: [100, [[.22, 22], [.24, 30]], [[0.85, 83]]], top: 'linear-gradient(160deg,rgba(120,160,240,.62),rgba(70,110,225,.52) 55%,rgba(25,60,170,.62))',
+                      s: 'linear-gradient(#2c6af0,#0d2453)', e: 'linear-gradient(#2a5fc8,#0d2453)' },
+  { id: 'integration',full: true, z: Z.integ, t: .04, fp: 103, tau: 24, hex: true,
+                      top: 'linear-gradient(150deg,rgba(198,187,193,.96),rgba(125,122,140,.93) 50%,rgba(52,56,86,.95))', s: '#8a8088', e: '#5b5a6a' },
+  { id: 'openshift',  full: true, z: Z.osh, t: .025, fp: 125, tau: 14, ref: [144, [[.28, 12], [.04, 25]], [[1.35, 125]]], osh: true,
+                      top: 'linear-gradient(135deg,#e6e5eb,#ccc4cc)', s: 'linear-gradient(#aa4a60,#40151c)', e: 'linear-gradient(#8a3548,#2a0d13)' },
+];
+const D = 3 * W;                                   // every layer starts 3 card-widths below (off-screen)
+const lift = (it, f) => {                          // z offset below its final height, in px
+  if (it.ref) {
+    /* MEASURED. Two-term decay fitted to the report's series: excess(f) = sum A_i * exp(-(f - f0) / tau_i)  [W units].
+       The series only covers the visible part of the motion; before that the plate is below the frame. We extend it
+       backwards with the same curve until it reaches the entry height, and hold it at that height until `fp`
+       (the calibration step below picks the entry height so first pixels cross the bottom edge exactly on `fp`). */
+    const [f0, terms] = it.ref;
+    const curve = (t) => terms.reduce((acc, [A, tau]) => acc + A * Math.exp(-(t - f0) / tau), 0);
+    return Math.min(curve(f), it.entry) * W;   // note: a rising plate must never pass through the tier above it (see clipBelow)
+  }
+  const x = clamp((f - it.t0) / it.tau, 0, 6);    // CALIBRATED: starts D below, first pixels land on frame `fp`
+  return D * (Math.exp(-x) - Math.exp(-6)) / (1 - Math.exp(-6));
+};
+
+/* ---------- 3. BUILD THE SCENE ---------- */
+const world = $('#world');
+const el = (cls, css, parent) => { const d = document.createElement('div'); d.className = cls; if (css) d.style.cssText = css; (parent || world).appendChild(d); return d; };
+
+function mkBox({ w, h, t, x = 0, y = 0, top, s, e }) {
+  const b = el('box', `left:${x - w/2}px;top:${y - h/2}px;width:${w}px;height:${h}px`);
+  const T = el('f top', `left:0;top:0;width:${w}px;height:${h}px;background:${top};transform-style:preserve-3d`, b);
+  el('f s', `left:0;top:${h}px;width:${w}px;height:${t}px;transform-origin:0 0;transform:rotateX(-90deg);background:${s}`, b);
+  el('f e', `left:${w}px;top:0;width:${t}px;height:${h}px;transform-origin:0 0;transform:rotateY(90deg);background:${e}`, b);
+  return { el: b, T, x, y, w, h };
+}
+
+// floor (rack focus + hairline grid) and the cast-shadow container
+const floorBlur  = el('plane floor blur',  `transform:translateZ(${FLOOR_Z}px)`);
+const floorSharp = el('plane floor sharp', `transform:translateZ(${FLOOR_Z}px)`);
+const floorHair  = el('plane floor hair',  `transform:translateZ(${FLOOR_Z}px)`);
+const redGlow    = el('plane glow', `left:-520px;top:-520px;width:1040px;height:1040px;transform:translateZ(${FLOOR_Z + 1}px)`);
+const shadow     = el('plane shadow', `left:-1500px;top:-1500px;width:3000px;height:3000px;transform:translateZ(${FLOOR_Z + 2}px)`);
+
+// hex line-art for the Integration plate, envelope line-art for OpenShift
+const HEX = `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='156'><path d='M45 0L135 0L180 78L135 156L45 156L0 78Z M0 78H-45M180 78H225' stroke='%23ffffff' stroke-opacity='.16' stroke-width='1.2' fill='none'/></svg>")`;
+
+ITEMS.forEach((it) => {
+  const w = it.full ? W : W / 2, h = it.full ? CH : CH / 2;
+  const [cx, cy] = it.full ? [0, 0] : CELL[it.cell].map(k => k * W / 4);
+  Object.assign(it, { x: cx, y: cy, w, h, zTop: it.z * W, th: it.t * W });
+  const b = mkBox({ w, h, t: it.th, x: cx, y: cy, top: it.top, s: it.s, e: it.e });
+  it.box = b;
+  if (!it.full) el('inset' + (it.lt ? ' lt' : ''), `left:${w*.2}px;top:${h*.2}px;width:${w*.6}px;height:${h*.6}px`, b.T);
+  if (it.hex) el('', `position:absolute;inset:0;background:${HEX};background-size:180px 156px;opacity:1`, b.T);
+  if (it.glass) el('', `position:absolute;inset:0;border:6px solid #2f7bff;box-shadow:inset 0 0 26px rgba(70,140,255,.95),0 0 12px rgba(40,110,255,.8);`, b.T);
+  if (it.osh) el('', `position:absolute;inset:0;background:
+      linear-gradient(to bottom right,transparent calc(50% - .8px),rgba(170,60,80,.6) 50%,transparent calc(50% + .8px)),
+      linear-gradient(to top right,transparent calc(50% - .8px),rgba(120,120,135,.55) 50%,transparent calc(50% + .8px));
+      border:1.5px solid rgba(170,60,80,.55);margin:30px`, b.T);
+});
+
+// Paint order for translucent plates: browsers sort preserve-3d siblings by DOM order when depths overlap, so append
+// the deepest plate first and the nearest last (back-to-front). Tiers keep their relative order.
+ITEMS.slice().reverse().forEach(it => world.appendChild(it.box.el));
+
+// the card: top face carries the chat UI; bubble floats 8 px above it
+const card = mkBox({ w: W, h: CH, t: .012 * W, top: '#d9dde0', s: '#9a9aa0', e: '#6e6e74' });
+(function buildCardUI() {
+  const ui = el('ui', '', card.T);
+  el('who', 'left:465px;top:134px;width:302px;text-align:right', ui).innerHTML = 'Nigel<span>10:45</span>';
+  el('bubble-slab', 'left:196px;top:198px;width:615px;height:118px', ui);                       // grey offset slab (cast shadow)
+  const b = el('bubble', 'left:150px;top:178px;width:615px;height:118px;transform:translateZ(8px)', ui);
+  b.textContent = 'I lost my wallet. I need to cancel\nmy credit card';
+  el('avatar', 'left:71px;top:397px', ui);
+  el('who', 'left:157px;top:408px;color:#0043ce', ui).innerHTML = 'Cora+<span>10:45</span>';
+  el('body', 'left:157px;top:452px', ui).textContent = 'Hi Nigel, we’re sorry you lost your\nwallet and hope all is well otherwise.\n\nCan you confirm your card number is\n12XX XXXX XXXX 4567?';
+})();
+
+/* ---------- 4. ENTRANCE CALIBRATION ----------
+   For each layer, find the launch frame t0 so its top-most corner crosses the bottom edge of the frame exactly at the
+   measured first-pixel frame `fp`, given THIS camera. (Robust to tuning the camera / easing.) */
+ITEMS.filter(it => !it.ref).forEach((it) => {
+  const corners = [[-it.w/2, -it.h/2], [it.w/2, -it.h/2], [-it.w/2, it.h/2], [it.w/2, it.h/2]].map(([a, b]) => [it.x + a, it.y + b]);
+  let lo = it.fp - 160, hi = it.fp + 30;
+  for (let i = 0; i < 40; i++) {
+    it.t0 = (lo + hi) / 2;
+    const z = it.zTop - lift(it, it.fp);
+    const topY = Math.min(...corners.map(([x, y]) => project(it.fp, x, y, z)[1]));
+    if (topY > 1085) hi = it.t0; else lo = it.t0;
+  }
+  it.t0 = (lo + hi) / 2;
+});
+
+ITEMS.filter(it => it.ref).forEach((it) => {
+  const corners = [[-it.w/2, -it.h/2], [it.w/2, -it.h/2], [-it.w/2, it.h/2], [it.w/2, it.h/2]].map(([a, b]) => [it.x + a, it.y + b]);
+  let lo = 0, hi = 6;                                      // entry height (W) such that topmost corner y = 1080 at f = fp
+  for (let i = 0; i < 40; i++) {
+    const mid = (lo + hi) / 2, z = it.zTop - mid * W;
+    const topY = Math.min(...corners.map(([x, y]) => project(it.fp, x, y, z)[1]));
+    if (topY > 1080) lo = mid; else hi = mid;
+  }
+  it.entry = (lo + hi) / 2;
+});
+
+/* ---------- 5. FLOOR SHADOW: stair-stepped silhouette, light from upper-left ---------- */
+const LIGHT = [0.5, -0.12];                              // local plane offset per px of height above the floor
+const SH_RECTS = [];                                      // [x, y, w, h, zTop]
+SH_RECTS.push([0, 0, W, CH, 0]);                          // card
+ITEMS.forEach(it => SH_RECTS.push([it.x, it.y, it.w, it.h, it.zTop]));
+SH_RECTS.forEach(([x, y, w, h, z]) => {
+  const hgt = z - FLOOR_Z, ox = LIGHT[0] * hgt, oy = LIGHT[1] * hgt;
+  el('', `left:${1500 + x - w/2 + ox}px;top:${1500 + y - h/2 + oy}px;width:${w}px;height:${h}px`, shadow).outerHTML;
+});
+Array.from(shadow.children).forEach(c => { c.style.position = 'absolute'; c.style.background = '#4a5470'; });
+
+/* ---------- 6. SIDE MODULES + CONNECTORS (f186-264) ---------- */
+const MOD_Z = FLOOR_Z + 0.16 * W;                          // hover ~0.1 W above its own shadow
+const db2 = mkBox({ w: W, h: W, t: .06 * W, x: 150, y: 1620,
+  top: 'linear-gradient(135deg,#8dadf3,#aec5f5 55%,#d5daeb)', s: '#a9bff0', e: '#7f9be0' });
+el('', `position:absolute;left:12%;top:12%;width:76%;height:76%;background:linear-gradient(135deg,rgba(255,255,255,.0),rgba(255,255,255,.35));clip-path:polygon(0 0,60% 0,100% 50%,60% 100%,0 100%,40% 50%)`, db2.T);
+el('', `position:absolute;left:30%;top:30%;width:40%;height:40%;background:rgba(255,255,255,.28);clip-path:polygon(0 0,55% 0,100% 50%,55% 100%,0 100%,45% 50%)`, db2.T);
+const ent = el('box', `left:${90 - W/2}px;top:${-1420 - W/2}px;width:${W}px;height:${W}px`);
+const ENT_PIECES = [[0, 0, .5, .5], [.5, 0, .5, .34], [.5, .34, .5, .33], [.5, .67, .5, .33], [0, .5, .3, .5], [.3, .5, .2, .5]].map(([a, b, c, d], i) => {
+  const p = el('box', `left:${a*W}px;top:${b*W}px;width:${c*W}px;height:${d*W}px`, ent);
+  el('f', `left:0;top:0;width:100%;height:100%;background:${i % 2 ? '#f4f4f6' : '#ececf0'};outline:1px solid #d7dbe6`, p);
+  el('f', `left:0;top:${d*W}px;width:${c*W}px;height:${.06*W}px;transform-origin:0 0;transform:rotateX(-90deg);background:#d1d8e7`, p);
+  el('f', `left:${c*W}px;top:0;width:${.06*W}px;height:${d*W}px;transform-origin:0 0;transform:rotateY(90deg);background:#727888`, p);
+  return { el: p, a, b, c, d, i };
+});
+const modShadow = [db2, { x: 90, y: -1420, w: W, h: W }].map(m =>
+  el('plane shadow', `left:${m.x - W*.55}px;top:${m.y - W*.55}px;width:${W*1.1}px;height:${W*1.1}px;transform:translateZ(${FLOOR_Z + 2}px);opacity:0`,
+     world)).map(s => { el('', `position:absolute;left:${W*.05+60}px;top:${W*.05+20}px;width:${W}px;height:${W}px;background:#4a5470`, s); return s; });
+const CONN = [[1, 'db2', '#1b3fa0', -42], [1, 'db2', '#8791a6', 42], [-1, 'ent', '#1b3fa0', -42], [-1, 'ent', '#8791a6', 42]].map(([dir, who, col, dx]) => {
+  const y0 = dir * 450, y1 = who === 'db2' ? 1620 - W/2 : -1420 + W/2, len = Math.abs(y1 - y0), top = Math.min(y0, y1);
+  const c = el('plane', `left:${(who === 'db2' ? 150 : 90) + dx - 1.5}px;top:${top}px;width:3px;height:${len}px;background:${col};transform:translateZ(${Z.osh * W - 8}px);transform-origin:50% ${dir > 0 ? '0%' : '100%'}`);
+  return { el: c, who, dir };
+});
+
+/* ---------- 7. PILLS (screen-space labels) ---------- */
+// k = horizontal offset as a multiple of the current card size s (so pills drift with the camera but never scale)
+const PILLS = [
+  { t: 'User Interface',    at: [0, 0, 0],            k: -.75, dy: -20, in: 44,  out: 68 },
+  { t: 'Cora chat',         at: 'cora-chat',   k: -.62, dy: 0, in: 47,  out: 74 },
+  { t: 'NeuralSeek',        at: 'neuralseek',  k: .64,  dy: 0, in: 53,  out: 74 },
+  { t: 'Cora Broker',       at: 'cora-broker', k: .65,  dy: 0, in: 59,  out: 77 },
+  { t: 'watsonx.ai',        at: 'watsonx-ai',  k: .62,  dy: 0, in: 68,  out: 80 },
+  { t: 'Cloud Pak for B.A.',at: 'cloud-pak',   k: -.62, dy: 0, in: 71,  out: 90 },
+  { t: 'watsonx Assistant', at: 'assistant-e', k: .64,  dy: 0, in: 77,  out: 92 },
+  { t: 'watsonx Assistant', at: 'assistant-s', k: .65,  dy: 0, in: 77,  out: 92 },
+  { t: 'watsonx.governance',at: 'glass',       k: -.98, dy: 0, in: 88,  out: 120 },
+  { t: 'Integration',       at: 'integration', k: .9,   dy: 0, in: 108, out: 134 },
+  { t: 'Red Hat OpenShift', at: 'openshift',   k: -1.17,dy: 0, in: 162, out: 196 },
+  { t: 'Db2 Warehouse',     at: [150, 1620, MOD_Z], k: -.9, dy: 0, in: 212, out: 276 },
+  { t: 'Enterprise data',   at: [90, -1420, MOD_Z], k: .9,  dy: 0, in: 224, out: 276 },
+];
+const pillHost = $('#pills');
+PILLS.forEach(p => { p.el = document.createElement('div'); p.el.className = 'pill'; p.el.textContent = p.t; pillHost.appendChild(p.el);
+  if (typeof p.at === 'string') { const it = ITEMS.find(i => i.id === p.at); p.at = [it.x, it.y, it.zTop]; } });
+
+/* ---------- 8. RENDER(frame) ---------- */
+const lerpc = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
+const sharpKF = [[36, 0], [39, .04], [45, .12], [48, .7], [51, 1]];
+const sharpAt = (f) => { if (f <= 36) return 0; if (f >= 51) return 1;
+  for (let i = 1; i < sharpKF.length; i++) if (f <= sharpKF[i][0]) { const [a, va] = sharpKF[i-1], [b, vb] = sharpKF[i]; return va + (vb - va) * (f - a) / (b - a); } };
+
+function render(f) {
+  const c = camAt(f), S = c.s / W;
+  world.style.left = c.cx + 'px'; world.style.top = c.cy + 'px';
+  world.style.transform = `scale(${S}) rotateX(${90 - c.elev}deg) rotateZ(${c.rotZ}deg)`;
+
+  // card: face brightens ~8% as the camera settles (f136 -> f170)
+  const k = prog(f, 136, 170, ease.inOut), c0 = lerpc([214, 218, 221], [232, 236, 239], k), c1 = lerpc([222, 226, 229], [246, 248, 250], k);
+  card.T.style.background = `linear-gradient(135deg, rgb(${c0}), rgb(${c1}))`;
+  card.el.style.transform = 'translateZ(0px)';
+
+  // layers rise from below and dock (decelerate, no overshoot)
+  const ABOVE = { glass: ['cloud-pak','assistant-e','assistant-s','watsonx-ai'], integration: ['glass'], openshift: ['integration'] };
+  ITEMS.forEach(it => {
+    let z = it.zTop - lift(it, f);
+    (ABOVE[it.id] || []).forEach(id => {                               // stay below the layer above (its bottom face) while rising
+      const up = ITEMS.find(i => i.id === id), upBottom = up.zTop - lift(up, f) - up.th;
+      z = Math.min(z, upBottom - 1);
+    });
+    it.box.el.style.transform = `translateZ(${z}px)`;
+  });
+
+  // floor: defocused blotches -> crisp '+' marks (f36-51), hairline grid f44-50
+  const sh = sharpAt(f);
+  floorSharp.style.opacity = sh; floorBlur.style.opacity = 1 - sh;
+  floorHair.style.opacity = prog(f, 44, 50);
+
+  // floor shadow arrives last (f148-170); red bounce from the bottom plate
+  shadow.style.opacity = .4 * prog(f, 148, 170, ease.out);
+  redGlow.style.opacity = .55 * prog(f, 150, 172, ease.out);
+
+  // side modules
+  const mp = prog(f, 188, 208, ease.out);
+  db2.el.style.transform = `translateZ(${MOD_Z}px) scale(${f < 188 ? 0.0001 : lerp(.18, 1, mp)})`;
+  db2.el.style.transformOrigin = '50% 50%';
+  modShadow[0].style.opacity = .4 * mp;
+  ENT_PIECES.forEach(p => {
+    const t0 = 212 + p.i * 2, appear = prog(f, t0, t0 + 6, ease.out), slide = prog(f, 224 + p.i * 6, 258 + p.i * 1.2, ease.out);
+    const out = (1 - slide) * 90;                                      // pieces start spread outward and slide flush
+    const dx = (p.a + p.c / 2 - .5) * out * 2, dy = (p.b + p.d / 2 - .5) * out * 2;
+    p.el.style.transform = f < t0 ? 'translateZ(-9999px)' : `translate3d(${dx}px,${dy}px,${MOD_Z}px) scale(${lerp(.2, 1, appear)})`;
+  });
+  modShadow[1].style.opacity = .4 * prog(f, 212, 232);
+  CONN.forEach(cn => { const t0 = cn.who === 'db2' ? 204 : 234, t1 = cn.who === 'db2' ? 212 : 250; cn.el.style.transform = `translateZ(${Z.osh * W - 8}px) scaleY(${prog(f, t0, t1)})`; });
+
+  // pills: project the anchor, offset sideways by k * s, fade by schedule (in 3-4 f, out 4-6 f)
+  PILLS.forEach(p => {
+    const a = clamp((f - p.in) / 3.5) * (1 - clamp((f - p.out) / 5));
+    if (a <= 0.001) { p.el.style.opacity = 0; return; }
+    const [px, py] = project(f, ...p.at);
+    const x = clamp(px + p.k * c.s, 150, 1770), y = clamp(py + p.dy, 40, 1040);
+    p.el.style.opacity = a;
+    p.el.style.transform = `translate(${x}px,${y}px) translate(-50%,-50%)`;
+  });
+}
+
+Stage.mount({ frames: FRAMES, render });
+/* test hook: projected card corners for a frame (used to verify the camera against the clip's measured corners) */
+window.__corners = (f) => [[-W/2,-CH/2],[W/2,-CH/2],[W/2,CH/2],[-W/2,CH/2]].map(([x,y]) => project(f, x, y, 0).map(v => Math.round(v)));
+</script>
+</body>
+</html>

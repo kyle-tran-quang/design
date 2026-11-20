@@ -1,0 +1,342 @@
+/*
+ * The Carbon chat widget, as the Figma export draws it (public/assets/images/mas-iso/module-ai-chat.svg): IBM Plex Sans, Carbon's
+ * grays and blue. Scoped under .cc, the stage's class. The kit's own styles live in @layer stageshow, so these win without !important.
+ */
+
+.cc .ss-stage {
+  overflow: hidden;
+  background: var(--ss-well);
+}
+
+/* Pinned top and sides; the widget runs off the bottom, with the composer 28px above the stage's edge. */
+.cc-widget {
+  position: absolute;
+  top: 28px;
+  left: 52px;
+  width: 336px;
+  height: 632px;
+  box-sizing: border-box;
+  display: grid;
+  /* The one column is the widget's own width, whatever the composer holds: an `auto` column grew to fit a long unbroken line and
+     pushed the thread and composer past the widget's edge. The composer's row is `auto`, so a line that wraps grows it upward (the
+     widget's bottom is fixed) and the thread gives up the room; 56px is its height for a single line. */
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: 40px minmax(0, 1fr) auto;
+  padding-bottom: 88px;
+  border-radius: 12px;
+  background: #fff;
+  color: #161616;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0.16px;
+  box-shadow: 0 0 0 1px #d0e2ff, 0 28px 44px -26px rgba(15, 98, 254, 0.28);
+}
+
+.cc .ss-stage[data-layout='compact'] .cc-widget {
+  left: 11px;
+  width: 320px;
+}
+
+.cc-head {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  padding: 0 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.cc-ai {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: 1.5px solid #161616;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+/*
+ * The thread fills from the top, as Carbon's does. It is anchored to the bottom (justify-content: flex-end) so that once it is taller
+ * than its box the newest message stays in view and the oldest goes up; .cc-flow grows to fill a short thread and packs its messages at
+ * the top, so a short one is not pushed to the bottom. The blue wash at the foot is the export's.
+ */
+.cc-thread {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0 16px 14px;
+  background: linear-gradient(180deg, #fff 45%, #eaf1ff 100%);
+}
+
+.cc-flow {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+/* The soft edge for messages going up out of view. It fades in only once the thread overflows. */
+.cc-thread::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 1;
+  height: 40px;
+  background: linear-gradient(#fff 10%, rgba(255, 255, 255, 0));
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.cc-thread[data-over]::before {
+  opacity: 1;
+}
+
+/* Spacing is each message's own top padding, never a gap: a closed message has no height and so leaves no space behind. */
+.cc-flow > * {
+  flex: none;
+}
+
+.cc-msg {
+  padding-top: 18px;
+}
+
+.cc-msg--bot {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  column-gap: 10px;
+  align-items: center;
+}
+
+.cc-avatar {
+  display: block;
+  width: 28px;
+  height: 28px;
+}
+
+.cc-who {
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.32px;
+  color: #525252;
+}
+
+.cc-body {
+  grid-column: 2;
+  margin-top: 6px;
+  min-width: 0;
+}
+
+.cc-text {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+.cc-msg--you {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.cc-bubble {
+  max-width: 86%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #e0e0e0;
+  text-wrap: pretty;
+}
+
+/* A structured draft quote under a reply: Carbon's tile, with a structured list inside. */
+.cc-card {
+  margin-top: 10px;
+  padding: 12px 14px 0;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.cc-card-title {
+  padding-bottom: 6px;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.32px;
+  color: #525252;
+}
+
+.cc-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+  border-top: 1px solid #e8e8e8;
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.cc-row > :first-child {
+  flex: none;
+  color: #525252;
+}
+
+.cc-row > :last-child {
+  min-width: 0;
+  text-align: right;
+}
+
+.cc-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0 12px;
+  border-top: 1px solid #c6c6c6;
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.cc-total strong {
+  font-size: 20px;
+  line-height: 26px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.cc-fb {
+  display: flex;
+  gap: 16px;
+  padding-top: 12px;
+}
+
+/* Carbon's primary button: square, blue, the icon on the right. */
+.cc-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  width: max-content;
+  min-width: 200px;
+  max-width: 100%;
+  height: 40px;
+  margin-top: 10px;
+  padding: 0 14px 0 16px;
+  background: #0f62fe;
+  color: #fff;
+  transition: background-color 0.15s ease;
+}
+
+.cc-btn[data-hover] {
+  background: #0050e6;
+}
+
+.cc-btn[data-pressed] {
+  background: #002d9c;
+}
+
+.cc-dots {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 20px;
+  margin-top: 6px;
+}
+
+.cc-dots i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #6f6f6f;
+  animation: cc-dot 1.1s ease-in-out infinite both;
+}
+
+.cc-dots i:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.cc-dots i:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes cc-dot {
+  0%,
+  80%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* One line is 56px (17 + 20 + 18 + the 1px rule). The icons sit on the last line, as Carbon's prompt line puts them. */
+.cc-composer {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  min-height: 56px;
+  box-sizing: border-box;
+  padding: 17px 16px 18px;
+  border-top: 1px solid #e0e0e0;
+  background: #fff;
+}
+
+/* A long line wraps at a word and grows the composer, as a text area does; a word too long for the line breaks inside itself
+   rather than widening the box. */
+.cc-input {
+  flex: 1;
+  min-width: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.cc-ph {
+  color: #a8a8a8;
+}
+
+/* The caret takes no room, so it can never be the thing that no longer fits and wraps onto a line of its own when the text
+   exactly fills one; the 1px bar is painted just after the last letter. */
+.cc-caret {
+  position: relative;
+  display: inline-block;
+  width: 0;
+  height: 16px;
+  vertical-align: -3px;
+}
+
+.cc-caret::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 1px;
+  width: 1px;
+  height: 100%;
+  background: #161616;
+}
+
+.cc-composer svg {
+  flex: none;
+}
+
+/* A 16px icon centred on the 20px line */
+.cc-composer > svg,
+.cc-composer > .cc-send {
+  margin-bottom: 2px;
+}
+
+.cc-send {
+  display: flex;
+  color: #c6c6c6;
+  transition: color 0.2s ease;
+}
+
+.cc-send[data-ready] {
+  color: #0f62fe;
+}

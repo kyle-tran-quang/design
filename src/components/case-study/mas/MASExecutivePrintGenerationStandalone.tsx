@@ -2199,6 +2199,8 @@ type Props = {
   maxParts: number;
   delay: number;
   scaleToFit: boolean;
+  /** false shows the finished report with no opening animation (the case study's story panel uses this). Defaults to true. */
+  animate?: boolean;
   style?: CSSProperties;
 };
 
@@ -2218,10 +2220,11 @@ export default function ExecutivePrintGeneration({
   maxParts = 30,
   delay = 0,
   scaleToFit = true,
+  animate: wantAnimation = true,
   style,
 }: Props) {
   // The editor canvas zooms and scales; the runtime's page-level overlay would not line up there.
-  const animate = RenderTarget.current() !== RenderTarget.canvas;
+  const animate = wantAnimation && RenderTarget.current() !== RenderTarget.canvas;
 
   return (
     <div style={{ position: "relative", ...style }}>

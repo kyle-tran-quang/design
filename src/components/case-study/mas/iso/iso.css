@@ -1,0 +1,191 @@
+/*
+ * The two reveals that play when a layer opens (see reveal.ts): the rationale plate's cubes and the Excel tiles' spreadsheets.
+ * JS only sets one number per piece (a transform, or `--p` on a sheet); everything that loops on its own lives here.
+ */
+/* `--m` is a number the browser can interpolate, so a keyframe can sweep a cube from green to blue and the colours below follow it. */
+@property --m {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+
+@layer components {
+  /* ---- the lattice cube's colour wave: each cube's `--m` runs green (0) to blue (1) and back, a column later than the one before it
+     (left to right, as in the clip), then holds. The cube sets `--i` to its column. ---- */
+  [data-pm='root'][data-open='1'] .iso-lc {
+    animation: iso-wave 9s ease-in-out infinite;
+    animation-delay: calc(var(--i, 0) * 0.14s);
+  }
+  @keyframes iso-wave {
+    0%,
+    30% {
+      --m: 0;
+    }
+    38%,
+    62% {
+      --m: 1;
+    }
+    70%,
+    100% {
+      --m: 0;
+    }
+  }
+  .iso-lc-top {
+    background: color-mix(in srgb, rgb(96 222 130) calc((1 - var(--m, 0)) * 100%), rgb(116 176 255));
+  }
+  .iso-lc-south {
+    background: color-mix(in srgb, rgb(58 178 92) calc((1 - var(--m, 0)) * 100%), rgb(66 126 238));
+  }
+  .iso-lc-east {
+    background: color-mix(in srgb, rgb(34 132 62) calc((1 - var(--m, 0)) * 100%), rgb(36 84 204));
+  }
+
+  /* ---- the bars cube: once built the bars keep breathing, a beat apart (the clip's ~40 frame loop) ---- */
+  .iso-fin-pulse {
+    transform-origin: 50% 0;
+  }
+  [data-pm='root'][data-open='1'] .iso-fin-pulse {
+    animation: iso-fin 1.7s ease-in-out infinite;
+    animation-delay: calc(var(--d, 0) * 1s);
+  }
+  @keyframes iso-fin {
+    0%,
+    100% {
+      transform: scaleY(1);
+    }
+    50% {
+      transform: scaleY(0.58);
+    }
+  }
+
+  /* ---- the spreadsheets ----
+   * A sheet's whole entrance is `--p` (0..1, set per frame): each piece reads it through a delay `--d`, so one write moves all of it.
+   * `--k` is that piece's own progress: 0 until `--d`, then 1 after about a fifth of the sheet's time. */
+  /* ---- the book (PlateBook.tsx): once it is open the leaves flip one after another and back, forever.
+     Every leaf rotates about one axis on the spine, so its hinge never leaves the spine: `rotateY(0)` is lying on the right,
+     `rotateY(-180deg)` lying on the left. Each leaf's faces are offset from that axis (see Leaf), so the leaves lie at different heights
+     and a turning one clears the stacks at both ends without any lift. The leaf that landed last turns back first, as in a real
+     book, so no two ever pass through each other. The loop is 9 s; a leaf is turning for under a second of it. ---- */
+  .iso-leaf {
+    transform-origin: 0 50% 0;
+  }
+  [data-pm='book'][data-loop='1'] .iso-leaf {
+    animation-duration: 9s;
+    animation-iteration-count: infinite;
+    animation-timing-function: cubic-bezier(0.45, 0, 0.25, 1);
+  }
+  [data-pm='book'][data-loop='1'] .iso-leaf-0 {
+    animation-name: iso-flip-0;
+  }
+  @keyframes iso-flip-0 {
+    0%,
+    6% {
+      transform: translateZ(55.00px) rotateY(0deg);
+    }
+    14%,
+    72% {
+      transform: translateZ(55.00px) rotateY(-180deg);
+    }
+    80%,
+    100% {
+      transform: translateZ(55.00px) rotateY(0deg);
+    }
+  }
+  [data-pm='book'][data-loop='1'] .iso-leaf-1 {
+    animation-name: iso-flip-1;
+  }
+  @keyframes iso-flip-1 {
+    0%,
+    13% {
+      transform: translateZ(55.00px) rotateY(0deg);
+    }
+    21%,
+    65% {
+      transform: translateZ(55.00px) rotateY(-180deg);
+    }
+    73%,
+    100% {
+      transform: translateZ(55.00px) rotateY(0deg);
+    }
+  }
+  [data-pm='book'][data-loop='1'] .iso-leaf-2 {
+    animation-name: iso-flip-2;
+  }
+  @keyframes iso-flip-2 {
+    0%,
+    20% {
+      transform: translateZ(55.00px) rotateY(0deg);
+    }
+    28%,
+    58% {
+      transform: translateZ(55.00px) rotateY(-180deg);
+    }
+    66%,
+    100% {
+      transform: translateZ(55.00px) rotateY(0deg);
+    }
+  }
+
+  .iso-sheet {
+    clip-path: inset(0 0 calc((1 - clamp(0, var(--p, 0) * 3.2, 1)) * 100%) 0);
+  }
+  .iso-sheet [data-d] {
+    --k: clamp(0, calc((var(--p, 0) - var(--d, 0)) * 5), 1);
+    opacity: var(--k);
+  }
+  .iso-sheet [data-bar] {
+    --k: clamp(0, calc((var(--p, 0) - var(--d, 0)) * 5), 1);
+    transform: scaleX(var(--k));
+    transform-origin: 0 50%;
+  }
+  .iso-sheet [data-bar='r'] {
+    transform-origin: 100% 50%;
+  }
+  /* the selected cell: it appears once the sheet is full, then hops between three cells, as someone reading down a column would */
+  .iso-sheet-sel {
+    opacity: 0;
+    left: var(--x0);
+    top: var(--y0);
+    width: var(--w0);
+  }
+  .iso-sheet[data-open='1'] .iso-sheet-sel {
+    opacity: 1;
+    animation: iso-sel 7.2s steps(1, end) infinite;
+  }
+  @keyframes iso-sel {
+    0%,
+    100% {
+      left: var(--x0);
+      top: var(--y0);
+      width: var(--w0);
+    }
+    34% {
+      left: var(--x1);
+      top: var(--y1);
+      width: var(--w1);
+    }
+    67% {
+      left: var(--x2);
+      top: var(--y2);
+      width: var(--w2);
+    }
+  }
+  /* the cursor in the formula bar */
+  .iso-sheet[data-open='1'] .iso-sheet-caret {
+    animation: iso-caret 1.05s steps(1, end) infinite;
+  }
+  @keyframes iso-caret {
+    50% {
+      opacity: 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-pm='root'][data-open='1'] .iso-lc,
+    [data-pm='root'][data-open='1'] .iso-fin-pulse,
+    [data-pm='book'][data-loop='1'] .iso-leaf,
+    .iso-sheet[data-open='1'] .iso-sheet-sel,
+    .iso-sheet[data-open='1'] .iso-sheet-caret {
+      animation: none;
+    }
+  }
+}

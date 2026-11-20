@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Stage 04 — Platform modules: hold / move / hold / move / hold, coupled rack focus, lid pop-ups, fade-only pills</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="shared/tokens.css">
+<style>
+  #stage { background: #d2dae8; }
+
+  /* ---- 3D world: orthographic (no perspective). #stage is the flat 2D boundary. ---- */
+  #focus { position: absolute; inset: 0; }
+  #world { position: absolute; left: 0; top: 0; width: 0; height: 0; transform-style: preserve-3d; }
+  .box   { position: absolute; transform-style: preserve-3d; }
+  .box .f { position: absolute; }
+  .plane { position: absolute; }
+
+  /* ---- floor: '+' lattice, pitch 0.24 W. Two copies cross-fade = cheap rack focus (no giant blur filter) ---- */
+  .floor { left: -4000px; top: -4000px; width: 8000px; height: 8000px; background-size: 202px 202px; }
+  .floor.sharp { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='202' height='202'><path d='M101 78V124M78 101H124' stroke='%238f98a6' stroke-width='2.4' fill='none' opacity='.85'/></svg>"); }
+  .floor.blur  { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='202' height='202'><defs><filter id='b' x='-100%' y='-100%' width='300%' height='300%'><feGaussianBlur stdDeviation='13'/></filter></defs><circle cx='101' cy='101' r='22' fill='%238f98a6' opacity='.30' filter='url(%23b)'/></svg>"); }
+  .floor.hair  { background-image:
+      linear-gradient(to right, rgba(70,90,130,.07) 2px, transparent 2px),
+      linear-gradient(to bottom, rgba(70,90,130,.07) 2px, transparent 2px);
+    background-size: 50.5px 50.5px; }
+  .glow { border-radius: 50%; background: radial-gradient(closest-side, rgba(190,60,90,.55), transparent); }
+
+  .shadow { filter: blur(13px); }
+  .shadow i { position: absolute; background: #4a5470; }
+
+  /* ---- card face (chat UI), laid out in card-local px (card = 842 x 832) ---- */
+  .ui { position: absolute; inset: 0; transform-style: preserve-3d; }
+  .ui > * { position: absolute; }
+  .who { font: 600 22px/26px var(--sans); color: #000; white-space: nowrap; }
+  .who span { font-weight: 400; color: #525252; margin-left: 18px; }
+  .bubble-slab { background: #97999d; border-radius: 24px 0 24px 24px; }
+  .bubble { background: #fcfcfd; border-radius: 24px 0 24px 24px; padding: 19px 46px;
+            font: 400 36px/42px var(--sans); color: #000; white-space: pre; }
+  .avatar { width: 57px; height: 57px; border-radius: 50%; background: #174fcb; }
+  .body { font: 400 35px/41.5px var(--sans); color: #000; white-space: pre; }
+
+  .inset { position: absolute; border: 1.5px solid rgba(0,0,0,.55); }
+  .inset.lt { border-color: rgba(255,255,255,.28); }
+
+  /* ---- label pills: screen-space overlay, constant size (never scaled by the camera) ---- */
+  #pills { position: absolute; inset: 0; pointer-events: none; }
+  /* clip 05 pills: transparent fill, 1.8 px #959da8 outline, 60 px tall, Plex Sans ~28 px, near-black text, OPACITY ONLY */
+  .pill { position: absolute; left: 0; top: 0; height: 60px; padding: 0 26px; display: flex; align-items: center;
+          border: 1.8px solid #959da8; border-radius: 30px; font: 400 28px/1 var(--sans); color: #010a13;
+          white-space: nowrap; background: transparent; opacity: 0; will-change: transform, opacity; }
+</style>
+</head>
+<body>
+<div id="host">
+  <div id="stage">
+    <div id="focus"><div id="world"></div></div>
+    <div id="pills"></div>
+  </div>
+</div>
+
+<script src="shared/stage.js"></script>
+<script>
+/* =====================================================================================
+   STAGE 04 — platform modules (clip 05). SAME WORLD as stage 02's final frame: the quadrant platform is tier 3 of the stack.
+   Camera rhythm:  HOLD (0-5) · MOVE 1 (3-63) · HOLD 1 (63-148) · MOVE 2 (149-211) · HOLD 2 (211-278).
+   Camera model = stage 02's (s, rotZ, elev, cx, cy).  Clip 05's azimuth is measured from the other axis:  rotZ = 91.4 - az.
+   Verified: edge angles at n0 / hold1 / end = (-40.8,22.3) / (-21.2,29.8) / (-19.0,34.8)  vs reported (40.9,22.4) / (31.0,-20.0) / (36.1,-18.1).
+   Rack focus is COUPLED to move 2.  Pills are opacity-only.  Source: references/motion-spec.md §Stage 04.
+   ===================================================================================== */
+const { ease, prog, lerp, clamp, $ } = Stage;
+const W = 842, CH = 832, RAD = Math.PI / 180;
+const FRAMES = 279;
+
+/* ---------- 1. CAMERA: measured keyframes -> monotone cubic interpolation ---------- */
+// Clip 05 table (n, zoomHero, azimuth, elevation) -> stage-02 camera (s, rotZ, elev, cx, cy).
+//   s    = card side in px = 364.5 * zoomHero          (clip 04's final card side is 364.5 px)
+//   rotZ = 91.4 - azimuth                              (clip 05 measures azimuth from the other axis; verified against edge angles)
+//   cx,cy = screen position of the world origin (card centre), SOLVED from measured geometry — NOT derived from the report's
+//          "frame-0 centre lands at" target, which is only valid while the orbit angles stay fixed:
+//            n0     (975, 334)  = clip 04's last frame (+17/+8 px reframe)
+//            hold 1 (706, 396)  solved from the hero platform's left/right/front vertices (145,622) (1265,553) (765,868): the three agree to 3 px
+//            hold 2 (151, 282)  solved from the data-box top face (1173,255)/(1310,155)/(1583,243)/(1450,342)
+//          Between holds the origin is interpolated in LOG-zoom so the move keeps one eased shape.
+const CAM05 = [[0,1.000,36.0,36.5],[12,1.040,36.4,36.1],[24,1.251,39.0,35.0],[30,1.483,42.3,33.4],[36,1.753,46.0,31.7],[48,2.097,50.5,29.0],
+  [63,2.179,52.0,28.1],[149,2.196,52.2,27.8],[162,2.287,52.5,28.0],[174,2.504,53.7,28.5],[186,2.756,55.0,29.0],[198,2.935,55.7,29.2],
+  [211,2.996,55.9,29.3],[278,2.994,56.2,29.3]];
+const S0 = 364.5;
+const ORG = { 0: [975, 334], 63: [706, 396], 149: [706, 396], 211: [151, 282], 278: [151, 282] };
+function originAt(n, z) {
+  const keys = [0, 63, 149, 211, 278]; let i = 0; while (i < keys.length - 2 && n > keys[i + 1]) i++;
+  const a = keys[i], b = keys[i + 1], za = CAM05.find(r => r[0] === a)[1], zb = CAM05.find(r => r[0] === b)[1];
+  const t = Math.abs(Math.log(zb) - Math.log(za)) < 1e-6 ? clamp((n - a) / (b - a)) : clamp((Math.log(z) - Math.log(za)) / (Math.log(zb) - Math.log(za)));
+  return [lerp(ORG[a][0], ORG[b][0], t), lerp(ORG[a][1], ORG[b][1], t)];
+}
+const CAM_KF = CAM05.map(([n, z, az, el]) => { const o = originAt(n, z); return [n, S0 * z, 91.4 - az, el, o[0], o[1]]; });
+function pchip(xs, ys) {                       // monotone cubic Hermite (no overshoot between samples)
+  const n = xs.length, h = [], d = [], m = [];
+  for (let i = 0; i < n - 1; i++) { h[i] = xs[i+1] - xs[i]; d[i] = (ys[i+1] - ys[i]) / h[i]; }
+  m[0] = d[0]; m[n-1] = d[n-2];
+  for (let i = 1; i < n - 1; i++) m[i] = d[i-1] * d[i] <= 0 ? 0 : 2 / (1 / d[i-1] + 1 / d[i]);
+  return (x) => {
+    if (x <= xs[0]) return ys[0]; if (x >= xs[n-1]) return ys[n-1];
+    let i = 0; while (x > xs[i+1]) i++;
+    const t = (x - xs[i]) / h[i], t2 = t * t, t3 = t2 * t;
+    return (2*t3 - 3*t2 + 1) * ys[i] + (t3 - 2*t2 + t) * h[i] * m[i] + (-2*t3 + 3*t2) * ys[i+1] + (t3 - t2) * h[i] * m[i+1];
+  };
+}
+const fx = CAM_KF.map(r => r[0]);
+const sCurve = pchip(fx, CAM_KF.map(r => Math.log(r[1]))), zCurve = pchip(fx, CAM_KF.map(r => r[2]));
+const eCurve = pchip(fx, CAM_KF.map(r => r[3])), xCurve = pchip(fx, CAM_KF.map(r => r[4])), yCurve = pchip(fx, CAM_KF.map(r => r[5]));
+const camAt = (f) => ({ s: Math.exp(sCurve(f)), rotZ: zCurve(f), elev: eCurve(f), cx: xCurve(f), cy: yCurve(f) });
+
+/** world point -> screen px (same math the browser applies to the CSS transform below) */
+function project(f, x, y, z) {
+  const c = camAt(f), S = c.s / W, th = c.rotZ * RAD, ph = (90 - c.elev) * RAD;
+  const xr = x * Math.cos(th) - y * Math.sin(th), yr = x * Math.sin(th) + y * Math.cos(th);
+  return [c.cx + S * xr, c.cy + S * (yr * Math.cos(ph) - z * Math.sin(ph))];
+}
+
+/* ---------- 2. LAYER CONFIG (one table — tune here) ---------- */
+// z = TOP surface height as a multiple of W (negative = below the card). Final values, provisional +-15%.
+// fp = frame the item's first pixels cross the bottom edge (measured); tau = settle time-constant in frames.
+const Z = { card: 0, t2: -0.13, t3: -0.28, glass: -0.33, integ: -0.68, osh: -0.97 };   // top-face depth below card top, in W (final pass, +-0.05)
+const FLOOR_Z = -1.07 * W;
+const CELL = { N: [-1, -1], E: [1, -1], W: [-1, 1], S: [1, 1] };   // 2x2 grid of half-size tiles; N/E/S/W = on-screen compass at yaw 45
+const ITEMS = [
+  // tier 2 -------------------------------------------------------------------------------------------------
+  { id: 'cora-chat',  cell: 'W', z: Z.t2, t: .045, fp: 37, tau: 14, top: '#8e8e8e', s: '#f9f9f9', e: '#bdbdbd' },
+  { id: 'neuralseek', cell: 'E', z: Z.t2, t: .045, fp: 40, tau: 14, top: '#232323', s: '#58595c', e: '#0b0b0d', lt: true },
+  { id: 'cora-broker',cell: 'S', z: Z.t2, t: .045, fp: 47, tau: 14, top: '#424242', s: '#6a6c71', e: '#0b0b0d', lt: true },
+  // tier 3 -------------------------------------------------------------------------------------------------
+  { id: 'watsonx-ai', cell: 'N', z: Z.t3, t: .045, fp: 52, tau: 14, top: '#5072c7', s: '#5c88eb', e: '#051b59', lt: true },
+  { id: 'cloud-pak',  cell: 'W', z: Z.t3, t: .045, fp: 57, tau: 14, top: 'linear-gradient(135deg,#bed0f6,#7589b1)', s: '#bed0f6', e: '#8499c6' },
+  { id: 'assistant-e',cell: 'E', z: Z.t3, t: .045, fp: 62, tau: 14, top: '#102a74', s: '#1d42a4', e: '#0e2360', lt: true },
+  { id: 'assistant-s',cell: 'S', z: Z.t3, t: .045, fp: 76, tau: 14, top: 'linear-gradient(135deg,#f5f5f8,#b0b6bf)', s: '#ffffff', e: '#d6dae2' },
+  // full-size plates ---------------------------------------------------------------------------------------
+  { id: 'glass',      full: true, glass: true, z: Z.glass, t: .06, fp: 83,  tau: 37, ref: [100, [[.22, 22], [.24, 30]], [[0.85, 83]]], top: 'linear-gradient(160deg,rgba(120,160,240,.62),rgba(70,110,225,.52) 55%,rgba(25,60,170,.62))',
+                      s: 'linear-gradient(#2c6af0,#0d2453)', e: 'linear-gradient(#2a5fc8,#0d2453)' },
+  { id: 'integration',full: true, z: Z.integ, t: .04, fp: 103, tau: 24, hex: true,
+                      top: 'linear-gradient(150deg,rgba(198,187,193,.96),rgba(125,122,140,.93) 50%,rgba(52,56,86,.95))', s: '#8a8088', e: '#5b5a6a' },
+  { id: 'openshift',  full: true, z: Z.osh, t: .025, fp: 125, tau: 14, ref: [144, [[.28, 12], [.04, 25]], [[1.35, 125]]], osh: true,
+                      top: 'linear-gradient(135deg,#e6e5eb,#ccc4cc)', s: 'linear-gradient(#aa4a60,#40151c)', e: 'linear-gradient(#8a3548,#2a0d13)' },
+];
+const D = 3 * W;                                   // every layer starts 3 card-widths below (off-screen)
+const lift = (it, f) => 0;   // stage 04: everything is already docked (clip 05 starts on clip 04's last frame)
+const _liftEntrance = (it, f) => {
+  if (it.ref) {
+    /* MEASURED. Two-term decay fitted to the report's series: excess(f) = sum A_i * exp(-(f - f0) / tau_i)  [W units].
+       The series only covers the visible part of the motion; before that the plate is below the frame. We extend it
+       backwards with the same curve until it reaches the entry height, and hold it at that height until `fp`
+       (the calibration step below picks the entry height so first pixels cross the bottom edge exactly on `fp`). */
+    const [f0, terms] = it.ref;
+    const curve = (t) => terms.reduce((acc, [A, tau]) => acc + A * Math.exp(-(t - f0) / tau), 0);
+    return Math.min(curve(f), it.entry) * W;   // note: a rising plate must never pass through the tier above it (see clipBelow)
+  }
+  const x = clamp((f - it.t0) / it.tau, 0, 6);    // CALIBRATED: starts D below, first pixels land on frame `fp`
+  return D * (Math.exp(-x) - Math.exp(-6)) / (1 - Math.exp(-6));
+};
+
+/* ---------- 3. BUILD THE SCENE ---------- */
+const world = $('#world');
+const el = (cls, css, parent) => { const d = document.createElement('div'); d.className = cls; if (css) d.style.cssText = css; (parent || world).appendChild(d); return d; };
+
+function mkBox({ w, h, t, x = 0, y = 0, top, s, e }) {
+  const b = el('box', `left:${x - w/2}px;top:${y - h/2}px;width:${w}px;height:${h}px`);
+  const T = el('f top', `left:0;top:0;width:${w}px;height:${h}px;background:${top};transform-style:preserve-3d`, b);
+  el('f s', `left:0;top:${h}px;width:${w}px;height:${t}px;transform-origin:0 0;transform:rotateX(-90deg);background:${s}`, b);
+  el('f e', `left:${w}px;top:0;width:${t}px;height:${h}px;transform-origin:0 0;transform:rotateY(90deg);background:${e}`, b);
+  return { el: b, T, x, y, w, h };
+}
+
+// floor (rack focus + hairline grid) and the cast-shadow container
+const floorBlur  = el('plane floor blur',  `transform:translateZ(${FLOOR_Z}px)`);
+const floorSharp = el('plane floor sharp', `transform:translateZ(${FLOOR_Z}px)`);
+const floorHair  = el('plane floor hair',  `transform:translateZ(${FLOOR_Z}px)`);
+const redGlow    = el('plane glow', `left:-520px;top:-520px;width:1040px;height:1040px;transform:translateZ(${FLOOR_Z + 1}px)`);
+const shadow     = el('plane shadow', `left:-1500px;top:-1500px;width:3000px;height:3000px;transform:translateZ(${FLOOR_Z + 2}px)`);
+
+// hex line-art for the Integration plate, envelope line-art for OpenShift
+const HEX = `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='156'><path d='M45 0L135 0L180 78L135 156L45 156L0 78Z M0 78H-45M180 78H225' stroke='%23ffffff' stroke-opacity='.16' stroke-width='1.2' fill='none'/></svg>")`;
+
+ITEMS.forEach((it) => {
+  const w = it.full ? W : W / 2, h = it.full ? CH : CH / 2;
+  const [cx, cy] = it.full ? [0, 0] : CELL[it.cell].map(k => k * W / 4);
+  Object.assign(it, { x: cx, y: cy, w, h, zTop: it.z * W, th: it.t * W });
+  const b = mkBox({ w, h, t: it.th, x: cx, y: cy, top: it.top, s: it.s, e: it.e });
+  it.box = b;
+  if (!it.full) el('inset' + (it.lt ? ' lt' : ''), `left:${w*.2}px;top:${h*.2}px;width:${w*.6}px;height:${h*.6}px`, b.T);
+  if (it.hex) el('', `position:absolute;inset:0;background:${HEX};background-size:180px 156px;opacity:1`, b.T);
+  if (it.glass) el('', `position:absolute;inset:0;border:6px solid #2f7bff;box-shadow:inset 0 0 26px rgba(70,140,255,.95),0 0 12px rgba(40,110,255,.8);`, b.T);
+  if (it.osh) el('', `position:absolute;inset:0;background:
+      linear-gradient(to bottom right,transparent calc(50% - .8px),rgba(170,60,80,.6) 50%,transparent calc(50% + .8px)),
+      linear-gradient(to top right,transparent calc(50% - .8px),rgba(120,120,135,.55) 50%,transparent calc(50% + .8px));
+      border:1.5px solid rgba(170,60,80,.55);margin:30px`, b.T);
+});
+
+// Paint order for translucent plates: browsers sort preserve-3d siblings by DOM order when depths overlap, so append
+// the deepest plate first and the nearest last (back-to-front). Tiers keep their relative order.
+ITEMS.slice().reverse().forEach(it => world.appendChild(it.box.el));
+
+// the card: top face carries the chat UI; bubble floats 8 px above it
+const card = mkBox({ w: W, h: CH, t: .012 * W, top: '#d9dde0', s: '#9a9aa0', e: '#6e6e74' });
+(function buildCardUI() {
+  const ui = el('ui', '', card.T);
+  el('who', 'left:465px;top:134px;width:302px;text-align:right', ui).innerHTML = 'Nigel<span>10:45</span>';
+  el('bubble-slab', 'left:196px;top:198px;width:615px;height:118px', ui);                       // grey offset slab (cast shadow)
+  const b = el('bubble', 'left:150px;top:178px;width:615px;height:118px;transform:translateZ(8px)', ui);
+  b.textContent = 'I lost my wallet. I need to cancel\nmy credit card';
+  el('avatar', 'left:71px;top:397px', ui);
+  el('who', 'left:157px;top:408px;color:#0043ce', ui).innerHTML = 'Cora+<span>10:45</span>';
+  el('body', 'left:157px;top:452px', ui).textContent = 'Hi Nigel, we’re sorry you lost your\nwallet and hope all is well otherwise.\n\nCan you confirm your card number is\n12XX XXXX XXXX 4567?';
+})();
+
+/* ---------- 4. ENTRANCE CALIBRATION ----------
+   For each layer, find the launch frame t0 so its top-most corner crosses the bottom edge of the frame exactly at the
+   measured first-pixel frame `fp`, given THIS camera. (Robust to tuning the camera / easing.) */
+
+/* ---------- 5. FLOOR SHADOW: stair-stepped silhouette, light from upper-left ---------- */
+const LIGHT = [0.5, -0.12];                              // local plane offset per px of height above the floor
+const SH_RECTS = [];                                      // [x, y, w, h, zTop]
+SH_RECTS.push([0, 0, W, CH, 0]);                          // card
+ITEMS.forEach(it => SH_RECTS.push([it.x, it.y, it.w, it.h, it.zTop]));
+SH_RECTS.forEach(([x, y, w, h, z]) => {
+  const hgt = z - FLOOR_Z, ox = LIGHT[0] * hgt, oy = LIGHT[1] * hgt;
+  el('', `left:${1500 + x - w/2 + ox}px;top:${1500 + y - h/2 + oy}px;width:${w}px;height:${h}px`, shadow).outerHTML;
+});
+Array.from(shadow.children).forEach(c => { c.style.position = 'absolute'; c.style.background = '#4a5470'; });
+
+/* ---------- 6. SIDE MODULES + CONNECTORS (f186-264) ---------- */
+const MOD_Z = FLOOR_Z + 0.16 * W;                          // hover ~0.1 W above its own shadow
+const db2 = mkBox({ w: W, h: W, t: .06 * W, x: 150, y: 1620,
+  top: 'linear-gradient(135deg,#8dadf3,#aec5f5 55%,#d5daeb)', s: '#a9bff0', e: '#7f9be0' });
+el('', `position:absolute;left:12%;top:12%;width:76%;height:76%;background:linear-gradient(135deg,rgba(255,255,255,.0),rgba(255,255,255,.35));clip-path:polygon(0 0,60% 0,100% 50%,60% 100%,0 100%,40% 50%)`, db2.T);
+el('', `position:absolute;left:30%;top:30%;width:40%;height:40%;background:rgba(255,255,255,.28);clip-path:polygon(0 0,55% 0,100% 50%,55% 100%,0 100%,45% 50%)`, db2.T);
+const ent = el('box', `left:${90 - W/2}px;top:${-1420 - W/2}px;width:${W}px;height:${W}px`);
+const ENT_PIECES = [[0, 0, .5, .5], [.5, 0, .5, .34], [.5, .34, .5, .33], [.5, .67, .5, .33], [0, .5, .3, .5], [.3, .5, .2, .5]].map(([a, b, c, d], i) => {
+  const p = el('box', `left:${a*W}px;top:${b*W}px;width:${c*W}px;height:${d*W}px`, ent);
+  el('f', `left:0;top:0;width:100%;height:100%;background:${i % 2 ? '#f4f4f6' : '#ececf0'};outline:1px solid #d7dbe6`, p);
+  el('f', `left:0;top:${d*W}px;width:${c*W}px;height:${.06*W}px;transform-origin:0 0;transform:rotateX(-90deg);background:#d1d8e7`, p);
+  el('f', `left:${c*W}px;top:0;width:${.06*W}px;height:${d*W}px;transform-origin:0 0;transform:rotateY(90deg);background:#727888`, p);
+  return { el: p, a, b, c, d, i };
+});
+const modShadow = [db2, { x: 90, y: -1420, w: W, h: W }].map(m =>
+  el('plane shadow', `left:${m.x - W*.55}px;top:${m.y - W*.55}px;width:${W*1.1}px;height:${W*1.1}px;transform:translateZ(${FLOOR_Z + 2}px);opacity:0`,
+     world)).map(s => { el('', `position:absolute;left:${W*.05+60}px;top:${W*.05+20}px;width:${W}px;height:${W}px;background:#4a5470`, s); return s; });
+const CONN = [[1, 'db2', '#1b3fa0', -42], [1, 'db2', '#8791a6', 42], [-1, 'ent', '#1b3fa0', -42], [-1, 'ent', '#8791a6', 42]].map(([dir, who, col, dx]) => {
+  const y0 = dir * 450, y1 = who === 'db2' ? 1620 - W/2 : -1420 + W/2, len = Math.abs(y1 - y0), top = Math.min(y0, y1);
+  const c = el('plane', `left:${(who === 'db2' ? 150 : 90) + dx - 1.5}px;top:${top}px;width:3px;height:${len}px;background:${col};transform:translateZ(${Z.osh * W - 8}px);transform-origin:50% ${dir > 0 ? '0%' : '100%'}`);
+  return { el: c, who, dir };
+});
+
+/* ---------- 7. MODULES: lids rise out of the tier-3 quadrant platform ---------- */
+// Measured (clip 05 S1): lid footprint ~0.34 L, glass-wall height ~0.20 L, lattice cube edge ~0.04 L at pitch ~0.077 L (4x4x4 = ~0.27 L span).
+// Here L = W (the platform is the card-sized square).  Cube/lid/wall values are therefore fractions of W.
+const T3 = (id) => ITEMS.find(i => i.id === id);
+const CUBE = .24 * W;                                        // module footprint. Solved: lid bbox 270 px wide at S1 vs 382 px at 0.34 W  =>  0.34 x 270/382
+const lidH = .20 * W;                                        // glass-wall height = lid lift
+// Wall construction is the SAME as a slab's side faces in stage 02 (proven): a face standing on an edge is a flat div laid in
+// the floor plane at that edge, then rotated up about the edge with transform-origin 0 0.
+// A slab's side faces hang DOWN from its top (rotate -90).  A module wall must stand UP from the cavity floor, so the sign flips.
+// VERIFIED by measuring the drawn rects for all sign combinations (no mirror flips): rotateX(+90deg) for S/N walls, rotateY(-90deg) for E/W walls.
+//   south edge: top:C  rotateX(+90deg) with origin on the edge  -> the face swings up toward +z
+//   north edge: top:0  rotateX(+90deg)   east edge: left:C rotateY(-90deg)   west edge: left:0 rotateY(-90deg)
+function wall(parent, side, C, H, bg) {
+  const st = { S: `left:0;top:${C}px;width:${C}px;height:${H}px;transform-origin:0 0;transform:rotateX(90deg)`,
+               N: `left:0;top:0;width:${C}px;height:${H}px;transform-origin:0 0;transform:rotateX(90deg)`,
+               E: `left:${C}px;top:0;width:${H}px;height:${C}px;transform-origin:0 0;transform:rotateY(-90deg)`,
+               W: `left:0;top:0;width:${H}px;height:${C}px;transform-origin:0 0;transform:rotateY(-90deg)` }[side];
+  return el('f', `${st};background:${bg};border:1.2px solid rgba(255,255,255,.55);opacity:0`, parent);
+}
+function buildModule(tile, lidColor) {
+  const root = el('box', `left:${tile.x - CUBE/2}px;top:${tile.y - CUBE/2}px;width:${CUBE}px;height:${CUBE}px;transform:translateZ(${tile.zTop + 1}px)`);
+  const cav = el('f', `left:${CUBE*.04}px;top:${CUBE*.04}px;width:${CUBE*.92}px;height:${CUBE*.92}px;background:#04102c;opacity:0`, root);   // near-black cavity floor
+  const g = 'linear-gradient(180deg,rgba(215,228,255,.34),rgba(160,185,250,.10))';
+  const walls = ['S', 'E', 'N', 'W'].map(sd => wall(root, sd, CUBE, lidH, g));
+  const lid = el('box', `left:0;top:0;width:${CUBE}px;height:${CUBE}px;transform:translateZ(0px)`, root);
+  el('f', `left:0;top:0;width:${CUBE}px;height:${CUBE}px;background:${lidColor};box-shadow:0 0 0 1.5px rgba(10,25,80,.5), inset 0 0 0 2px rgba(140,180,255,.55)`, lid);
+  return { root, cav, walls, lid, baseZ: tile.zTop };
+}
+const modLat = buildModule(T3('watsonx-ai'), '#4f7df0');     // lid uses exactly its quadrant colour (mid-blue)
+const modBar = buildModule(T3('assistant-e'), '#28439f');    // deep-blue
+// bars (module 2): 3 thin vertical white bars + 1 large front pane that cycle up/down (~40 f loop); grow from the cavity floor, 1-2 f stagger
+const BARS = [[.22, .12, .07, .62], [.40, .12, .07, .62], [.58, .12, .07, .62], [.30, .30, .40, .50]].map(([bx, by, bw, bh], i) => {
+  const b = el('box', `left:${bx * CUBE}px;top:${by * CUBE}px;width:${bw * CUBE}px;height:${bh * CUBE}px;transform:translateZ(${CUBE * .02}px)`, modBar.root);
+  el('f', `left:0;top:0;width:100%;height:100%;background:${i < 3 ? '#eef6ff' : 'linear-gradient(135deg,#c4d1fe,#7fa0f2)'};box-shadow:0 0 8px rgba(200,225,255,.9)`, b);
+  return b;
+});
+// lattice (module 1): 4x4x4 small cubes (edge 0.04 W, pitch 0.077 W) well INSIDE the walls, revealed under the rising lid; green <-> blue wave L->R
+const GREEN = [[96, 222, 130], [58, 178, 92], [34, 132, 62]], BLUE = [[116, 176, 255], [66, 126, 238], [36, 84, 204]];
+const mixc = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
+const CS = .11 * CUBE, PITCH = .20 * CUBE, SPAN = 3 * PITCH + CS, OFF = (CUBE - SPAN) / 2;   // measured at S1: cube edge 30 px, pitch 62 px, lid 270 px  =>  0.11 / 0.23 of the footprint (0.20 keeps all 4 inside the walls)
+const LAT = [];
+for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) for (let k = 0; k < 4; k++) {
+  const g = el('box', `left:${OFF + i * PITCH}px;top:${OFF + j * PITCH}px;width:${CS}px;height:${CS}px;transform:translateZ(${.01 * W + k * PITCH * 1.0}px);display:none`, modLat.root);
+  const fs = [el('f', `left:0;top:0;width:${CS}px;height:${CS}px`, g), el('f', `left:0;top:${CS}px;width:${CS}px;height:${CS}px;transform-origin:0 0;transform:rotateX(-90deg)`, g), el('f', `left:${CS}px;top:0;width:${CS}px;height:${CS}px;transform-origin:0 0;transform:rotateY(90deg)`, g)];
+  LAT.push({ g, fs, xn: i / 3, k });
+}
+
+/* ---------- 8. DATA BOX on the Enterprise-data platform (far plane) ---------- */
+const BOXH = .18 * W, BOXS = .27 * W;
+const entP = { x: 90, y: -1420 };                               // Enterprise data slab centre (stage 02)
+const dataBox = el('box', `left:${entP.x - BOXS/2 + 40}px;top:${entP.y - BOXS/2 - 40}px;width:${BOXS}px;height:${BOXS}px;transform:translateZ(${MOD_Z}px)`);
+const dbLid = el('f', `left:0;top:0;width:${BOXS}px;height:${BOXS}px;background:#f2f3f7;transform:translateZ(0px)`, dataBox);
+const dbS = el('f', `left:0;top:${BOXS}px;width:${BOXS}px;height:${BOXH}px;transform-origin:0 0;transform:rotateX(-90deg);background:linear-gradient(90deg,#1d3a8f,#2a4ea9 60%,#1a2f78);overflow:hidden`, dataBox);
+const dbE = el('f', `left:${BOXS}px;top:0;width:${BOXS}px;height:${BOXH}px;transform-origin:0 0;transform:rotateY(90deg) rotate(90deg);background:linear-gradient(90deg,#16296b,#1c3a8e)`, dataBox);
+[[.08,.2,.4,.2],[.5,.1,.4,.25],[.15,.55,.3,.2],[.55,.58,.35,.22]].forEach(([a,b,c,d]) => el('', `position:absolute;left:${a*100}%;top:${b*100}%;width:${c*100}%;height:${d*100}%;background:#5070b9;opacity:.8`, dbS));
+
+/* ---------- 9. PILLS: screen-space, OPACITY ONLY, transparent fill, 60 px tall ---------- */
+const PILLS = [
+  { t: 'Foundational model', mod: modLat, in: 72,  out: 128 },
+  { t: 'Watson Discovery',   mod: modBar, in: 72,  out: 128 },
+  { t: 'Data source',        box: true,    in: 175, out: 266, tail: 275 },
+];
+const pillHost = $('#pills');
+PILLS.forEach(p => { p.el = document.createElement('div'); p.el.className = 'pill'; p.el.textContent = p.t; pillHost.appendChild(p.el); });
+
+/* connector dash: loops along the (static) connector, travelling toward the hero, period 8.67 f, first launch n65 */
+const dash = el('plane', `left:0;top:0;width:41px;height:8px;border-radius:4px;background:#fff;box-shadow:0 0 6px rgba(255,255,255,.95);transform:translateZ(${Z.osh * W - 6}px)`);
+const DASH_A = [90 + 42, -1420 + W / 2], DASH_B = [150 + 42, 1620 - W / 2];          // Enterprise-data end -> hero end (local plane coords)
+
+/* ---------- 8. RENDER(frame) ---------- */
+const lerpc = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
+const sharpKF = [[36, 0], [39, .04], [45, .12], [48, .7], [51, 1]];
+const sharpAt = (f) => { if (f <= 36) return 0; if (f >= 51) return 1;
+  for (let i = 1; i < sharpKF.length; i++) if (f <= sharpKF[i][0]) { const [a, va] = sharpKF[i-1], [b, vb] = sharpKF[i]; return va + (vb - va) * (f - a) / (b - a); } };
+
+function render(f) {
+  const c = camAt(f), S = c.s / W;
+  world.style.left = c.cx + 'px'; world.style.top = c.cy + 'px';
+  world.style.transform = `scale(${S}) rotateX(${90 - c.elev}deg) rotateZ(${c.rotZ}deg)`;
+
+  // the card is already at its final brightness (clip 04 end)
+  card.T.style.background = `linear-gradient(135deg, rgb(232,236,239), rgb(246,248,250))`;
+  /* During MOVE 1 the group ABOVE the hero platform (card + tier 2) separates upward and leaves through the top of the frame
+     (clip 05: 'the card / black plate exit the top of frame as zoom exceeds 1.4x'; card top edge leaves at n27, text out by n34).
+     The clip gives no lift amount — it only has to clear the frame — so this is an ease-in rise of ~2.2 W that is out of shot by n34. */
+  const rise = 2.2 * W * ease.inOut(clamp((f - 3) / 40));
+  card.el.style.transform = `translateZ(${rise}px)`;
+  ITEMS.forEach(it => { const above = ['cora-chat', 'neuralseek', 'cora-broker'].includes(it.id); it.box.el.style.transform = `translateZ(${it.zTop + (above ? rise * .9 : 0)}px)`; });
+
+  // floor is crisp for the whole clip; the minor grid fades in as the camera closes in (n15-40)
+  floorSharp.style.opacity = 1; floorBlur.style.opacity = 0; floorHair.style.opacity = prog(f, 15, 40, ease.out);
+  shadow.style.opacity = .4; redGlow.style.opacity = .55;
+  db2.el.style.transform = `translateZ(${MOD_Z}px)`; modShadow[0].style.opacity = .4; modShadow[1].style.opacity = .4;
+  ENT_PIECES.forEach(p => { p.el.style.transform = `translate3d(0,0,${MOD_Z}px)`; });
+  CONN.forEach(cn => { cn.el.style.transform = `translateZ(${Z.osh * W - 8}px) scaleY(1)`; });
+
+  renderModules(f, c);
+}
+const decel = Stage.bezier(0, 0, .3, 1);
+const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a)); return t * t * (3 - 2 * t); };
+function renderModules(f, c) {
+  // rack focus, COUPLED to move 2: hero 0.8 -> 7.2 px, far plane 4.1 -> 1.7 px; the two cross at ~3 px around n180
+  const hs = f < 164 ? .8 : lerp(.8, 7.2, ease.inOut(clamp((f - 164) / 41)));
+  const fs = f < 30 ? 1.4 : f < 70 ? lerp(1.4, 4.1, clamp((f - 30) / 40)) : f < 159 ? 4.1 : lerp(4.1, 1.7, ease.inOut(clamp((f - 159) / 40)));
+  $('#focus').style.filter = hs < .3 ? 'none' : `blur(${hs}px)`;   // on the wrapper — a CSS filter on #world itself would flatten the whole 3D scene
+  void fs;                                                   // far-plane blur is a second layer in the Three.js version; see notes
+
+  // module lids: flatten outline -> lid rises (decelerating) -> glass walls fade in -> contents grow from the floor
+  const L2 = decel(clamp((f - 44) / 14)), L1 = decel(clamp((f - 60) / 13));
+  modBar.lid.style.transform = `translateZ(${L2 * lidH}px)`; modLat.lid.style.transform = `translateZ(${L1 * lidH}px)`;
+  const g2 = prog(f, 46, 58, ease.out), g1 = prog(f, 56, 70, ease.out);
+  [modBar.cav, ...modBar.walls].forEach(e => e.style.opacity = g2); [modLat.cav, ...modLat.walls].forEach(e => e.style.opacity = g1);
+  BARS.forEach((b, i) => { const g = decel(clamp((f - (53 + i * 1.5)) / 9)); b.style.opacity = g > 0 ? 1 : 0; b.style.transformOrigin = '50% 100%'; b.style.transform = `translateZ(${CUBE * .02}px) scaleY(${.001 + g * .999})`; });
+  const reveal = decel(clamp((f - 60) / 16));
+  const phase = f < 113 ? 0 : f < 129 ? 1 : f < 153 ? 2 : f < 170 ? 3 : f < 238 ? 4 : f < 249 ? 5 : 6;     // green, G->B, blue, B->G, green, G->B, blue
+  LAT.forEach(cu => {
+    cu.g.style.display = reveal > (cu.k / 4) * .6 && f >= 60 ? 'block' : 'none';
+    const sweep = (a, b) => smooth(cu.xn - .15, cu.xn + .15, clamp((f - a) / (b - a)) * 1.3 - .15);
+    const t = [0, sweep(113, 129), 1, 1 - sweep(153, 170), 0, sweep(238, 249), 1][phase];
+    cu.fs.forEach((e, i) => e.style.background = `rgb(${mixc(GREEN[i], BLUE[i], t).join(',')})`);
+  });
+
+  // data box on the Enterprise-data platform: outline -> slab -> walls extrude
+  const bx = decel(clamp((f - 68) / 12));
+  dataBox.style.opacity = f < 66 ? 0 : 1;
+  dbLid.style.transform = `translateZ(${bx * BOXH}px)`; dbS.style.height = `${Math.max(.01, bx * BOXH)}px`; dbE.style.height = `${Math.max(.01, bx * BOXH)}px`;
+
+  // connector dash (period 8.67 f; do not lock to 24 fps)
+  if (f >= 65) { const ph = ((f - 65) % 8.67) / 8.67; dash.style.opacity = 1; dash.style.left = `${lerp(DASH_A[0], DASH_B[0], ph)}px`; dash.style.top = `${lerp(DASH_A[1], DASH_B[1], ph)}px`; } else dash.style.opacity = 0;
+
+  // pills: opacity only (11 f in, hold, 11 f out), anchored to the projected module lid; size constant in px
+  PILLS.forEach(p => {
+    const a = clamp((f - p.in) / 11) * (1 - clamp((f - p.out) / 11));
+    p.el.style.opacity = a;
+    if (a <= 0.001) return;
+    let pt;
+    if (p.mod) pt = project(f, p.mod.root.__x ?? (p.mod === modLat ? T3('watsonx-ai').x : T3('assistant-e').x) + CUBE / 2, (p.mod === modLat ? T3('watsonx-ai').y : T3('assistant-e').y) - CUBE / 2, p.mod.baseZ + lidH);
+    else pt = project(f, entP.x + 40, entP.y - 40, MOD_Z + BOXH);
+    const x = p.box ? pt[0] + 150 : pt[0] + 14, y = p.box ? pt[1] - 70 : pt[1] - 6;
+    p.el.style.transform = `translate(${clamp(x, 30, 1700)}px,${clamp(y, 40, 1040)}px) translate(0,-50%)`;
+  });
+}
+
+Stage.mount({ frames: FRAMES, render });
+</script>
+</body>
+</html>
